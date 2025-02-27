@@ -1,0 +1,7 @@
+*.csv
+*.xlsx
+*.pdf
+plaid_client.py
+.idea
+__pycache__/
+*.db
