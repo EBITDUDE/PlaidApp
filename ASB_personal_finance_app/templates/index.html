@@ -37,6 +37,9 @@
             background-color: #f2f2f2;
             position: sticky;
             top: 0;
+            z-index: 10;
+            /* Fix for header transparency */
+            box-shadow: 0 1px 0 #ddd;
         }
         tr:nth-child(even) {
             background-color: #f9f9f9;
@@ -119,6 +122,125 @@
         }
         .delete-btn:hover {
             background-color: #ff3333 !important;
+        }
+        
+        /* Income text color */
+        .income-amount {
+            color: #357D40;
+        }
+        
+        /* View toggle styles */
+        .view-toggle {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        .view-toggle label {
+            margin-right: 10px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 26px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #3498db;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(34px);
+        }
+        
+        /* Compact view styles */
+        .compact-view th, .compact-view td {
+            padding: 5px 8px;
+            font-size: 0.9em;
+        }
+        .compact-view .account-card {
+            padding: 10px;
+            width: 220px;
+        }
+        .compact-view .container {
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+        .compact-view h2 {
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        
+        /* Date picker styling */
+        .date-picker {
+            position: relative;
+        }
+        .calendar {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 100;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            padding: 10px;
+            display: none;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        .calendar-day {
+            text-align: center;
+            padding: 6px;
+            cursor: pointer;
+        }
+        .calendar-day:hover {
+            background-color: #f0f0f0;
+        }
+        .calendar-day.selected {
+            background-color: #3498db;
+            color: white;
+        }
+        .calendar-day.other-month {
+            color: #aaa;
+        }
+        .calendar-weekday {
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
         }
         
         /* Table responsiveness */
@@ -209,6 +331,15 @@
                 </select>
             </div>
             
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <label for="view-toggle">Compact View:</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="view-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
             <!-- Add Transaction Button -->
             <button id="add-transaction-btn" style="margin-left: auto; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px;">
                 Add Transaction
@@ -221,8 +352,10 @@
                 <tr>
                     <th>Date</th>
                     <th>Amount</th>
+                    <th>Type</th>
                     <th>Category</th>
                     <th>Merchant</th>
+                    <th>Account</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -236,7 +369,28 @@
                 <form id="add-transaction-form" style="display: flex; flex-direction: column; gap: 10px;">
                     <div>
                         <label for="new-date">Date:</label>
-                        <input type="text" id="new-date" placeholder="MM/DD/YYYY" required style="width: 100%; padding: 5px;">
+                        <div class="date-picker">
+                            <input type="text" id="new-date" placeholder="MM/DD/YYYY" required style="width: 100%; padding: 5px;" readonly>
+                            <div id="new-date-calendar" class="calendar">
+                                <div class="calendar-header">
+                                    <button type="button" id="prev-month" style="padding: 2px 5px;">&lt;</button>
+                                    <span id="calendar-month-year">February 2025</span>
+                                    <button type="button" id="next-month" style="padding: 2px 5px;">&gt;</button>
+                                </div>
+                                <div class="calendar-weekdays calendar-grid">
+                                    <div class="calendar-weekday">Su</div>
+                                    <div class="calendar-weekday">Mo</div>
+                                    <div class="calendar-weekday">Tu</div>
+                                    <div class="calendar-weekday">We</div>
+                                    <div class="calendar-weekday">Th</div>
+                                    <div class="calendar-weekday">Fr</div>
+                                    <div class="calendar-weekday">Sa</div>
+                                </div>
+                                <div id="calendar-days" class="calendar-grid">
+                                    <!-- Calendar days will be generated here -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <label for="new-amount">Amount:</label>
@@ -304,20 +458,135 @@
         document.getElementById('type-filter').addEventListener('change', applyFilters);
         document.getElementById('transaction-search').addEventListener('keyup', applyFilters);
         
+        // Setup compact view toggle
+        const viewToggle = document.getElementById('view-toggle');
+        viewToggle.addEventListener('change', function() {
+            const isCompact = this.checked;
+            document.body.classList.toggle('compact-view', isCompact);
+            
+            // Store preference for next time
+            localStorage.setItem('compact-view', isCompact);
+        });
+        
+        // Load saved view preference
+        if (localStorage.getItem('compact-view') === 'true') {
+            viewToggle.checked = true;
+            document.body.classList.add('compact-view');
+        }
+        
+        // Setup calendar for date picker
+        const dateInput = document.getElementById('new-date');
+        const dateCalendar = document.getElementById('new-date-calendar');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
+        const calendarMonthYear = document.getElementById('calendar-month-year');
+        const calendarDays = document.getElementById('calendar-days');
+        
+        let currentDate = new Date();
+        let calendarDate = new Date();
+        
+        // Show calendar when clicking date input
+        dateInput.addEventListener('click', function() {
+            dateCalendar.style.display = 'block';
+            updateCalendar();
+        });
+        
+        // Hide calendar when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dateInput.contains(e.target) && !dateCalendar.contains(e.target)) {
+                dateCalendar.style.display = 'none';
+            }
+        });
+        
+        // Month navigation
+        prevMonthBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            calendarDate.setMonth(calendarDate.getMonth() - 1);
+            updateCalendar();
+        });
+        
+        nextMonthBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            calendarDate.setMonth(calendarDate.getMonth() + 1);
+            updateCalendar();
+        });
+        
+        // Generate and update calendar
+        function updateCalendar() {
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+            
+            // Update header
+            calendarMonthYear.textContent = `${calendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
+            
+            // Clear previous days
+            calendarDays.innerHTML = '';
+            
+            // Get first day of month and last day
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // Get day of week for first day (0 = Sunday)
+            const firstDayOfWeek = firstDay.getDay();
+            
+            // Add days from previous month
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.classList.add('calendar-day', 'other-month');
+                dayDiv.textContent = prevMonthLastDay - firstDayOfWeek + i + 1;
+                calendarDays.appendChild(dayDiv);
+            }
+            
+            // Add days of current month
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.classList.add('calendar-day');
+                dayDiv.textContent = i;
+                
+                // Check if this is today
+                const thisDate = new Date(year, month, i);
+                if (thisDate.toDateString() === new Date().toDateString()) {
+                    dayDiv.style.fontWeight = 'bold';
+                }
+                
+                // Select this day
+                dayDiv.addEventListener('click', function() {
+                    const selectedDate = new Date(year, month, i);
+                    const formattedDate = `${(month + 1).toString().padStart(2, '0')}/${i.toString().padStart(2, '0')}/${year}`;
+                    dateInput.value = formattedDate;
+                    dateCalendar.style.display = 'none';
+                });
+                
+                calendarDays.appendChild(dayDiv);
+            }
+            
+            // Add days from next month
+            const daysAdded = firstDayOfWeek + lastDay.getDate();
+            const nextMonthDays = Math.max(0, 42 - daysAdded); // 6 rows of 7 days = 42
+            for (let i = 1; i <= nextMonthDays; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.classList.add('calendar-day', 'other-month');
+                dayDiv.textContent = i;
+                calendarDays.appendChild(dayDiv);
+            }
+        }
+        
+        // Pre-fill date with today's date
+        const today = new Date();
+        const formattedToday = `${(today.getMonth()+1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
+        dateInput.value = formattedToday;
+        
         // Setup add transaction modal
         const addTransactionBtn = document.getElementById('add-transaction-btn');
         const addTransactionModal = document.getElementById('add-transaction-modal');
         const cancelAddTransaction = document.getElementById('cancel-add-transaction');
         const addTransactionForm = document.getElementById('add-transaction-form');
         
-        // Pre-fill date with today's date
-        const today = new Date();
-        const formattedToday = `${(today.getMonth()+1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
-        document.getElementById('new-date').value = formattedToday;
-        
         // Show modal
         addTransactionBtn.addEventListener('click', function() {
             addTransactionModal.style.display = 'block';
+            updateCalendar(); // Initialize calendar
         });
         
         // Hide modal
@@ -504,30 +773,45 @@
                     accountDropdown.appendChild(option);
                 });
                 
+                // Get account names map
+                const accountNames = {};
+                transactions.forEach(tx => {
+                    if (tx.account_id) {
+                        // Create a short display version if full name not available
+                        accountNames[tx.account_id] = tx.account_name || `Account ${tx.account_id.substring(0, 8)}...`;
+                    }
+                });
+                
                 // Clear and populate the transaction table
                 txTable.innerHTML = '';
-                transactions.forEach(tx => {
+                transactions.forEach((tx, index) => {
                     const row = document.createElement('tr');
                     row.setAttribute('data-id', tx.id);
                     row.setAttribute('data-category', tx.category);
                     row.setAttribute('data-date', tx.date);
                     row.setAttribute('data-type', tx.is_debit ? 'expense' : 'income');
                     
-                    // Sign for amount (debit is expense (negative), credit is income (positive))
-                    const amountDisplay = tx.is_debit ? 
-                        `-$${tx.amount.toFixed(2)}` : 
-                        `$${tx.amount.toFixed(2)}`;
+                    // Format amount - always positive, with +/- sign depending on type
+                    const isIncome = !tx.is_debit;
+                    const amountPrefix = isIncome ? '+' : '';
+                    const amountDisplay = `${amountPrefix}$${tx.amount.toFixed(2)}`;
+                    const amountClass = isIncome ? 'income-amount' : '';
                     
-                    // Mark manual transactions with a different style
-                    if (tx.manual) {
-                        row.style.backgroundColor = '#f8f8f8';
-                    }
+                    // Display the correct transaction type
+                    const typeDisplay = isIncome ? 'Income' : 'Expense';
+                    
+                    // Account display
+                    const accountDisplay = tx.account_id ? 
+                        accountNames[tx.account_id] || 'Unknown Account' : 
+                        'No Account';
                     
                     row.innerHTML = `
                         <td class="editable" data-field="date">${tx.date}</td>
-                        <td class="editable" data-field="amount" data-is-debit="${tx.is_debit}">${amountDisplay}</td>
+                        <td class="editable ${amountClass}" data-field="amount" data-is-debit="${tx.is_debit}">${amountDisplay}</td>
+                        <td>${typeDisplay}</td>
                         <td class="editable" data-field="category">${tx.category}</td>
                         <td class="editable" data-field="merchant">${tx.merchant}</td>
+                        <td>${accountDisplay}</td>
                         <td>
                             <button class="delete-btn" style="background-color: #ff4d4d; color: white; border: none; padding: 2px 5px; cursor: pointer; border-radius: 3px;">Delete</button>
                         </td>
@@ -547,19 +831,199 @@
                         let newValue;
                         
                         // Different handling for different field types
-                        if (field === 'amount') {
+                        if (field === 'date') {
+                            // For date field, show calendar picker
+                            const dateInput = document.createElement('input');
+                            dateInput.type = 'text';
+                            dateInput.value = currentValue;
+                            dateInput.style.width = '100%';
+                            dateInput.readOnly = true;
+                            
+                            // Replace cell content with date input
+                            const originalContent = this.innerHTML;
+                            this.innerHTML = '';
+                            this.appendChild(dateInput);
+                            
+                            // Create calendar popup
+                            const calendarDiv = document.createElement('div');
+                            calendarDiv.className = 'calendar';
+                            calendarDiv.style.display = 'block';
+                            this.appendChild(calendarDiv);
+                            
+                            // Calendar header
+                            const headerDiv = document.createElement('div');
+                            headerDiv.className = 'calendar-header';
+                            
+                            const prevBtn = document.createElement('button');
+                            prevBtn.type = 'button';
+                            prevBtn.textContent = '<';
+                            prevBtn.style.padding = '2px 5px';
+                            
+                            const monthYearSpan = document.createElement('span');
+                            
+                            const nextBtn = document.createElement('button');
+                            nextBtn.type = 'button';
+                            nextBtn.textContent = '>';
+                            nextBtn.style.padding = '2px 5px';
+                            
+                            headerDiv.appendChild(prevBtn);
+                            headerDiv.appendChild(monthYearSpan);
+                            headerDiv.appendChild(nextBtn);
+                            calendarDiv.appendChild(headerDiv);
+                            
+                            // Calendar weekdays
+                            const weekdaysDiv = document.createElement('div');
+                            weekdaysDiv.className = 'calendar-weekdays calendar-grid';
+                            
+                            ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(day => {
+                                const dayDiv = document.createElement('div');
+                                dayDiv.className = 'calendar-weekday';
+                                dayDiv.textContent = day;
+                                weekdaysDiv.appendChild(dayDiv);
+                            });
+                            
+                            calendarDiv.appendChild(weekdaysDiv);
+                            
+                            // Calendar days container
+                            const daysDiv = document.createElement('div');
+                            daysDiv.className = 'calendar-grid';
+                            calendarDiv.appendChild(daysDiv);
+                            
+                            // Parse current date
+                            const dateParts = currentValue.split('/');
+                            let calendarDate = new Date();
+                            if (dateParts.length === 3) {
+                                const month = parseInt(dateParts[0]) - 1;
+                                const day = parseInt(dateParts[1]);
+                                const year = parseInt(dateParts[2]);
+                                calendarDate = new Date(year, month, 1);
+                            }
+                            
+                            // Update calendar function
+                            function updateEditCalendar() {
+                                const year = calendarDate.getFullYear();
+                                const month = calendarDate.getMonth();
+                                
+                                // Update header
+                                monthYearSpan.textContent = `${calendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
+                                
+                                // Clear previous days
+                                daysDiv.innerHTML = '';
+                                
+                                // Get first day of month and last day
+                                const firstDay = new Date(year, month, 1);
+                                const lastDay = new Date(year, month + 1, 0);
+                                
+                                // Get day of week for first day (0 = Sunday)
+                                const firstDayOfWeek = firstDay.getDay();
+                                
+                                // Add days from previous month
+                                const prevMonthLastDay = new Date(year, month, 0).getDate();
+                                for (let i = 0; i < firstDayOfWeek; i++) {
+                                    const dayDiv = document.createElement('div');
+                                    dayDiv.classList.add('calendar-day', 'other-month');
+                                    dayDiv.textContent = prevMonthLastDay - firstDayOfWeek + i + 1;
+                                    daysDiv.appendChild(dayDiv);
+                                }
+                                
+                                // Add days of current month
+                                for (let i = 1; i <= lastDay.getDate(); i++) {
+                                    const dayDiv = document.createElement('div');
+                                    dayDiv.classList.add('calendar-day');
+                                    dayDiv.textContent = i;
+                                    
+                                    // Select this day
+                                    dayDiv.addEventListener('click', function() {
+                                        const selectedDate = new Date(year, month, i);
+                                        const formattedDate = `${(month + 1).toString().padStart(2, '0')}/${i.toString().padStart(2, '0')}/${year}`;
+                                        
+                                        // Update the server
+                                        fetch('/update_transaction', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                id: txId,
+                                                date: formattedDate
+                                            })
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            console.log('Transaction date updated:', data);
+                                            // Restore cell with new value
+                                            cell.innerHTML = formattedDate;
+                                            // Refresh transactions
+                                            loadTransactions();
+                                        })
+                                        .catch(err => {
+                                            console.error('Error updating date:', err);
+                                            // Restore original content on error
+                                            cell.innerHTML = originalContent;
+                                            alert('Error updating date: ' + err.message);
+                                        });
+                                    });
+                                    
+                                    daysDiv.appendChild(dayDiv);
+                                }
+                                
+                                // Add days from next month to fill the grid
+                                const daysAdded = firstDayOfWeek + lastDay.getDate();
+                                const nextMonthDays = Math.max(0, 42 - daysAdded); // 6 rows of 7 days = 42
+                                for (let i = 1; i <= nextMonthDays; i++) {
+                                    const dayDiv = document.createElement('div');
+                                    dayDiv.classList.add('calendar-day', 'other-month');
+                                    dayDiv.textContent = i;
+                                    daysDiv.appendChild(dayDiv);
+                                }
+                            }
+                            
+                            // Initialize calendar
+                            updateEditCalendar();
+                            
+                            // Month navigation
+                            prevBtn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                calendarDate.setMonth(calendarDate.getMonth() - 1);
+                                updateEditCalendar();
+                            });
+                            
+                            nextBtn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                calendarDate.setMonth(calendarDate.getMonth() + 1);
+                                updateEditCalendar();
+                            });
+                            
+                            // Close calendar if clicking elsewhere
+                            const handleOutsideClick = function(e) {
+                                if (!cell.contains(e.target)) {
+                                    cell.innerHTML = originalContent;
+                                    document.removeEventListener('click', handleOutsideClick);
+                                }
+                            };
+                            
+                            setTimeout(() => {
+                                document.addEventListener('click', handleOutsideClick);
+                            }, 0);
+                            
+                        } else if (field === 'amount') {
                             // For amount, remove the currency symbol and sign
                             const numericValue = currentValue.replace(/[^0-9.]/g, '');
                             const isDebit = this.dataset.isDebit === 'true';
                             newValue = prompt(`Edit amount (no $ needed):`, numericValue);
                             
                             if (newValue !== null && newValue !== numericValue) {
-                                // Format for display
-                                const formattedValue = isDebit ? 
-                                    `-$${parseFloat(newValue).toFixed(2)}` : 
-                                    `$${parseFloat(newValue).toFixed(2)}`;
+                                // Format for display - now always positive with sign prefix for income
+                                const isIncome = !isDebit;
+                                const amountPrefix = isIncome ? '+' : '';
+                                const formattedValue = `${amountPrefix}${parseFloat(newValue).toFixed(2)}`;
                                 
                                 this.textContent = formattedValue;
+                                if (isIncome) {
+                                    this.classList.add('income-amount');
+                                } else {
+                                    this.classList.remove('income-amount');
+                                }
                                 
                                 // Prepare for server
                                 fetch('/update_transaction', {
@@ -619,8 +1083,29 @@
                             const row = this.closest('tr');
                             const txId = row.dataset.id;
                             
-                            // Not implementing delete functionality yet
-                            alert('Delete functionality will be implemented in the future');
+                            // Send delete request to server
+                            fetch('/delete_transaction', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: txId })
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Server error: ' + response.statusText);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log('Transaction deleted:', data);
+                                // Remove row from table
+                                row.remove();
+                                // Refresh transactions to update totals
+                                loadTransactions();
+                            })
+                            .catch(err => {
+                                console.error('Error deleting transaction:', err);
+                                alert('Error deleting transaction: ' + err.message);
+                            });
                         }
                     });
                 });

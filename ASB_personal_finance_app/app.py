@@ -252,12 +252,23 @@ def get_transactions():
                     # Generate a unique ID for the transaction if it doesn't have one
                     tx_id = tx.get('transaction_id', str(uuid.uuid4()))
                     
+                    # Skip transactions marked as deleted
+                    if tx_id in saved_transactions and saved_transactions[tx_id].get('deleted', False):
+                        continue
+                    
                     # Default values from Plaid
                     category = tx['category'][0] if tx['category'] else 'Uncategorized'
                     merchant = tx['name']
                     date_str = tx['date']
                     amount = abs(float(tx['amount']))
                     is_debit = float(tx['amount']) > 0
+                    
+                    # Get the account name if available
+                    account_name = None
+                    for account in response.get('accounts', []):
+                        if account.get('account_id') == tx.get('account_id'):
+                            account_name = account.get('name')
+                            break
                     
                     # Check if we have saved modifications for this transaction
                     if tx_id in saved_transactions:
@@ -296,6 +307,7 @@ def get_transactions():
                         'merchant': merchant,
                         'category': category,
                         'account_id': tx.get('account_id', ''),
+                        'account_name': account_name,
                         'manual': False
                     })
             except Exception as e:
@@ -305,8 +317,8 @@ def get_transactions():
         
         # Add manual transactions from saved_transactions
         for tx_id, tx_data in saved_transactions.items():
-            # Only process entries that are marked as manual transactions
-            if tx_data.get('manual', False):
+            # Only process entries that are marked as manual transactions and not deleted
+            if tx_data.get('manual', False) and not tx_data.get('deleted', False):
                 try:
                     # Format the date for display
                     date_str = tx_data.get('date')
@@ -325,6 +337,7 @@ def get_transactions():
                         'merchant': tx_data.get('merchant', 'Unknown'),
                         'category': tx_data.get('category', 'Uncategorized'),
                         'account_id': tx_data.get('account_id', ''),
+                        'account_name': tx_data.get('account_name', ''),
                         'manual': True
                     })
                 except Exception as e:
@@ -528,6 +541,46 @@ def add_transaction():
         logger.error(f"Manual transaction creation error: {str(e)}")
         logger.error(traceback.format_exc())
         return jsonify({'error': 'Failed to create transaction', 'details': str(e)}), 500
+
+# Route to delete a transaction
+@app.route('/delete_transaction', methods=['POST'])
+def delete_transaction():
+    try:
+        tx_data = request.json
+        tx_id = tx_data.get('id')
+        
+        if not tx_id:
+            logger.error("Transaction deletion failed: No ID provided")
+            return jsonify({'error': 'Transaction ID is required'}), 400
+        
+        # Load saved transactions
+        saved_transactions = load_saved_transactions()
+        
+        # If this is a manually added transaction, remove it completely
+        if tx_id.startswith('manual-') and tx_id in saved_transactions:
+            # For manual transactions, we remove the entire entry
+            if saved_transactions[tx_id].get('manual', False):
+                del saved_transactions[tx_id]
+                logger.info(f"Manual transaction {tx_id} deleted")
+            else:
+                logger.warning(f"Attempted to delete non-manual transaction as manual: {tx_id}")
+                return jsonify({'error': 'Invalid transaction ID'}), 400
+        else:
+            # For Plaid transactions, we can't actually delete them from the source
+            # So we mark them as deleted in our saved transactions
+            if tx_id not in saved_transactions:
+                saved_transactions[tx_id] = {}
+            
+            saved_transactions[tx_id]['deleted'] = True
+            logger.info(f"Plaid transaction {tx_id} marked as deleted")
+        
+        # Save the updated transactions
+        save_transactions(saved_transactions)
+        
+        return jsonify({'message': 'Transaction deleted successfully'})
+    except Exception as e:
+        logger.error(f"Transaction deletion error: {str(e)}")
+        logger.error(traceback.format_exc())
 
 # Route to view logs
 @app.route('/logs')
