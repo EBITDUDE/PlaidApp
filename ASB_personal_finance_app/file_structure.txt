@@ -1,0 +1,10 @@
+/your_project_directory/
+├── app.py                 (Main Flask application)
+├── plaid_client.py        (Your existing Plaid client)
+├── templates/             (Directory for HTML templates)
+│   ├── index.html         (Corrected main page)
+│   └── log_viewer.html    (Log viewer page)
+└── simple_test/           (Created automatically)
+    ├── tokens.json        (Stores access tokens)
+    ├── transactions.json  (Stores transaction modifications)
+    └── finance_app.log    (Application logs)

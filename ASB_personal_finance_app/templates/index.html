@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Finance App</title>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: #f8f8f8;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #e0e0e0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+        .editable {
+            position: relative;
+        }
+        .editable:hover {
+            background-color: #e6f7ff;
+            cursor: pointer;
+        }
+        .editable:hover::after {
+            content: "✏️";
+            position: absolute;
+            right: 5px;
+            opacity: 0.5;
+        }
+        .container {
+            margin-bottom: 40px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .accounts-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .account-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            width: 220px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            background-color: #fff;
+        }
+        .account-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .account-card h3 {
+            margin-top: 0;
+            color: #3498db;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        input[type="text"], select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .filter-dropdown {
+            display: inline-block;
+        }
+        .filter-dropdown label {
+            margin-right: 5px;
+        }
+        #add-transaction-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-weight: bold;
+        }
+        #add-transaction-btn:hover {
+            background-color: #45a049;
+        }
+        .delete-btn:hover {
+            background-color: #ff3333 !important;
+        }
+        
+        /* Table responsiveness */
+        @media screen and (max-width: 768px) {
+            .accounts-container {
+                justify-content: center;
+            }
+            .account-card {
+                width: 100%;
+                max-width: 300px;
+            }
+            .controls-container {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+            .filter-dropdown {
+                margin-bottom: 10px;
+                width: 100%;
+            }
+            #add-transaction-btn {
+                width: 100%;
+            }
+        }
+        
+        /* Loading indicator */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>My Finance App</h1>
+    
+    <div class="buttons-container">
+        <button id="link-button">Connect a Bank Account</button>
+        <button id="transactions-button" style="display:none;">Refresh Transactions</button>
+    </div>
+    
+    <div id="accounts-section" class="container" style="display:none;">
+        <h2>Connected Accounts</h2>
+        <div id="accounts-container" class="accounts-container"></div>
+    </div>
+    
+    <div id="transactions-section" class="container" style="display:none;">
+        <h2>Transactions</h2>
+        
+        <!-- Transaction Controls -->
+        <div class="controls-container" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <!-- Search Box -->
+            <input type="text" id="transaction-search" placeholder="Search transactions..." style="padding: 5px; width: 250px;">
+            
+            <!-- Filters -->
+            <div class="filter-dropdown" style="margin-right: 10px;">
+                <label for="date-filter">Date Range:</label>
+                <select id="date-filter" style="padding: 5px;">
+                    <option value="all">All Time</option>
+                    <option value="30">Last 30 Days</option>
+                    <option value="90">Last 90 Days</option>
+                    <option value="180">Last 180 Days</option>
+                    <option value="365">Last Year</option>
+                </select>
+            </div>
+            
+            <div class="filter-dropdown" style="margin-right: 10px;">
+                <label for="category-filter">Category:</label>
+                <select id="category-filter" style="padding: 5px;">
+                    <option value="all">All Categories</option>
+                    <!-- Categories will be populated dynamically -->
+                </select>
+            </div>
+            
+            <div class="filter-dropdown" style="margin-right: 10px;">
+                <label for="type-filter">Type:</label>
+                <select id="type-filter" style="padding: 5px;">
+                    <option value="all">All Types</option>
+                    <option value="expense">Expenses</option>
+                    <option value="income">Income</option>
+                </select>
+            </div>
+            
+            <!-- Add Transaction Button -->
+            <button id="add-transaction-btn" style="margin-left: auto; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px;">
+                Add Transaction
+            </button>
+        </div>
+        
+        <!-- Transactions Table -->
+        <table id="transactions-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Merchant</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="transactions-body"></tbody>
+        </table>
+        
+        <!-- Add Transaction Modal -->
+        <div id="add-transaction-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+            <div style="background-color: white; margin: 10% auto; padding: 20px; width: 50%; border-radius: 5px; max-width: 500px;">
+                <h3>Add New Transaction</h3>
+                <form id="add-transaction-form" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                        <label for="new-date">Date:</label>
+                        <input type="text" id="new-date" placeholder="MM/DD/YYYY" required style="width: 100%; padding: 5px;">
+                    </div>
+                    <div>
+                        <label for="new-amount">Amount:</label>
+                        <input type="text" id="new-amount" placeholder="0.00" required style="width: 100%; padding: 5px;">
+                    </div>
+                    <div>
+                        <label for="new-type">Type:</label>
+                        <select id="new-type" required style="width: 100%; padding: 5px;">
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="new-category">Category:</label>
+                        <input type="text" id="new-category" required style="width: 100%; padding: 5px;">
+                    </div>
+                    <div>
+                        <label for="new-merchant">Merchant:</label>
+                        <input type="text" id="new-merchant" required style="width: 100%; padding: 5px;">
+                    </div>
+                    <div>
+                        <label for="new-account">Account:</label>
+                        <select id="new-account" style="width: 100%; padding: 5px;">
+                            <option value="">No Account</option>
+                            <!-- Account options will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="cancel-add-transaction" style="padding: 5px 15px;">Cancel</button>
+                        <button type="submit" style="padding: 5px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="monthly-category-section" class="container" style="display:none;">
+        <h2>Monthly Category Totals</h2>
+        <table id="monthly-category-table">
+            <thead id="monthly-category-header">
+                <tr>
+                    <th>Category</th>
+                </tr>
+            </thead>
+            <tbody id="monthly-category-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if an access token exists on page load
+        fetch('/has_access_token')
+            .then(response => response.json())
+            .then(data => {
+                if (data.has_token) {
+                    document.getElementById('transactions-button').style.display = 'block';
+                    loadAccounts();
+                    loadTransactions();
+                }
+            });
+            
+        // Set up filter change handlers
+        document.getElementById('date-filter').addEventListener('change', applyFilters);
+        document.getElementById('category-filter').addEventListener('change', applyFilters);
+        document.getElementById('type-filter').addEventListener('change', applyFilters);
+        document.getElementById('transaction-search').addEventListener('keyup', applyFilters);
+        
+        // Setup add transaction modal
+        const addTransactionBtn = document.getElementById('add-transaction-btn');
+        const addTransactionModal = document.getElementById('add-transaction-modal');
+        const cancelAddTransaction = document.getElementById('cancel-add-transaction');
+        const addTransactionForm = document.getElementById('add-transaction-form');
+        
+        // Pre-fill date with today's date
+        const today = new Date();
+        const formattedToday = `${(today.getMonth()+1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
+        document.getElementById('new-date').value = formattedToday;
+        
+        // Show modal
+        addTransactionBtn.addEventListener('click', function() {
+            addTransactionModal.style.display = 'block';
+        });
+        
+        // Hide modal
+        cancelAddTransaction.addEventListener('click', function() {
+            addTransactionModal.style.display = 'none';
+        });
+        
+        // Close modal if clicked outside
+        window.addEventListener('click', function(event) {
+            if (event.target === addTransactionModal) {
+                addTransactionModal.style.display = 'none';
+            }
+        });
+        
+        // Handle form submission
+        addTransactionForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const newDate = document.getElementById('new-date').value;
+            const newAmount = document.getElementById('new-amount').value;
+            const newType = document.getElementById('new-type').value;
+            const newCategory = document.getElementById('new-category').value;
+            const newMerchant = document.getElementById('new-merchant').value;
+            const newAccount = document.getElementById('new-account').value;
+            
+            // Validate inputs
+            if (!newDate || !newAmount || !newCategory || !newMerchant) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Determine if it's a debit based on the type
+            const isDebit = newType === 'expense';
+            
+            // Create transaction object
+            const transaction = {
+                date: newDate,
+                amount: newAmount,
+                is_debit: isDebit,
+                category: newCategory,
+                merchant: newMerchant,
+                account_id: newAccount
+            };
+            
+            // Send to server
+            fetch('/add_transaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(transaction)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Server error: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Transaction added:', data);
+                // Reset form
+                document.getElementById('new-amount').value = '';
+                document.getElementById('new-category').value = '';
+                document.getElementById('new-merchant').value = '';
+                // Hide modal
+                addTransactionModal.style.display = 'none';
+                // Refresh transactions
+                loadTransactions();
+            })
+            .catch(err => {
+                console.error('Error adding transaction:', err);
+                alert('Error adding transaction: ' + err.message);
+            });
+        });
+
+        // Set up Plaid Link
+        fetch('/create_link_token')
+            .then(response => response.json())
+            .then(data => {
+                const handler = Plaid.create({
+                    token: data.link_token,
+                    onSuccess: (public_token, metadata) => {
+                        fetch('/exchange_public_token', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ public_token: public_token })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Access Token:', data.access_token);
+                            alert('Bank account connected!');
+                            document.getElementById('transactions-button').style.display = 'block';
+                            loadAccounts();
+                            loadTransactions();
+                        });
+                    },
+                    onExit: (err, metadata) => {
+                        console.log('User exited:', err);
+                    }
+                });
+
+                document.getElementById('link-button').onclick = () => {
+                    handler.open();
+                };
+            });
+
+        // Fetch and display accounts
+        function loadAccounts() {
+            fetch('/get_accounts')
+                .then(response => response.json())
+                .then(data => {
+                    const accountsContainer = document.getElementById('accounts-container');
+                    if (data.error) {
+                        accountsContainer.innerHTML = 'Error: ' + data.error;
+                    } else {
+                        const accounts = data.accounts;
+                        
+                        if (accounts.length > 0) {
+                            document.getElementById('accounts-section').style.display = 'block';
+                            
+                            accountsContainer.innerHTML = '';
+                            accounts.forEach(account => {
+                                const accountCard = document.createElement('div');
+                                accountCard.className = 'account-card';
+                                
+                                const availableBalance = account.balance.available !== null ? 
+                                    `$${account.balance.available.toFixed(2)}` : 'N/A';
+                                    
+                                accountCard.innerHTML = `
+                                    <h3>${account.name}</h3>
+                                    <p>Type: ${account.type}${account.subtype ? ' - ' + account.subtype : ''}</p>
+                                    <p>Current Balance: $${account.balance.current.toFixed(2)}</p>
+                                    <p>Available Balance: ${availableBalance}</p>
+                                `;
+                                
+                                accountsContainer.appendChild(accountCard);
+                            });
+                        }
+                    }
+                });
+        }
+        
+        // Fetch and display transactions
+        function loadTransactions() {
+            fetch('/get_transactions')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                    } else {
+                        displayTransactions(data.transactions);
+                        displayMonthlyCategoryTotals(data.monthly_category_totals, data.months);
+                    }
+                });
+        }
+        
+        // Display transactions in a table with advanced features
+        function displayTransactions(transactions) {
+            const txTable = document.getElementById('transactions-body');
+            const txSection = document.getElementById('transactions-section');
+            const categoryFilter = document.getElementById('category-filter');
+            
+            if (transactions.length > 0) {
+                txSection.style.display = 'block';
+                
+                // Populate the category filter dropdown
+                const categories = [...new Set(transactions.map(tx => tx.category))].sort();
+                categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categoryFilter.appendChild(option);
+                });
+                
+                // Populate account dropdown for new transactions
+                const accounts = [...new Set(transactions
+                    .filter(tx => tx.account_id)
+                    .map(tx => tx.account_id))];
+                const accountDropdown = document.getElementById('new-account');
+                accountDropdown.innerHTML = '<option value="">No Account</option>';
+                accounts.forEach(accountId => {
+                    const option = document.createElement('option');
+                    option.value = accountId;
+                    option.textContent = `Account ${accountId.substring(0, 8)}...`;
+                    accountDropdown.appendChild(option);
+                });
+                
+                // Clear and populate the transaction table
+                txTable.innerHTML = '';
+                transactions.forEach(tx => {
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-id', tx.id);
+                    row.setAttribute('data-category', tx.category);
+                    row.setAttribute('data-date', tx.date);
+                    row.setAttribute('data-type', tx.is_debit ? 'expense' : 'income');
+                    
+                    // Sign for amount (debit is expense (negative), credit is income (positive))
+                    const amountDisplay = tx.is_debit ? 
+                        `-$${tx.amount.toFixed(2)}` : 
+                        `$${tx.amount.toFixed(2)}`;
+                    
+                    // Mark manual transactions with a different style
+                    if (tx.manual) {
+                        row.style.backgroundColor = '#f8f8f8';
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="editable" data-field="date">${tx.date}</td>
+                        <td class="editable" data-field="amount" data-is-debit="${tx.is_debit}">${amountDisplay}</td>
+                        <td class="editable" data-field="category">${tx.category}</td>
+                        <td class="editable" data-field="merchant">${tx.merchant}</td>
+                        <td>
+                            <button class="delete-btn" style="background-color: #ff4d4d; color: white; border: none; padding: 2px 5px; cursor: pointer; border-radius: 3px;">Delete</button>
+                        </td>
+                    `;
+                    
+                    txTable.appendChild(row);
+                });
+                
+                // Add event listeners for editable cells
+                document.querySelectorAll('.editable').forEach(cell => {
+                    cell.addEventListener('click', function() {
+                        const currentValue = this.textContent;
+                        const field = this.dataset.field;
+                        const row = this.parentElement;
+                        const txId = row.dataset.id;
+                        
+                        let newValue;
+                        
+                        // Different handling for different field types
+                        if (field === 'amount') {
+                            // For amount, remove the currency symbol and sign
+                            const numericValue = currentValue.replace(/[^0-9.]/g, '');
+                            const isDebit = this.dataset.isDebit === 'true';
+                            newValue = prompt(`Edit amount (no $ needed):`, numericValue);
+                            
+                            if (newValue !== null && newValue !== numericValue) {
+                                // Format for display
+                                const formattedValue = isDebit ? 
+                                    `-$${parseFloat(newValue).toFixed(2)}` : 
+                                    `$${parseFloat(newValue).toFixed(2)}`;
+                                
+                                this.textContent = formattedValue;
+                                
+                                // Prepare for server
+                                fetch('/update_transaction', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        id: txId,
+                                        amount: newValue,
+                                        is_debit: isDebit
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log('Transaction updated:', data);
+                                    loadTransactions();
+                                })
+                                .catch(err => {
+                                    console.error('Error updating transaction:', err);
+                                    alert('Error updating transaction: ' + err.message);
+                                });
+                            }
+                        } else {
+                            // Standard handling for other fields
+                            newValue = prompt(`Edit ${field}:`, currentValue);
+                            
+                            if (newValue !== null && newValue !== currentValue) {
+                                this.textContent = newValue;
+                                
+                                // Save the change
+                                fetch('/update_transaction', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        id: txId,
+                                        [field]: newValue
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log('Transaction updated:', data);
+                                    // Refresh transactions to see updated category totals
+                                    loadTransactions();
+                                })
+                                .catch(err => {
+                                    console.error('Error updating transaction:', err);
+                                    alert('Error updating transaction: ' + err.message);
+                                });
+                            }
+                        }
+                    });
+                });
+                
+                // Add delete button functionality
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        if (confirm('Are you sure you want to delete this transaction?')) {
+                            const row = this.closest('tr');
+                            const txId = row.dataset.id;
+                            
+                            // Not implementing delete functionality yet
+                            alert('Delete functionality will be implemented in the future');
+                        }
+                    });
+                });
+                
+                // Apply filters
+                applyFilters();
+            }
+        }
+        
+        // Function to apply all filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('transaction-search').value.toLowerCase();
+            const dateFilter = document.getElementById('date-filter').value;
+            const categoryFilter = document.getElementById('category-filter').value;
+            const typeFilter = document.getElementById('type-filter').value;
+            
+            // Calculate date threshold for date filter
+            let dateThreshold = null;
+            if (dateFilter !== 'all') {
+                const days = parseInt(dateFilter);
+                dateThreshold = new Date();
+                dateThreshold.setDate(dateThreshold.getDate() - days);
+            }
+            
+            document.querySelectorAll('#transactions-body tr').forEach(row => {
+                let showRow = true;
+                
+                // Text search
+                if (searchTerm) {
+                    const text = row.textContent.toLowerCase();
+                    if (!text.includes(searchTerm)) {
+                        showRow = false;
+                    }
+                }
+                
+                // Category filter
+                if (showRow && categoryFilter !== 'all') {
+                    if (row.dataset.category !== categoryFilter) {
+                        showRow = false;
+                    }
+                }
+                
+                // Type filter
+                if (showRow && typeFilter !== 'all') {
+                    if (row.dataset.type !== typeFilter) {
+                        showRow = false;
+                    }
+                }
+                
+                // Date filter
+                if (showRow && dateThreshold) {
+                    const txDate = new Date(row.dataset.date);
+                    if (txDate < dateThreshold) {
+                        showRow = false;
+                    }
+                }
+                
+                row.style.display = showRow ? '' : 'none';
+            });
+        }
+        
+        // Display monthly category totals
+        function displayMonthlyCategoryTotals(categoryTotals, months) {
+            const tableHeader = document.getElementById('monthly-category-header').querySelector('tr');
+            const tableBody = document.getElementById('monthly-category-body');
+            const tableSection = document.getElementById('monthly-category-section');
+            
+            if (categoryTotals.length > 0) {
+                tableSection.style.display = 'block';
+                
+                // Clear existing headers except the first one (Category)
+                while (tableHeader.children.length > 1) {
+                    tableHeader.removeChild(tableHeader.lastChild);
+                }
+                
+                // Add month headers
+                months.forEach(month => {
+                    const th = document.createElement('th');
+                    th.textContent = month;
+                    tableHeader.appendChild(th);
+                });
+                
+                // Add category rows
+                tableBody.innerHTML = '';
+                categoryTotals.forEach(row => {
+                    const tr = document.createElement('tr');
+                    
+                    // Add category name
+                    const categoryCell = document.createElement('td');
+                    categoryCell.textContent = row.category;
+                    tr.appendChild(categoryCell);
+                    
+                    // Add amounts for each month
+                    months.forEach(month => {
+                        const td = document.createElement('td');
+                        td.textContent = row[month] || '$0.00';
+                        tr.appendChild(td);
+                    });
+                    
+                    tableBody.appendChild(tr);
+                });
+            }
+        }
+        
+        // Refresh transactions button
+        document.getElementById('transactions-button').addEventListener('click', function() {
+            loadAccounts();
+            loadTransactions();
+        });
+    });
+    </script>
+</body>
+</html>

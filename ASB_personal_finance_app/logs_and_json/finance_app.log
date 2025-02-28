@@ -1,0 +1,83 @@
+2025-02-28 10:04:51,686 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-28 10:04:51,687 [INFO] [33mPress CTRL+C to quit[0m
+2025-02-28 10:04:51,703 [INFO]  * Restarting with watchdog (windowsapi)
+2025-02-28 10:04:52,744 [WARNING]  * Debugger is active!
+2025-02-28 10:04:52,747 [INFO]  * Debugger PIN: 109-758-015
+2025-02-28 10:04:58,914 [INFO] 127.0.0.1 - - [28/Feb/2025 10:04:58] "GET / HTTP/1.1" 200 -
+2025-02-28 10:04:59,227 [INFO] 127.0.0.1 - - [28/Feb/2025 10:04:59] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 10:04:59,411 [INFO] Fetching transactions from Plaid
+2025-02-28 10:04:59,472 [INFO] Link token created successfully
+2025-02-28 10:04:59,472 [INFO] 127.0.0.1 - - [28/Feb/2025 10:04:59] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 10:04:59,873 [DEBUG] Number of accounts: 4
+2025-02-28 10:04:59,873 [DEBUG] Processing account 0
+2025-02-28 10:04:59,873 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 10:04:59,874 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 10:04:59,874 [DEBUG] Processing account 1
+2025-02-28 10:04:59,874 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 10:04:59,874 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 10:04:59,874 [DEBUG] Processing account 2
+2025-02-28 10:04:59,875 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 10:04:59,875 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 10:04:59,875 [DEBUG] Processing account 3
+2025-02-28 10:04:59,875 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 10:04:59,875 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 10:04:59,875 [INFO] Retrieved 4 accounts
+2025-02-28 10:04:59,876 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 10:04:59,876 [INFO] 127.0.0.1 - - [28/Feb/2025 10:04:59] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 10:05:00,137 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 10:05:00,138 [INFO] Total transactions: 42
+2025-02-28 10:05:00,139 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:00] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 10:05:01,337 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:01] "GET /logs HTTP/1.1" 200 -
+2025-02-28 10:05:01,469 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:01] "GET /api/logs HTTP/1.1" 200 -
+2025-02-28 10:05:04,462 [INFO] Fetching transactions from Plaid
+2025-02-28 10:05:04,700 [DEBUG] Number of accounts: 4
+2025-02-28 10:05:04,700 [DEBUG] Processing account 0
+2025-02-28 10:05:04,701 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 10:05:04,701 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 10:05:04,702 [DEBUG] Processing account 1
+2025-02-28 10:05:04,702 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 10:05:04,703 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 10:05:04,704 [DEBUG] Processing account 2
+2025-02-28 10:05:04,704 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 10:05:04,704 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 10:05:04,705 [DEBUG] Processing account 3
+2025-02-28 10:05:04,705 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 10:05:04,705 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 10:05:04,705 [INFO] Retrieved 4 accounts
+2025-02-28 10:05:04,706 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 10:05:04,706 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:04] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 10:05:05,006 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 10:05:05,007 [INFO] Total transactions: 42
+2025-02-28 10:05:05,009 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:05] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 10:05:09,092 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:09] "GET /api/logs HTTP/1.1" 200 -
+2025-02-28 10:05:15,182 [INFO] Transaction 8rxPrxv57LfwrA66GZbvhB5yWNGnqnCWJ9yxz updated successfully
+2025-02-28 10:05:15,183 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:15] "POST /update_transaction HTTP/1.1" 200 -
+2025-02-28 10:05:15,275 [INFO] Fetching transactions from Plaid
+2025-02-28 10:05:15,914 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 10:05:15,916 [INFO] Total transactions: 42
+2025-02-28 10:05:15,917 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:15] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 10:05:19,320 [INFO] Transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB updated successfully
+2025-02-28 10:05:19,321 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:19] "POST /update_transaction HTTP/1.1" 200 -
+2025-02-28 10:05:19,425 [INFO] Fetching transactions from Plaid
+2025-02-28 10:05:20,120 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 10:05:20,122 [INFO] Total transactions: 42
+2025-02-28 10:05:20,123 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:20] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 10:05:22,823 [INFO] Transaction mKewKea4NphE6lyykVpNSey1bJBoMohgQ157G updated successfully
+2025-02-28 10:05:22,824 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:22] "POST /update_transaction HTTP/1.1" 200 -
+2025-02-28 10:05:22,959 [INFO] Fetching transactions from Plaid
+2025-02-28 10:05:23,595 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 10:05:23,596 [INFO] Total transactions: 42
+2025-02-28 10:05:23,598 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:23] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 10:05:31,398 [INFO] Transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW updated successfully
+2025-02-28 10:05:31,399 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:31] "POST /update_transaction HTTP/1.1" 200 -
+2025-02-28 10:05:31,497 [INFO] Fetching transactions from Plaid
+2025-02-28 10:05:32,086 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 10:05:32,086 [INFO] Total transactions: 42
+2025-02-28 10:05:32,089 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:32] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 10:05:40,834 [INFO] Transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW updated successfully
+2025-02-28 10:05:40,835 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:40] "POST /update_transaction HTTP/1.1" 200 -
+2025-02-28 10:05:40,957 [INFO] Fetching transactions from Plaid
+2025-02-28 10:05:41,566 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 10:05:41,567 [INFO] Total transactions: 42
+2025-02-28 10:05:41,569 [INFO] 127.0.0.1 - - [28/Feb/2025 10:05:41] "GET /get_transactions HTTP/1.1" 200 -
