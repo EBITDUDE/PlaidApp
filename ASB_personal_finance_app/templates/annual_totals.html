@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Annual Category Totals - My Finance App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .container {
+            margin-bottom: 40px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 1px 0 #ddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+        .nav-button {
+            display: inline-block;
+            padding: 8px 15px;
+            margin-right: 10px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        .nav-button:hover {
+            background-color: #2980b9;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Annual Category Totals</h1>
+    
+    <div class="nav-buttons">
+        <a href="/" class="nav-button">Back to Dashboard</a>
+        <a href="/categories" class="nav-button">Manage Categories</a>
+        <button id="refresh-button" class="nav-button">Refresh Data</button>
+    </div>
+    
+    <div class="container">
+        <h2>Annual Category Totals</h2>
+        <p>This table shows your spending and income by category for each year, plus a Last 12 Months (LTM) column.</p>
+        
+        <div id="loading-indicator">
+            Loading annual data... <div class="loading"></div>
+        </div>
+        
+        <table id="annual-table" style="display: none;">
+            <thead id="annual-header">
+                <tr>
+                    <th>Category</th>
+                </tr>
+            </thead>
+            <tbody id="annual-body"></tbody>
+        </table>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load annual totals
+            loadAnnualTotals();
+            
+            // Refresh button handler
+            document.getElementById('refresh-button').addEventListener('click', loadAnnualTotals);
+        });
+        
+        function loadAnnualTotals() {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const annualTable = document.getElementById('annual-table');
+            
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            annualTable.style.display = 'none';
+            
+            fetch('/get_annual_totals')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        loadingIndicator.textContent = 'Error: ' + data.error;
+                    } else {
+                        loadingIndicator.style.display = 'none';
+                        annualTable.style.display = 'table';
+                        
+                        displayAnnualTotals(data.annual_category_totals, data.years);
+                    }
+                })
+                .catch(err => {
+                    loadingIndicator.textContent = 'Error loading data: ' + err.message;
+                    console.error('Error loading annual totals:', err);
+                });
+        }
+        
+        function displayAnnualTotals(categoryTotals, years) {
+            const tableHeader = document.getElementById('annual-header').querySelector('tr');
+            const tableBody = document.getElementById('annual-body');
+            
+            // Clear existing headers except the first one (Category)
+            while (tableHeader.children.length > 1) {
+                tableHeader.removeChild(tableHeader.lastChild);
+            }
+            
+            // Add year headers
+            years.forEach(year => {
+                const th = document.createElement('th');
+                th.textContent = year;
+                tableHeader.appendChild(th);
+            });
+            
+            // Add category rows
+            tableBody.innerHTML = '';
+            
+            if (categoryTotals.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="${years.length + 1}">No data available</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            categoryTotals.forEach(row => {
+                const tr = document.createElement('tr');
+                
+                // Add category name
+                const categoryCell = document.createElement('td');
+                categoryCell.textContent = row.category;
+                tr.appendChild(categoryCell);
+                
+                // Add amounts for each year
+                years.forEach(year => {
+                    const td = document.createElement('td');
+                    td.textContent = row[year] || '$0.00';
+                    
+                    // Add color coding based on value
+                    const value = parseFloat((row[year] || '$0.00').replace(/[\$,]/g, ''));
+                    if (value < 0) {
+                        // Red for negative values (expenses)
+                        td.style.color = '#e74c3c';
+                    } else if (value > 0) {
+                        // Green for positive values (income)
+                        td.style.color = '#27ae60';
+                    }
+                    
+                    tr.appendChild(td);
+                });
+                
+                tableBody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>

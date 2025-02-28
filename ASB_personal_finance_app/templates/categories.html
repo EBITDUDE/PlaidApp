@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Category Management - My Finance App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .container {
+            margin-bottom: 40px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+        .nav-button {
+            display: inline-block;
+            padding: 8px 15px;
+            margin-right: 10px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        .nav-button:hover {
+            background-color: #2980b9;
+        }
+        .add-form {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .add-form input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+        .add-form button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-form button:hover {
+            background-color: #45a049;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Category Management</h1>
+    
+    <div class="nav-buttons">
+        <a href="/" class="nav-button">Back to Dashboard</a>
+        <a href="/annual_totals" class="nav-button">Annual Category Totals</a>
+    </div>
+    
+    <div class="container">
+        <h2>Add New Category</h2>
+        <div class="add-form">
+            <input type="text" id="new-category" placeholder="Enter category name">
+            <button id="add-category-btn">Add Category</button>
+        </div>
+        
+        <h2>Existing Categories</h2>
+        <div id="loading-indicator">Loading categories...</div>
+        <table id="categories-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Category Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="categories-body"></tbody>
+        </table>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load categories
+            loadCategories();
+            
+            // Add category button handler
+            document.getElementById('add-category-btn').addEventListener('click', addCategory);
+            
+            // Add category on Enter key
+            document.getElementById('new-category').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addCategory();
+                }
+            });
+        });
+        
+        function loadCategories() {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const categoriesTable = document.getElementById('categories-table');
+            
+            fetch('/get_categories')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        loadingIndicator.textContent = 'Error loading categories: ' + data.error;
+                    } else {
+                        loadingIndicator.style.display = 'none';
+                        categoriesTable.style.display = 'table';
+                        
+                        const categories = data.categories;
+                        displayCategories(categories);
+                    }
+                })
+                .catch(err => {
+                    loadingIndicator.textContent = 'Error loading categories: ' + err.message;
+                    console.error('Error loading categories:', err);
+                });
+        }
+        
+        function displayCategories(categories) {
+            const tbody = document.getElementById('categories-body');
+            tbody.innerHTML = '';
+            
+            if (categories.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="2">No categories found. Add your first category above.</td>';
+                tbody.appendChild(row);
+                return;
+            }
+            
+            categories.forEach(category => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${category}</td>
+                    <td>
+                        <button class="delete-btn" data-category="${category}">Delete</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Add delete button handlers
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    if (confirm(`Are you sure you want to delete the category "${category}"?`)) {
+                        deleteCategory(category);
+                    }
+                });
+            });
+        }
+        
+        function addCategory() {
+            const categoryInput = document.getElementById('new-category');
+            const newCategory = categoryInput.value.trim();
+            
+            if (!newCategory) {
+                alert('Please enter a category name');
+                return;
+            }
+            
+            fetch('/add_category', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: newCategory })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error adding category: ' + data.error);
+                } else {
+                    // Clear input
+                    categoryInput.value = '';
+                    
+                    // Update display
+                    displayCategories(data.categories);
+                }
+            })
+            .catch(err => {
+                console.error('Error adding category:', err);
+                alert('Error adding category: ' + err.message);
+            });
+        }
+        
+        function deleteCategory(category) {
+            fetch('/delete_category', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: category })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error deleting category: ' + data.error);
+                } else {
+                    // Update display
+                    displayCategories(data.categories);
+                }
+            })
+            .catch(err => {
+                console.error('Error deleting category:', err);
+                alert('Error deleting category: ' + err.message);
+            });
+        }
+    </script>
+</body>
+</html>

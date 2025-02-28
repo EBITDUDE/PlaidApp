@@ -171,6 +171,31 @@
             transition: .4s;
             border-radius: 50%;
         }
+        .secondary-nav-button {
+            display: inline-block;
+            padding: 6px 12px;
+            margin-right: 10px;
+            background-color: #f8f8f8;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .secondary-nav-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .month-picker {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
         input:checked + .toggle-slider {
             background-color: #3498db;
         }
@@ -288,6 +313,13 @@
         <button id="link-button">Connect a Bank Account</button>
         <button id="transactions-button" style="display:none;">Refresh Transactions</button>
     </div>
+
+    <!-- Navigation buttons after main buttons -->
+    <div class="secondary-buttons-container" style="margin-top: 10px;">
+        <a href="/categories" class="secondary-nav-button">Manage Categories</a>
+        <a href="/annual_totals" class="secondary-nav-button">Annual Category Totals</a>
+        <button id="export-data-btn" class="secondary-nav-button">Export Data...</button>
+    </div>
     
     <div id="accounts-section" class="container" style="display:none;">
         <h2>Connected Accounts</h2>
@@ -306,11 +338,13 @@
             <div class="filter-dropdown" style="margin-right: 10px;">
                 <label for="date-filter">Date Range:</label>
                 <select id="date-filter" style="padding: 5px;">
-                    <option value="all">All Time</option>
                     <option value="30">Last 30 Days</option>
                     <option value="90">Last 90 Days</option>
                     <option value="180">Last 180 Days</option>
-                    <option value="365">Last Year</option>
+                    <option value="365">Last 12 Months</option>
+                    <option value="ytd">Year to Date</option>
+                    <option value="all">All History</option>
+                    <option value="custom">Custom...</option>
                 </select>
             </div>
             
@@ -328,6 +362,18 @@
                     <option value="all">All Types</option>
                     <option value="expense">Expenses</option>
                     <option value="income">Income</option>
+                </select>
+            </div>
+
+            <!-- Add pagination control after filter elements -->
+            <div class="filter-dropdown" style="margin-right: 10px;">
+                <label for="page-size">Show:</label>
+                <select id="page-size" style="padding: 5px;">
+                    <option value="50">50 per page</option>
+                    <option value="100">100 per page</option>
+                    <option value="200">200 per page</option>
+                    <option value="500">500 per page</option>
+                    <option value="all">All</option>
                 </select>
             </div>
             
@@ -427,8 +473,26 @@
         </div>
     </div>
     
+    <!-- Update the Monthly Category Totals section to include date range selection -->
     <div id="monthly-category-section" class="container" style="display:none;">
         <h2>Monthly Category Totals</h2>
+        
+        <div style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <div class="date-picker" style="margin-right: 10px;">
+                <label for="monthly-start-date">Start Date:</label>
+                <input type="text" id="monthly-start-date" placeholder="MM/YYYY" readonly style="padding: 5px; width: 100px;">
+            </div>
+            
+            <div class="date-picker" style="margin-right: 10px;">
+                <label for="monthly-end-date">End Date:</label>
+                <input type="text" id="monthly-end-date" placeholder="MM/YYYY" readonly style="padding: 5px; width: 100px;">
+            </div>
+            
+            <button id="apply-monthly-dates" style="padding: 5px 10px; background-color: #3498db; color: white; border: none; cursor: pointer; border-radius: 4px;">
+                Apply
+            </button>
+        </div>
+        
         <table id="monthly-category-table">
             <thead id="monthly-category-header">
                 <tr>
@@ -441,6 +505,18 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Add date filters and custom date picker code
+        setupDateFilters();
+        
+        // Add pagination handling
+        setupPagination();
+        
+        // Add export data functionality
+        setupExportData();
+        
+        // Setup monthly range picker
+        setupMonthlyDateRange();
+        
         // Check if an access token exists on page load
         fetch('/has_access_token')
             .then(response => response.json())
@@ -572,6 +648,318 @@
             }
         }
         
+        // Add this function to set up the custom date range filter
+        function setupDateFilters() {
+            const dateFilter = document.getElementById('date-filter');
+            
+            dateFilter.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    // Show custom date dialog
+                    showCustomDateModal();
+                } else {
+                    // Apply selected filter
+                    applyFilters();
+                }
+            });
+            
+            // Setup custom date dialog handlers
+            const customDateModal = document.getElementById('custom-date-modal');
+            const customDateStart = document.getElementById('custom-date-start');
+            const customDateEnd = document.getElementById('custom-date-end');
+            const customDateCancel = document.getElementById('custom-date-cancel');
+            const customDateApply = document.getElementById('custom-date-apply');
+            
+            // Set default dates (current month)
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            customDateStart.value = formatDate(firstDayOfMonth);
+            customDateEnd.value = formatDate(today);
+            
+            // Make date inputs clickable for calendar
+            customDateStart.addEventListener('click', function() {
+                showCalendarForInput(this);
+            });
+            
+            customDateEnd.addEventListener('click', function() {
+                showCalendarForInput(this);
+            });
+            
+            // Cancel button
+            customDateCancel.addEventListener('click', function() {
+                customDateModal.style.display = 'none';
+                // Reset date filter to previous selection
+                dateFilter.value = dateFilter.getAttribute('data-previous') || 'all';
+            });
+            
+            // Apply button
+            customDateApply.addEventListener('click', function() {
+                if (!customDateStart.value || !customDateEnd.value) {
+                    alert('Please select both start and end dates');
+                    return;
+                }
+                
+                // Store custom date range
+                localStorage.setItem('custom-date-start', customDateStart.value);
+                localStorage.setItem('custom-date-end', customDateEnd.value);
+                
+                // Close modal and apply filter
+                customDateModal.style.display = 'none';
+                applyFilters();
+            });
+        }
+
+        // Function to show custom date modal
+        function showCustomDateModal() {
+            const customDateModal = document.getElementById('custom-date-modal');
+            const dateFilter = document.getElementById('date-filter');
+            
+            // Store previous selection
+            dateFilter.setAttribute('data-previous', dateFilter.value);
+            
+            // Load saved custom dates if available
+            const savedStart = localStorage.getItem('custom-date-start');
+            const savedEnd = localStorage.getItem('custom-date-end');
+            
+            if (savedStart) {
+                document.getElementById('custom-date-start').value = savedStart;
+            }
+            
+            if (savedEnd) {
+                document.getElementById('custom-date-end').value = savedEnd;
+            }
+            
+            // Show modal
+            customDateModal.style.display = 'block';
+        }
+
+        // Function to show calendar for input field
+        function showCalendarForInput(inputElement) {
+            // Create calendar element if it doesn't exist
+            let calendarElement = document.querySelector(`.calendar[data-for="${inputElement.id}"]`);
+            
+            if (!calendarElement) {
+                calendarElement = document.createElement('div');
+                calendarElement.className = 'calendar';
+                calendarElement.setAttribute('data-for', inputElement.id);
+                calendarElement.style.display = 'block';
+                calendarElement.style.position = 'absolute';
+                calendarElement.style.backgroundColor = 'white';
+                calendarElement.style.border = '1px solid #ddd';
+                calendarElement.style.borderRadius = '4px';
+                calendarElement.style.padding = '10px';
+                calendarElement.style.zIndex = '1000';
+                calendarElement.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+                
+                // Create calendar header
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'calendar-header';
+                headerDiv.style.display = 'flex';
+                headerDiv.style.justifyContent = 'space-between';
+                headerDiv.style.marginBottom = '10px';
+                
+                const prevBtn = document.createElement('button');
+                prevBtn.type = 'button';
+                prevBtn.textContent = '<';
+                prevBtn.style.padding = '2px 5px';
+                
+                const monthYearSpan = document.createElement('span');
+                
+                const nextBtn = document.createElement('button');
+                nextBtn.type = 'button';
+                nextBtn.textContent = '>';
+                nextBtn.style.padding = '2px 5px';
+                
+                headerDiv.appendChild(prevBtn);
+                headerDiv.appendChild(monthYearSpan);
+                headerDiv.appendChild(nextBtn);
+                
+                // Create weekdays header
+                const weekdaysDiv = document.createElement('div');
+                weekdaysDiv.className = 'calendar-weekdays calendar-grid';
+                weekdaysDiv.style.display = 'grid';
+                weekdaysDiv.style.gridTemplateColumns = 'repeat(7, 1fr)';
+                weekdaysDiv.style.gap = '2px';
+                
+                ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(day => {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'calendar-weekday';
+                    dayDiv.style.textAlign = 'center';
+                    dayDiv.style.fontWeight = 'bold';
+                    dayDiv.style.padding = '5px';
+                    dayDiv.textContent = day;
+                    weekdaysDiv.appendChild(dayDiv);
+                });
+            }
+        }
+
+        // Function to setup monthly date range picker for category totals
+        function setupMonthlyDateRange() {
+            const startDateInput = document.getElementById('monthly-start-date');
+            const endDateInput = document.getElementById('monthly-end-date');
+            const applyButton = document.getElementById('apply-monthly-dates');
+            
+            // Set default values (last 6 months)
+            const today = new Date();
+            const sixMonthsAgo = new Date(today);
+            sixMonthsAgo.setMonth(today.getMonth() - 6);
+            
+            startDateInput.value = formatMonthYear(sixMonthsAgo);
+            endDateInput.value = formatMonthYear(today);
+            
+            // Save default values
+            localStorage.setItem('monthly-start-date', startDateInput.value);
+            localStorage.setItem('monthly-end-date', endDateInput.value);
+            
+            // Handle date inputs
+            startDateInput.addEventListener('click', function() {
+                showMonthPicker(this);
+            });
+            
+            endDateInput.addEventListener('click', function() {
+                showMonthPicker(this);
+            });
+            
+            // Apply date range
+            applyButton.addEventListener('click', function() {
+                if (!startDateInput.value || !endDateInput.value) {
+                    alert('Please select both start and end months');
+                    return;
+                }
+                
+                // Save values
+                localStorage.setItem('monthly-start-date', startDateInput.value);
+                localStorage.setItem('monthly-end-date', endDateInput.value);
+                
+                // Refresh monthly totals
+                loadTransactions();
+            });
+        }
+
+        // Helper function to show month picker
+        function showMonthPicker(inputElement) {
+            // Create month picker if it doesn't exist
+            let pickerElement = document.querySelector(`.month-picker[data-for="${inputElement.id}"]`);
+            
+            if (!pickerElement) {
+                pickerElement = document.createElement('div');
+                pickerElement.className = 'month-picker';
+                pickerElement.setAttribute('data-for', inputElement.id);
+                pickerElement.style.display = 'block';
+                pickerElement.style.position = 'absolute';
+                pickerElement.style.backgroundColor = 'white';
+                pickerElement.style.border = '1px solid #ddd';
+                pickerElement.style.borderRadius = '4px';
+                pickerElement.style.padding = '10px';
+                pickerElement.style.zIndex = '1000';
+                pickerElement.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+                pickerElement.style.width = '200px';
+                
+                // Create header
+                const headerDiv = document.createElement('div');
+                headerDiv.style.display = 'flex';
+                headerDiv.style.justifyContent = 'space-between';
+                headerDiv.style.marginBottom = '10px';
+                
+                const prevYearBtn = document.createElement('button');
+                prevYearBtn.type = 'button';
+                prevYearBtn.textContent = '<<';
+                prevYearBtn.style.padding = '2px 5px';
+                
+                const yearSpan = document.createElement('span');
+                yearSpan.style.fontWeight = 'bold';
+                
+                const nextYearBtn = document.createElement('button');
+                nextYearBtn.type = 'button';
+                nextYearBtn.textContent = '>>';
+                nextYearBtn.style.padding = '2px 5px';
+                
+                headerDiv.appendChild(prevYearBtn);
+                headerDiv.appendChild(yearSpan);
+                headerDiv.appendChild(nextYearBtn);
+                
+                // Create month grid
+                const monthsDiv = document.createElement('div');
+                monthsDiv.style.display = 'grid';
+                monthsDiv.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                monthsDiv.style.gap = '5px';
+                
+                // Append elements
+                pickerElement.appendChild(headerDiv);
+                pickerElement.appendChild(monthsDiv);
+                
+                // Add to document
+                inputElement.parentNode.appendChild(pickerElement);
+                
+                // Initialize current year
+                let currentYear = new Date().getFullYear();
+                
+                // Parse input value if present
+                if (inputElement.value) {
+                    const parts = inputElement.value.split('/');
+                    if (parts.length === 2) {
+                        currentYear = parseInt(parts[1]);
+                    }
+                }
+                
+                // Update month picker function
+                function updateMonthPicker() {
+                    yearSpan.textContent = currentYear;
+                    monthsDiv.innerHTML = '';
+                    
+                    const months = [
+                        'Jan', 'Feb', 'Mar', 
+                        'Apr', 'May', 'Jun', 
+                        'Jul', 'Aug', 'Sep', 
+                        'Oct', 'Nov', 'Dec'
+                    ];
+                    
+                    months.forEach((month, index) => {
+                        const monthBtn = document.createElement('button');
+                        monthBtn.type = 'button';
+                        monthBtn.textContent = month;
+                        monthBtn.style.padding = '5px';
+                        monthBtn.style.border = '1px solid #ddd';
+                        monthBtn.style.borderRadius = '3px';
+                        monthBtn.style.cursor = 'pointer';
+                        monthBtn.style.backgroundColor = '#f8f8f8';
+                        
+                        monthBtn.addEventListener('click', function() {
+                            const monthNum = (index + 1).toString().padStart(2, '0');
+                            inputElement.value = `${monthNum}/${currentYear}`;
+                            pickerElement.style.display = 'none';
+                        });
+                        
+                        monthsDiv.appendChild(monthBtn);
+                    });
+                }
+                
+                // Initialize
+                updateMonthPicker();
+                
+                // Previous year button
+                prevYearBtn.addEventListener('click', function() {
+                    currentYear--;
+                    updateMonthPicker();
+                });
+                
+                // Next year button
+                nextYearBtn.addEventListener('click', function() {
+                    currentYear++;
+                    updateMonthPicker();
+                });
+                
+                // Close if clicked outside
+                document.addEventListener('click', function(e) {
+                    if (!pickerElement.contains(e.target) && e.target !== inputElement) {
+                        pickerElement.style.display = 'none';
+                    }
+                });
+            } else {
+                // Toggle visibility
+                pickerElement.style.display = pickerElement.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
         // Pre-fill date with today's date
         const today = new Date();
         const formattedToday = `${(today.getMonth()+1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
@@ -805,15 +1193,16 @@
                         accountNames[tx.account_id] || 'Unknown Account' : 
                         'No Account';
                     
+                    // Create the row HTML
                     row.innerHTML = `
                         <td class="editable" data-field="date">${tx.date}</td>
-                        <td class="editable ${amountClass}" data-field="amount" data-is-debit="${tx.is_debit}">${amountDisplay}</td>
-                        <td>${typeDisplay}</td>
+                        <td class="editable" data-field="amount">${formatAmount(tx)}</td>
+                        <td>${tx.is_debit ? 'Expense' : 'Income'}</td>
                         <td class="editable" data-field="category">${tx.category}</td>
                         <td class="editable" data-field="merchant">${tx.merchant}</td>
-                        <td>${accountDisplay}</td>
+                        <td>${tx.account_name || 'No Account'}</td>
                         <td>
-                            <button class="delete-btn" style="background-color: #ff4d4d; color: white; border: none; padding: 2px 5px; cursor: pointer; border-radius: 3px;">Delete</button>
+                            <button class="delete-btn">Delete</button>
                         </td>
                     `;
                     
@@ -824,6 +1213,7 @@
                 document.querySelectorAll('.editable').forEach(cell => {
                     cell.addEventListener('click', function() {
                         const currentValue = this.textContent;
+                        const currentType = tx.is_debit ? 'expense' : 'income';
                         const field = this.dataset.field;
                         const row = this.parentElement;
                         const txId = row.dataset.id;
@@ -1123,18 +1513,58 @@
             const typeFilter = document.getElementById('type-filter').value;
             
             // Calculate date threshold for date filter
-            let dateThreshold = null;
-            if (dateFilter !== 'all') {
-                const days = parseInt(dateFilter);
-                dateThreshold = new Date();
-                dateThreshold.setDate(dateThreshold.getDate() - days);
+            let startDate = null;
+            let endDate = null;
+            const current = new Date();
+            
+            if (dateFilter === '30') {
+                startDate = new Date(current);
+                startDate.setDate(current.getDate() - 30);
+            } else if (dateFilter === '90') {
+                startDate = new Date(current);
+                startDate.setDate(current.getDate() - 90);
+            } else if (dateFilter === '180') {
+                startDate = new Date(current);
+                startDate.setDate(current.getDate() - 180);
+            } else if (dateFilter === '365') {
+                startDate = new Date(current);
+                startDate.setDate(current.getDate() - 365);
+            } else if (dateFilter === 'ytd') {
+                startDate = new Date(current.getFullYear(), 0, 1);
+            } else if (dateFilter === 'custom') {
+                const customStart = localStorage.getItem('custom-date-start');
+                const customEnd = localStorage.getItem('custom-date-end');
+                
+                if (customStart && customEnd) {
+                    const startParts = customStart.split('/');
+                    const endParts = customEnd.split('/');
+                    
+                    if (startParts.length === 3 && endParts.length === 3) {
+                        startDate = new Date(
+                            parseInt(startParts[2]), 
+                            parseInt(startParts[0]) - 1, 
+                            parseInt(startParts[1])
+                        );
+                        
+                        endDate = new Date(
+                            parseInt(endParts[2]), 
+                            parseInt(endParts[0]) - 1, 
+                            parseInt(endParts[1])
+                        );
+                    }
+                }
+            }
+            
+            // Default end date is current date
+            if (!endDate) {
+                endDate = new Date(current);
             }
             
             document.querySelectorAll('#transactions-body tr').forEach(row => {
                 let showRow = true;
                 
                 // Text search
-                if (searchTerm) {
+                if (showRow && searchTerm) {
                     const text = row.textContent.toLowerCase();
                     if (!text.includes(searchTerm)) {
                         showRow = false;
@@ -1156,15 +1586,30 @@
                 }
                 
                 // Date filter
-                if (showRow && dateThreshold) {
-                    const txDate = new Date(row.dataset.date);
-                    if (txDate < dateThreshold) {
-                        showRow = false;
+                if (showRow && startDate) {
+                    const txDateStr = row.dataset.date;
+                    if (txDateStr) {
+                        const dateParts = txDateStr.split('/');
+                        if (dateParts.length === 3) {
+                            const txDate = new Date(
+                                parseInt(dateParts[2]), 
+                                parseInt(dateParts[0]) - 1, 
+                                parseInt(dateParts[1])
+                            );
+                            
+                            if (txDate < startDate || txDate > endDate) {
+                                showRow = false;
+                            }
+                        }
                     }
                 }
                 
-                row.style.display = showRow ? '' : 'none';
+                // Mark filtered rows
+                row.setAttribute('data-filtered', !showRow);
             });
+            
+            // Apply pagination after filtering
+            applyPagination();
         }
         
         // Display monthly category totals
@@ -1176,13 +1621,48 @@
             if (categoryTotals.length > 0) {
                 tableSection.style.display = 'block';
                 
+                // Get date range settings
+                const startDate = localStorage.getItem('monthly-start-date');
+                const endDate = localStorage.getItem('monthly-end-date');
+                
+                // Filter months by date range if set
+                let filteredMonths = months;
+                
+                if (startDate && endDate) {
+                    const startParts = startDate.split('/');
+                    const endParts = endDate.split('/');
+                    
+                    if (startParts.length === 2 && endParts.length === 2) {
+                        const startMonth = parseInt(startParts[0]);
+                        const startYear = parseInt(startParts[1]);
+                        const endMonth = parseInt(endParts[0]);
+                        const endYear = parseInt(endParts[1]);
+                        
+                        filteredMonths = months.filter(month => {
+                            const parts = month.split(' ');
+                            if (parts.length === 2) {
+                                const monthNum = getMonthNumber(parts[0]);
+                                const year = parseInt(parts[1]);
+                                
+                                // Create comparable values (YYYYMM)
+                                const monthValue = year * 100 + monthNum;
+                                const startValue = startYear * 100 + startMonth;
+                                const endValue = endYear * 100 + endMonth;
+                                
+                                return monthValue >= startValue && monthValue <= endValue;
+                            }
+                            return true;
+                        });
+                    }
+                }
+                
                 // Clear existing headers except the first one (Category)
                 while (tableHeader.children.length > 1) {
                     tableHeader.removeChild(tableHeader.lastChild);
                 }
                 
                 // Add month headers
-                months.forEach(month => {
+                filteredMonths.forEach(month => {
                     const th = document.createElement('th');
                     th.textContent = month;
                     tableHeader.appendChild(th);
@@ -1199,9 +1679,18 @@
                     tr.appendChild(categoryCell);
                     
                     // Add amounts for each month
-                    months.forEach(month => {
+                    filteredMonths.forEach(month => {
                         const td = document.createElement('td');
                         td.textContent = row[month] || '$0.00';
+                        
+                        // Add color coding
+                        const value = parseFloat((row[month] || '$0.00').replace(/[\$,]/g, ''));
+                        if (value < 0) {
+                            td.style.color = '#e74c3c';  // Red for expenses
+                        } else if (value > 0) {
+                            td.style.color = '#27ae60';  // Green for income
+                        }
+                        
                         tr.appendChild(td);
                     });
                     
@@ -1210,6 +1699,281 @@
             }
         }
         
+        // Helper function to get month number from name
+        function getMonthNumber(monthName) {
+            const months = {
+                'Jan': 1, 'Feb': 2, 'Mar': 3, 
+                'Apr': 4, 'May': 5, 'Jun': 6, 
+                'Jul': 7, 'Aug': 8, 'Sep': 9, 
+                'Oct': 10, 'Nov': 11, 'Dec': 12
+            };
+            return months[monthName] || 1;
+        }
+
+        // Helper function to format date as MM/DD/YYYY
+        function formatDate(date) {
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${month}/${day}/${year}`;
+        }
+
+        // Helper function to format date as MM/YYYY
+        function formatMonthYear(date) {
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${month}/${year}`;
+        }
+                
+        // Create days container
+        const daysDiv = document.createElement('div');
+        daysDiv.className = 'calendar-days calendar-grid';
+        daysDiv.style.display = 'grid';
+        daysDiv.style.gridTemplateColumns = 'repeat(7, 1fr)';
+        daysDiv.style.gap = '2px';
+        
+        // Assemble calendar
+        calendarElement.appendChild(headerDiv);
+        calendarElement.appendChild(weekdaysDiv);
+        calendarElement.appendChild(daysDiv);
+        
+        // Add calendar to document
+        inputElement.parentNode.appendChild(calendarElement);
+        
+        // Initialize date
+        if (inputElement.value) {
+            const dateParts = inputElement.value.split('/');
+            if (dateParts.length === 3) {
+                const month = parseInt(dateParts[0]) - 1;
+                const day = parseInt(dateParts[1]);
+                const year = parseInt(dateParts[2]);
+                currentDate = new Date(year, month, 1);
+            }
+        }
+        
+        // Handle month navigation
+        prevBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar();
+        });
+        
+        nextBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar();
+        });
+                
+        // Function to update calendar
+        function updateCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Update header
+            monthYearSpan.textContent = `${currentDate.toLocaleString('default', { month: 'long' })} ${year}`;
+            
+            // Clear previous days
+            daysDiv.innerHTML = '';
+            
+            // Get first day of month and last day
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // Get day of week for first day (0 = Sunday)
+            const firstDayOfWeek = firstDay.getDay();
+            
+            // Add days from previous month
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day other-month';
+                dayDiv.style.textAlign = 'center';
+                dayDiv.style.padding = '6px';
+                dayDiv.style.cursor = 'pointer';
+                dayDiv.style.color = '#aaa';
+                dayDiv.textContent = prevMonthLastDay - firstDayOfWeek + i + 1;
+                daysDiv.appendChild(dayDiv);
+            }
+            
+            // Add days of current month
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                dayDiv.style.textAlign = 'center';
+                dayDiv.style.padding = '6px';
+                dayDiv.style.cursor = 'pointer';
+                dayDiv.textContent = i;
+                
+                // Select this day
+                dayDiv.addEventListener('click', function() {
+                    const formattedDate = `${(month + 1).toString().padStart(2, '0')}/${i.toString().padStart(2, '0')}/${year}`;
+                    inputElement.value = formattedDate;
+                    calendarElement.style.display = 'none';
+                });
+                
+                daysDiv.appendChild(dayDiv);
+            }
+            
+            // Add days from next month
+            const daysAdded = firstDayOfWeek + lastDay.getDate();
+            const nextMonthDays = Math.max(0, 42 - daysAdded); // 6 rows of 7 days = 42
+            for (let i = 1; i <= nextMonthDays; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day other-month';
+                dayDiv.style.textAlign = 'center';
+                dayDiv.style.padding = '6px';
+                dayDiv.style.cursor = 'pointer';
+                dayDiv.style.color = '#aaa';
+                dayDiv.textContent = i;
+                daysDiv.appendChild(dayDiv);
+            }
+        }
+        
+        // Initialize calendar
+        updateCalendar();
+        
+        // Close calendar if clicking outside
+        document.addEventListener('click', function(e) {
+            if (!calendarElement.contains(e.target) && e.target !== inputElement) {
+                calendarElement.style.display = 'none';
+            } else {
+            // Toggle visibility
+            calendarElement.style.display = calendarElement.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+
+        // Function to set up pagination
+        function setupPagination() {
+            const pageSizeSelect = document.getElementById('page-size');
+            
+            pageSizeSelect.addEventListener('change', function() {
+                applyPagination();
+            });
+        }
+
+        // Function to apply pagination
+        function applyPagination() {
+            const pageSize = document.getElementById('page-size').value;
+            const rows = document.querySelectorAll('#transactions-body tr');
+            
+            // If All is selected, show all rows
+            if (pageSize === 'all') {
+                rows.forEach(row => {
+                    if (row.getAttribute('data-filtered') !== 'true') {
+                        row.style.display = '';
+                    }
+                });
+                return;
+            }
+            
+            // Get visible rows (not filtered out)
+            const visibleRows = Array.from(rows).filter(row => row.getAttribute('data-filtered') !== 'true');
+            const limit = parseInt(pageSize);
+            
+            // Show only the first 'limit' rows
+            visibleRows.forEach((row, index) => {
+                row.style.display = index < limit ? '' : 'none';
+            });
+            
+            // Show message if there are more rows
+            if (visibleRows.length > limit) {
+                // Remove existing "load more" row if present
+                const existingLoadMore = document.querySelector('#transactions-body tr.load-more-row');
+                if (existingLoadMore) {
+                    existingLoadMore.remove();
+                }
+                
+                // Add "load more" row
+                const loadMoreRow = document.createElement('tr');
+                loadMoreRow.className = 'load-more-row';
+                loadMoreRow.innerHTML = `
+                    <td colspan="7" style="text-align: center; padding: 10px; background-color: #f8f8f8;">
+                        Showing ${limit} of ${visibleRows.length} transactions. 
+                        <button id="load-more-btn" style="padding: 5px 10px; margin-left: 10px; cursor: pointer;">
+                            Show All
+                        </button>
+                    </td>
+                `;
+                document.getElementById('transactions-body').appendChild(loadMoreRow);
+                
+                // Add event listener for "load more" button
+                document.getElementById('load-more-btn').addEventListener('click', function() {
+                    document.getElementById('page-size').value = 'all';
+                    applyPagination();
+                });
+            }
+        }
+
+
+        // Function to set up export data functionality
+        function setupExportData() {
+            const exportButton = document.getElementById('export-data-btn');
+            const exportModal = document.getElementById('export-data-modal');
+            const exportCancel = document.getElementById('export-cancel');
+            const exportConfirm = document.getElementById('export-confirm');
+            
+            exportButton.addEventListener('click', function() {
+                exportModal.style.display = 'block';
+            });
+            
+            exportCancel.addEventListener('click', function() {
+                exportModal.style.display = 'none';
+            });
+            
+            // Close modal if clicked outside
+            window.addEventListener('click', function(event) {
+                if (event.target === exportModal) {
+                    exportModal.style.display = 'none';
+                }
+            });
+            
+            exportConfirm.addEventListener('click', function() {
+                const dateRange = document.getElementById('export-date-range').value;
+                
+                // Show loading state
+                exportConfirm.innerHTML = 'Exporting... <div class="loading" style="width: 12px; height: 12px; margin-left: 5px;"></div>';
+                exportConfirm.disabled = true;
+                
+                // Request export
+                fetch('/export_transactions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date_range: dateRange })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error exporting transactions: ' + data.error);
+                    } else {
+                        // Create and download CSV file
+                        const blob = new Blob([data.csv_data], { type: 'text/csv' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = data.filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        // Hide modal
+                        exportModal.style.display = 'none';
+                    }
+                    
+                    // Reset button
+                    exportConfirm.innerHTML = 'Export';
+                    exportConfirm.disabled = false;
+                })
+                .catch(err => {
+                    console.error('Error exporting transactions:', err);
+                    alert('Error exporting transactions: ' + err.message);
+                    exportConfirm.innerHTML = 'Export';
+                    exportConfirm.disabled = false;
+                });    
+            });
+        }  
+
+        
         // Refresh transactions button
         document.getElementById('transactions-button').addEventListener('click', function() {
             loadAccounts();
@@ -1217,5 +1981,56 @@
         });
     });
     </script>
+    
+    <!-- Custom Date Range Modal -->
+    <div id="custom-date-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="background-color: white; margin: 10% auto; padding: 20px; width: 400px; border-radius: 5px; max-width: 90%;">
+            <h3>Custom date</h3>
+            <p>Please select the date range you would like to view</p>
+            
+            <div style="margin-top: 15px;">
+                <label for="custom-date-start">Date range</label>
+                <div style="display: flex; gap: 10px; margin-top: 5px; align-items: center;">
+                    <div class="date-picker" style="flex: 1;">
+                        <input type="text" id="custom-date-start" placeholder="MM/DD/YYYY" class="date-input" style="width: 100%; padding: 8px; box-sizing: border-box;" readonly>
+                    </div>
+                    <span>to</span>
+                    <div class="date-picker" style="flex: 1;">
+                        <input type="text" id="custom-date-end" placeholder="MM/DD/YYYY" class="date-input" style="width: 100%; padding: 8px; box-sizing: border-box;" readonly>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                <button type="button" id="custom-date-cancel" style="margin-right: 10px; padding: 8px 15px; border: 1px solid #ddd; background-color: #f8f8f8; border-radius: 4px; cursor: pointer;">Cancel</button>
+                <button type="button" id="custom-date-apply" style="padding: 8px 15px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Data Modal -->
+    <div id="export-data-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="background-color: white; margin: 10% auto; padding: 20px; width: 400px; border-radius: 5px; max-width: 90%;">
+            <h3>Export Transactions</h3>
+            <p>Select a date range for exporting transactions:</p>
+            
+            <div style="margin-top: 15px;">
+                <select id="export-date-range" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="30">Last 30 Days</option>
+                    <option value="60">Last 60 Days</option>
+                    <option value="90">Last 90 Days</option>
+                    <option value="365">Last 12 Months</option>
+                    <option value="ytd">Year to Date</option>
+                    <option value="all">All History</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                <button type="button" id="export-cancel" style="margin-right: 10px; padding: 8px 15px; border: 1px solid #ddd; background-color: #f8f8f8; border-radius: 4px; cursor: pointer;">Cancel</button>
+                <button type="button" id="export-confirm" style="padding: 8px 15px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Export</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

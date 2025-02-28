@@ -224,3 +224,366 @@
 2025-02-28 11:13:12,704 [INFO]  * Restarting with watchdog (windowsapi)
 2025-02-28 11:13:13,821 [WARNING]  * Debugger is active!
 2025-02-28 11:13:13,825 [INFO]  * Debugger PIN: 109-758-015
+2025-02-28 12:00:56,474 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-02-28 12:00:56,475 [INFO] [33mPress CTRL+C to quit[0m
+2025-02-28 12:00:56,488 [INFO]  * Restarting with watchdog (windowsapi)
+2025-02-28 12:00:57,556 [WARNING]  * Debugger is active!
+2025-02-28 12:00:57,559 [INFO]  * Debugger PIN: 109-758-015
+2025-02-28 12:01:04,144 [INFO] 127.0.0.1 - - [28/Feb/2025 12:01:04] "GET / HTTP/1.1" 200 -
+2025-02-28 12:01:04,802 [INFO] 127.0.0.1 - - [28/Feb/2025 12:01:04] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 12:01:04,988 [INFO] Fetching transactions from Plaid
+2025-02-28 12:01:05,094 [INFO] Link token created successfully
+2025-02-28 12:01:05,095 [INFO] 127.0.0.1 - - [28/Feb/2025 12:01:05] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 12:01:05,428 [DEBUG] Number of accounts: 4
+2025-02-28 12:01:05,428 [DEBUG] Processing account 0
+2025-02-28 12:01:05,429 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:01:05,429 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:01:05,429 [DEBUG] Processing account 1
+2025-02-28 12:01:05,430 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:01:05,430 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:01:05,430 [DEBUG] Processing account 2
+2025-02-28 12:01:05,431 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:01:05,431 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:01:05,431 [DEBUG] Processing account 3
+2025-02-28 12:01:05,431 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:01:05,431 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:01:05,431 [INFO] Retrieved 4 accounts
+2025-02-28 12:01:05,432 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:01:05,432 [INFO] 127.0.0.1 - - [28/Feb/2025 12:01:05] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:01:05,664 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:01:05,666 [INFO] Total transactions: 45
+2025-02-28 12:01:05,668 [INFO] 127.0.0.1 - - [28/Feb/2025 12:01:05] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:04:08,323 [INFO] Manual transaction manual-5744aed7-ad85-41ac-937c-2ca49725ca7d deleted
+2025-02-28 12:04:08,332 [INFO] 127.0.0.1 - - [28/Feb/2025 12:04:08] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 12:04:08,437 [INFO] Fetching transactions from Plaid
+2025-02-28 12:04:09,199 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:04:09,200 [INFO] Total transactions: 44
+2025-02-28 12:04:09,202 [INFO] 127.0.0.1 - - [28/Feb/2025 12:04:09] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:04:19,060 [INFO] Transaction 1ReBReLvxjF7owyyXl4rSL9wBEeWdWcpPMwQ5 updated successfully
+2025-02-28 12:04:19,061 [INFO] 127.0.0.1 - - [28/Feb/2025 12:04:19] "POST /update_transaction HTTP/1.1" 200 -
+2025-02-28 12:04:19,161 [INFO] Fetching transactions from Plaid
+2025-02-28 12:04:19,742 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:04:19,743 [INFO] Total transactions: 44
+2025-02-28 12:04:19,745 [INFO] 127.0.0.1 - - [28/Feb/2025 12:04:19] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:21:02,108 [INFO] 127.0.0.1 - - [28/Feb/2025 12:21:02] "GET / HTTP/1.1" 200 -
+2025-02-28 12:21:02,429 [INFO] 127.0.0.1 - - [28/Feb/2025 12:21:02] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 12:21:02,663 [INFO] Link token created successfully
+2025-02-28 12:21:02,665 [INFO] 127.0.0.1 - - [28/Feb/2025 12:21:02] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 12:21:02,733 [INFO] Fetching transactions from Plaid
+2025-02-28 12:21:02,998 [DEBUG] Number of accounts: 4
+2025-02-28 12:21:02,998 [DEBUG] Processing account 0
+2025-02-28 12:21:02,999 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:21:02,999 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:21:02,999 [DEBUG] Processing account 1
+2025-02-28 12:21:02,999 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:21:03,000 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:21:03,000 [DEBUG] Processing account 2
+2025-02-28 12:21:03,000 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:21:03,000 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:21:03,000 [DEBUG] Processing account 3
+2025-02-28 12:21:03,000 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:21:03,001 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:21:03,001 [INFO] Retrieved 4 accounts
+2025-02-28 12:21:03,002 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:21:03,002 [INFO] 127.0.0.1 - - [28/Feb/2025 12:21:03] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:21:03,408 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:21:03,409 [INFO] Total transactions: 44
+2025-02-28 12:21:03,411 [INFO] 127.0.0.1 - - [28/Feb/2025 12:21:03] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:22:38,884 [INFO] Manual transaction manual-bf368983-0b48-4c02-b1ef-984876bd33bb created successfully
+2025-02-28 12:22:38,885 [INFO] 127.0.0.1 - - [28/Feb/2025 12:22:38] "POST /add_transaction HTTP/1.1" 200 -
+2025-02-28 12:22:39,004 [INFO] Fetching transactions from Plaid
+2025-02-28 12:22:39,752 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:22:39,753 [INFO] Total transactions: 45
+2025-02-28 12:22:39,755 [INFO] 127.0.0.1 - - [28/Feb/2025 12:22:39] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:25:26,741 [INFO] Manual transaction manual-bf368983-0b48-4c02-b1ef-984876bd33bb deleted
+2025-02-28 12:25:26,744 [INFO] 127.0.0.1 - - [28/Feb/2025 12:25:26] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 12:25:26,842 [INFO] Fetching transactions from Plaid
+2025-02-28 12:25:27,545 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:25:27,547 [INFO] Total transactions: 44
+2025-02-28 12:25:27,548 [INFO] 127.0.0.1 - - [28/Feb/2025 12:25:27] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:25:29,966 [INFO] Manual transaction manual-c4ae721a-7e37-41c3-8f88-5f43358dd37f deleted
+2025-02-28 12:25:29,977 [INFO] 127.0.0.1 - - [28/Feb/2025 12:25:29] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 12:25:30,072 [INFO] Fetching transactions from Plaid
+2025-02-28 12:25:30,617 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:25:30,618 [INFO] Total transactions: 43
+2025-02-28 12:25:30,620 [INFO] 127.0.0.1 - - [28/Feb/2025 12:25:30] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:25:33,558 [INFO] Fetching transactions from Plaid
+2025-02-28 12:25:33,825 [DEBUG] Number of accounts: 4
+2025-02-28 12:25:33,825 [DEBUG] Processing account 0
+2025-02-28 12:25:33,825 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:25:33,826 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:25:33,826 [DEBUG] Processing account 1
+2025-02-28 12:25:33,826 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:25:33,827 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:25:33,828 [DEBUG] Processing account 2
+2025-02-28 12:25:33,828 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:25:33,828 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:25:33,829 [DEBUG] Processing account 3
+2025-02-28 12:25:33,829 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:25:33,829 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:25:33,830 [INFO] Retrieved 4 accounts
+2025-02-28 12:25:33,830 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:25:33,830 [INFO] 127.0.0.1 - - [28/Feb/2025 12:25:33] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:25:34,269 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:25:34,271 [INFO] Total transactions: 43
+2025-02-28 12:25:34,272 [INFO] 127.0.0.1 - - [28/Feb/2025 12:25:34] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:25:56,060 [INFO] Manual transaction manual-3ba24b90-10de-49f7-9ed2-221499238370 created successfully
+2025-02-28 12:25:56,060 [INFO] 127.0.0.1 - - [28/Feb/2025 12:25:56] "POST /add_transaction HTTP/1.1" 200 -
+2025-02-28 12:25:56,154 [INFO] Fetching transactions from Plaid
+2025-02-28 12:25:56,737 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:25:56,739 [INFO] Total transactions: 44
+2025-02-28 12:25:56,741 [INFO] 127.0.0.1 - - [28/Feb/2025 12:25:56] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:30:21,314 [INFO] 127.0.0.1 - - [28/Feb/2025 12:30:21] "GET / HTTP/1.1" 200 -
+2025-02-28 12:30:21,655 [INFO] 127.0.0.1 - - [28/Feb/2025 12:30:21] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 12:30:21,764 [INFO] Fetching transactions from Plaid
+2025-02-28 12:30:21,912 [INFO] Link token created successfully
+2025-02-28 12:30:21,913 [INFO] 127.0.0.1 - - [28/Feb/2025 12:30:21] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 12:30:22,104 [DEBUG] Number of accounts: 4
+2025-02-28 12:30:22,104 [DEBUG] Processing account 0
+2025-02-28 12:30:22,104 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:30:22,105 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:30:22,105 [DEBUG] Processing account 1
+2025-02-28 12:30:22,105 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:30:22,105 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:30:22,106 [DEBUG] Processing account 2
+2025-02-28 12:30:22,106 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:30:22,106 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:30:22,107 [DEBUG] Processing account 3
+2025-02-28 12:30:22,107 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:30:22,107 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:30:22,107 [INFO] Retrieved 4 accounts
+2025-02-28 12:30:22,107 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:30:22,108 [INFO] 127.0.0.1 - - [28/Feb/2025 12:30:22] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:30:22,410 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:30:22,411 [INFO] Total transactions: 44
+2025-02-28 12:30:22,414 [INFO] 127.0.0.1 - - [28/Feb/2025 12:30:22] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:31:00,608 [INFO] 127.0.0.1 - - [28/Feb/2025 12:31:00] "GET / HTTP/1.1" 200 -
+2025-02-28 12:31:00,924 [INFO] 127.0.0.1 - - [28/Feb/2025 12:31:00] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 12:31:01,013 [INFO] Link token created successfully
+2025-02-28 12:31:01,014 [INFO] 127.0.0.1 - - [28/Feb/2025 12:31:01] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 12:31:01,105 [INFO] Fetching transactions from Plaid
+2025-02-28 12:31:01,262 [DEBUG] Number of accounts: 4
+2025-02-28 12:31:01,262 [DEBUG] Processing account 0
+2025-02-28 12:31:01,263 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:31:01,263 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:31:01,263 [DEBUG] Processing account 1
+2025-02-28 12:31:01,264 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:31:01,264 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:31:01,264 [DEBUG] Processing account 2
+2025-02-28 12:31:01,264 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:31:01,265 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:31:01,265 [DEBUG] Processing account 3
+2025-02-28 12:31:01,265 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:31:01,265 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:31:01,265 [INFO] Retrieved 4 accounts
+2025-02-28 12:31:01,266 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:31:01,266 [INFO] 127.0.0.1 - - [28/Feb/2025 12:31:01] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:31:01,668 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:31:01,669 [INFO] Total transactions: 44
+2025-02-28 12:31:01,671 [INFO] 127.0.0.1 - - [28/Feb/2025 12:31:01] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:36:23,982 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:23] "GET / HTTP/1.1" 200 -
+2025-02-28 12:36:24,262 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:24] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 12:36:24,446 [INFO] Fetching transactions from Plaid
+2025-02-28 12:36:24,505 [INFO] Link token created successfully
+2025-02-28 12:36:24,506 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:24] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 12:36:24,787 [DEBUG] Number of accounts: 4
+2025-02-28 12:36:24,787 [DEBUG] Processing account 0
+2025-02-28 12:36:24,787 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:36:24,788 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:36:24,788 [DEBUG] Processing account 1
+2025-02-28 12:36:24,788 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:36:24,789 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:36:24,789 [DEBUG] Processing account 2
+2025-02-28 12:36:24,789 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:36:24,789 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:36:24,790 [DEBUG] Processing account 3
+2025-02-28 12:36:24,790 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:36:24,790 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:36:24,790 [INFO] Retrieved 4 accounts
+2025-02-28 12:36:24,791 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:36:24,791 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:24] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:36:25,088 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:36:25,089 [INFO] Total transactions: 44
+2025-02-28 12:36:25,091 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:25] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:36:29,970 [INFO] Fetching transactions from Plaid
+2025-02-28 12:36:30,209 [DEBUG] Number of accounts: 4
+2025-02-28 12:36:30,209 [DEBUG] Processing account 0
+2025-02-28 12:36:30,210 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:36:30,210 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:36:30,210 [DEBUG] Processing account 1
+2025-02-28 12:36:30,211 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:36:30,211 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:36:30,211 [DEBUG] Processing account 2
+2025-02-28 12:36:30,211 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:36:30,211 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:36:30,211 [DEBUG] Processing account 3
+2025-02-28 12:36:30,212 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:36:30,212 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:36:30,212 [INFO] Retrieved 4 accounts
+2025-02-28 12:36:30,212 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:36:30,213 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:30] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:36:30,517 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:36:30,518 [INFO] Total transactions: 44
+2025-02-28 12:36:30,520 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:30] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:36:45,233 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:45] "GET / HTTP/1.1" 200 -
+2025-02-28 12:36:45,433 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:45] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 12:36:45,508 [INFO] Link token created successfully
+2025-02-28 12:36:45,509 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:45] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 12:36:45,534 [INFO] Fetching transactions from Plaid
+2025-02-28 12:36:45,767 [DEBUG] Number of accounts: 4
+2025-02-28 12:36:45,768 [DEBUG] Processing account 0
+2025-02-28 12:36:45,768 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:36:45,769 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:36:45,769 [DEBUG] Processing account 1
+2025-02-28 12:36:45,769 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:36:45,770 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:36:45,770 [DEBUG] Processing account 2
+2025-02-28 12:36:45,770 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:36:45,771 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:36:45,771 [DEBUG] Processing account 3
+2025-02-28 12:36:45,771 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:36:45,771 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:36:45,772 [INFO] Retrieved 4 accounts
+2025-02-28 12:36:45,772 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:36:45,772 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:45] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:36:46,128 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:36:46,129 [INFO] Total transactions: 44
+2025-02-28 12:36:46,131 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:46] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:36:47,345 [INFO] Fetching transactions from Plaid
+2025-02-28 12:36:47,646 [DEBUG] Number of accounts: 4
+2025-02-28 12:36:47,647 [DEBUG] Processing account 0
+2025-02-28 12:36:47,647 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:36:47,648 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:36:47,649 [DEBUG] Processing account 1
+2025-02-28 12:36:47,649 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:36:47,650 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:36:47,651 [DEBUG] Processing account 2
+2025-02-28 12:36:47,651 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:36:47,652 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:36:47,652 [DEBUG] Processing account 3
+2025-02-28 12:36:47,652 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:36:47,653 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:36:47,653 [INFO] Retrieved 4 accounts
+2025-02-28 12:36:47,654 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:36:47,655 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:47] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:36:47,998 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:36:47,999 [INFO] Total transactions: 44
+2025-02-28 12:36:48,001 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:48] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:36:58,581 [INFO] Fetching transactions from Plaid
+2025-02-28 12:36:58,884 [DEBUG] Number of accounts: 4
+2025-02-28 12:36:58,885 [DEBUG] Processing account 0
+2025-02-28 12:36:58,886 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:36:58,886 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:36:58,887 [DEBUG] Processing account 1
+2025-02-28 12:36:58,889 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:36:58,889 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:36:58,890 [DEBUG] Processing account 2
+2025-02-28 12:36:58,891 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:36:58,891 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:36:58,892 [DEBUG] Processing account 3
+2025-02-28 12:36:58,893 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:36:58,893 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:36:58,894 [INFO] Retrieved 4 accounts
+2025-02-28 12:36:58,895 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:36:58,896 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:58] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:36:59,168 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:36:59,169 [INFO] Total transactions: 44
+2025-02-28 12:36:59,171 [INFO] 127.0.0.1 - - [28/Feb/2025 12:36:59] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:37:10,125 [INFO] 127.0.0.1 - - [28/Feb/2025 12:37:10] "GET / HTTP/1.1" 200 -
+2025-02-28 12:37:10,486 [INFO] 127.0.0.1 - - [28/Feb/2025 12:37:10] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 12:37:10,564 [INFO] Link token created successfully
+2025-02-28 12:37:10,565 [INFO] 127.0.0.1 - - [28/Feb/2025 12:37:10] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 12:37:10,596 [INFO] Fetching transactions from Plaid
+2025-02-28 12:37:10,838 [DEBUG] Number of accounts: 4
+2025-02-28 12:37:10,838 [DEBUG] Processing account 0
+2025-02-28 12:37:10,839 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 12:37:10,839 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 12:37:10,840 [DEBUG] Processing account 1
+2025-02-28 12:37:10,840 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 12:37:10,840 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 12:37:10,841 [DEBUG] Processing account 2
+2025-02-28 12:37:10,841 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 12:37:10,841 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 12:37:10,842 [DEBUG] Processing account 3
+2025-02-28 12:37:10,842 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 12:37:10,842 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 12:37:10,842 [INFO] Retrieved 4 accounts
+2025-02-28 12:37:10,842 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 12:37:10,843 [INFO] 127.0.0.1 - - [28/Feb/2025 12:37:10] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 12:37:11,177 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 12:37:11,178 [INFO] Total transactions: 44
+2025-02-28 12:37:11,180 [INFO] 127.0.0.1 - - [28/Feb/2025 12:37:11] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 12:37:24,495 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
+2025-02-28 12:37:24,820 [INFO]  * Restarting with watchdog (windowsapi)
+2025-02-28 12:37:25,939 [WARNING]  * Debugger is active!
+2025-02-28 12:37:25,944 [INFO]  * Debugger PIN: 109-758-015
+2025-02-28 16:17:31,654 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\__init__.py', reloading
+2025-02-28 16:17:31,655 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\app.py', reloading
+2025-02-28 16:17:31,668 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\sansio\\app.py', reloading
+2025-02-28 16:17:31,674 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\sansio\\scaffold.py', reloading
+2025-02-28 16:17:31,679 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\templating.py', reloading
+2025-02-28 16:17:31,681 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\jinja2\\__init__.py', reloading
+2025-02-28 16:17:31,682 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\jinja2\\environment.py', reloading
+2025-02-28 16:17:31,697 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\json\\__init__.py', reloading
+2025-02-28 16:17:31,698 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\wrappers.py', reloading
+2025-02-28 16:17:31,701 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\wrappers\\__init__.py', reloading
+2025-02-28 16:17:31,702 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\wrappers\\response.py', reloading
+2025-02-28 16:17:31,708 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\sansio\\response.py', reloading
+2025-02-28 16:17:31,713 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\globals.py', reloading
+2025-02-28 16:17:31,714 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\wrappers\\request.py', reloading
+2025-02-28 16:17:31,719 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\sansio\\request.py', reloading
+2025-02-28 16:17:31,729 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\typing.py', reloading
+2025-02-28 16:17:31,731 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\datastructures\\__init__.py', reloading
+2025-02-28 16:17:31,732 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\datastructures\\headers.py', reloading
+2025-02-28 16:17:32,275 [INFO]  * Restarting with watchdog (windowsapi)
+2025-02-28 16:17:34,622 [WARNING]  * Debugger is active!
+2025-02-28 16:17:34,626 [INFO]  * Debugger PIN: 109-758-015
+2025-02-28 16:19:32,480 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\datetime.py', reloading
+2025-02-28 16:19:32,768 [INFO]  * Restarting with watchdog (windowsapi)
+2025-02-28 16:19:33,880 [WARNING]  * Debugger is active!
+2025-02-28 16:19:33,896 [INFO]  * Debugger PIN: 109-758-015
+2025-02-28 17:48:21,535 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:21] "GET / HTTP/1.1" 200 -
+2025-02-28 17:48:21,900 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:21] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 17:48:22,008 [INFO] Fetching transactions from Plaid
+2025-02-28 17:48:22,215 [INFO] Link token created successfully
+2025-02-28 17:48:22,215 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:22] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 17:48:22,433 [DEBUG] Number of accounts: 4
+2025-02-28 17:48:22,433 [DEBUG] Processing account 0
+2025-02-28 17:48:22,433 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 17:48:22,433 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 17:48:22,433 [DEBUG] Processing account 1
+2025-02-28 17:48:22,433 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 17:48:22,433 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 17:48:22,433 [DEBUG] Processing account 2
+2025-02-28 17:48:22,433 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 17:48:22,433 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 17:48:22,433 [DEBUG] Processing account 3
+2025-02-28 17:48:22,433 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 17:48:22,433 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 17:48:22,433 [INFO] Retrieved 4 accounts
+2025-02-28 17:48:22,448 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 17:48:22,448 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:22] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 17:48:22,787 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 17:48:22,789 [INFO] Total transactions: 44
+2025-02-28 17:48:22,789 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:22] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 17:48:34,409 [ERROR] Unhandled exception: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2025-02-28 17:48:34,416 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\app.py', reloading
+2025-02-28 17:48:34,420 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\ctx.py', reloading
+2025-02-28 17:48:34,423 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\routing\\map.py', reloading
+2025-02-28 17:48:34,427 [ERROR] Traceback (most recent call last):
+  File "C:\Users\alexander.bennett\AppData\Local\Programs\Python\Python39\lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\alexander.bennett\AppData\Local\Programs\Python\Python39\lib\site-packages\flask\app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+  File "C:\Users\alexander.bennett\AppData\Local\Programs\Python\Python39\lib\site-packages\flask\app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+  File "C:\Users\alexander.bennett\AppData\Local\Programs\Python\Python39\lib\site-packages\flask\ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+  File "C:\Users\alexander.bennett\AppData\Local\Programs\Python\Python39\lib\site-packages\werkzeug\routing\map.py", line 629, in match
+    raise NotFound() from None
+werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+
+2025-02-28 17:48:34,427 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\routing\\matcher.py', reloading
+2025-02-28 17:48:34,429 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:34] "[35m[1mGET /categories HTTP/1.1[0m" 500 -
+2025-02-28 17:48:34,959 [INFO]  * Restarting with watchdog (windowsapi)
