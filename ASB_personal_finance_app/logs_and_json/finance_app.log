@@ -124,3 +124,86 @@ TypeError: isinstance() arg 2 must be a type or tuple of types
 2025-03-01 14:00:35,003 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
 2025-03-01 14:00:35,007 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
 2025-03-01 14:00:35,134 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-01 14:43:10,006 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-01 14:43:10,007 [INFO] [33mPress CTRL+C to quit[0m
+2025-03-01 14:43:10,023 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-01 14:43:11,073 [WARNING]  * Debugger is active!
+2025-03-01 14:43:11,076 [INFO]  * Debugger PIN: 109-758-015
+2025-03-01 14:43:14,877 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:14] "GET / HTTP/1.1" 200 -
+2025-03-01 14:43:15,021 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:15] "GET /static/js/category-dropdown.js HTTP/1.1" 200 -
+2025-03-01 14:43:15,103 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:15] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-01 14:43:15,251 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:15] "GET /static/js/date-utils.js HTTP/1.1" 200 -
+2025-03-01 14:43:15,251 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:15] "GET /static/js/transaction-paginator.js HTTP/1.1" 200 -
+2025-03-01 14:43:15,251 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:15] "GET /static/js/transaction-filter.js HTTP/1.1" 200 -
+2025-03-01 14:43:23,626 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:23] "GET /categories HTTP/1.1" 200 -
+2025-03-01 14:43:24,568 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:24] "GET /get_categories HTTP/1.1" 200 -
+2025-03-01 14:43:26,313 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:26] "GET / HTTP/1.1" 200 -
+2025-03-01 14:43:26,543 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:26] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-01 14:43:26,548 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:26] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-01 14:43:26,548 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:26] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-01 14:43:26,548 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:26] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-01 14:43:26,548 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:26] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-01 14:43:29,536 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:29] "GET /annual_totals HTTP/1.1" 200 -
+2025-03-01 14:43:30,909 [WARNING] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,909 [WARNING] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,909 [WARNING] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,909 [WARNING] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,909 [WARNING] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,909 [WARNING] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,909 [WARNING] Error parsing date 2025-02-16 for transaction 1ReBReLvxjF7owyyXl4rSL9wBEeWdWcpPMwQ5, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,924 [WARNING] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,924 [WARNING] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,924 [WARNING] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,925 [WARNING] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,925 [WARNING] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,925 [WARNING] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,925 [WARNING] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,925 [WARNING] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,925 [WARNING] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,927 [WARNING] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,927 [WARNING] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,927 [WARNING] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,927 [WARNING] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,928 [WARNING] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,928 [WARNING] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,928 [WARNING] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,929 [WARNING] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,929 [WARNING] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,929 [WARNING] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,929 [WARNING] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,929 [WARNING] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,930 [WARNING] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,930 [WARNING] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,930 [WARNING] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,930 [WARNING] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,930 [WARNING] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,930 [WARNING] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,931 [WARNING] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,931 [WARNING] Error parsing date 2024-12-16 for transaction BjqWjqva8zuLjBmmyAVWulRgRgBMAEf45W3WX, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,931 [WARNING] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,931 [WARNING] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,931 [WARNING] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k, using today's date: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,931 [ERROR] Error generating annual totals: isinstance() arg 2 must be a type or tuple of types
+2025-03-01 14:43:30,931 [ERROR] Traceback (most recent call last):
+  File "c:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\app.py", line 1117, in get_annual_totals
+    if not tx_date or not isinstance(tx_date, datetime.date):
+TypeError: isinstance() arg 2 must be a type or tuple of types
+
+2025-03-01 14:43:30,931 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:30] "[35m[1mGET /get_annual_totals HTTP/1.1[0m" 500 -
+2025-03-01 14:43:34,172 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:34] "GET / HTTP/1.1" 200 -
+2025-03-01 14:43:34,375 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:34] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-01 14:43:34,381 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:34] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-01 14:43:34,381 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:34] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-01 14:43:34,383 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:34] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-01 14:43:34,384 [INFO] 127.0.0.1 - - [01/Mar/2025 14:43:34] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-01 14:44:50,830 [INFO] 127.0.0.1 - - [01/Mar/2025 14:44:50] "GET / HTTP/1.1" 200 -
+2025-03-01 14:44:51,367 [INFO] 127.0.0.1 - - [01/Mar/2025 14:44:51] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-01 14:44:51,367 [INFO] 127.0.0.1 - - [01/Mar/2025 14:44:51] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-01 14:44:51,367 [INFO] 127.0.0.1 - - [01/Mar/2025 14:44:51] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-01 14:44:51,367 [INFO] 127.0.0.1 - - [01/Mar/2025 14:44:51] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-01 14:44:51,367 [INFO] 127.0.0.1 - - [01/Mar/2025 14:44:51] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-01 14:55:15,242 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\json\\__init__.py', reloading
+2025-03-01 14:55:15,477 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-01 14:55:16,597 [WARNING]  * Debugger is active!
+2025-03-01 14:55:16,597 [INFO]  * Debugger PIN: 109-758-015

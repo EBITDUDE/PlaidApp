@@ -1741,6 +1741,96 @@
             </div>
         </div>
     </div>
+    <script>
+        // Fix for Plaid Link not working
+        document.getElementById('link-button').addEventListener('click', function () {
+            console.log('Link button clicked');
 
+            // Add loading state to button
+            const originalButtonText = this.textContent;
+            this.innerHTML = 'Connecting... <span class="loading"></span>';
+            this.disabled = true;
+
+            // Fetch link token with error handling
+            fetch('/create_link_token')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.link_token) {
+                        throw new Error('No link token in response');
+                    }
+                    console.log('Link token received successfully');
+
+                    // Initialize Plaid Link
+                    const handler = Plaid.create({
+                        token: data.link_token,
+                        onSuccess: (public_token, metadata) => {
+                            console.log('Link success - public token received');
+                            // Exchange public token for access token
+                            fetch('/exchange_public_token', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ public_token: public_token })
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Token exchange failed: ' + response.status);
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log('Access token received');
+                                    alert('Bank account connected successfully!');
+                                    document.getElementById('transactions-button').style.display = 'block';
+
+                                    // Refresh the page instead of calling functions
+                                    window.location.reload();
+                                })
+                                .catch(err => {
+                                    console.error('Token exchange error:', err);
+                                    alert('Error connecting bank: ' + err.message);
+
+                                    // Reset button
+                                    this.innerHTML = originalButtonText;
+                                    this.disabled = false;
+                                });
+                        },
+                        onExit: (err, metadata) => {
+                            console.log('Link exit:', err ? 'error' : 'normal');
+
+                            // Reset button
+                            this.innerHTML = originalButtonText;
+                            this.disabled = false;
+
+                            if (err) {
+                                console.error('Link error:', err);
+                                alert('Error connecting to bank: ' + (err.display_message || err.error_message || err.message || 'Unknown error'));
+                            }
+                        },
+                        onLoad: () => {
+                            console.log('Link loaded');
+                        },
+                        onEvent: (eventName, metadata) => {
+                            console.log('Link event:', eventName);
+                        }
+                    });
+
+                    // Open Plaid Link
+                    handler.open();
+                })
+                .catch(err => {
+                    console.error('Error initializing Plaid Link:', err);
+                    alert('Error connecting to bank: ' + err.message);
+
+                    // Reset button
+                    this.innerHTML = originalButtonText;
+                    this.disabled = false;
+                });
+        });
+    </script>
 </body>
 </html>

@@ -78,6 +78,8 @@ def save_transactions(transactions):
 @app.route('/has_access_token', methods=['GET'])
 def has_access_token():
     token = load_access_token()
+    # FIX: Added logging for token check
+    logger.debug(f"Access token check: {'exists' if token else 'not found'}")
     return jsonify({'has_token': bool(token)})
 
 # New route to get connected accounts
@@ -185,16 +187,24 @@ def get_accounts():
 @app.route('/create_link_token', methods=['GET'])
 def create_link_token():
     try:
+        # FIX: Added proper client user ID (unique per user)
+        client_user_id = "user-" + str(uuid.uuid4())
+        logger.debug(f"Generated client_user_id: {client_user_id}")
+        
         request = LinkTokenCreateRequest(
             products=[Products("transactions")],
             client_name="My Finance App",
             country_codes=[CountryCode("US")],
             language="en",
-            user=LinkTokenCreateRequestUser(client_user_id="unique-user-1")
+            user=LinkTokenCreateRequestUser(client_user_id=client_user_id)
         )
+        
+        # FIX: Added debugging for Plaid API response
         response = client.link_token_create(request)
-        logger.info("Link token created successfully")
-        return jsonify({'link_token': response['link_token']})
+        link_token = response['link_token']
+        logger.info(f"Link token created successfully: {link_token[:10]}...")
+        
+        return jsonify({'link_token': link_token})
     except Exception as e:
         logger.error(f"Error creating link token: {str(e)}")
         logger.error(traceback.format_exc())
@@ -204,16 +214,24 @@ def create_link_token():
 @app.route('/exchange_public_token', methods=['POST'])
 def exchange_public_token():
     try:
+        # FIX: Added additional logging for request data
+        logger.debug(f"Received exchange request with data: {request.json}")
+        
         public_token = request.json['public_token']
         exchange_request = ItemPublicTokenExchangeRequest(public_token=public_token)
         response = client.item_public_token_exchange(exchange_request)
         access_token = response['access_token']
+        
+        # FIX: Log the access token (partially masked for security)
+        masked_token = access_token[:10] + "..." if access_token else "None"
+        logger.info(f"Access Token exchanged successfully: {masked_token}")
+        
         save_access_token(access_token)
-        logger.info(f"Access Token exchanged successfully")
         return jsonify({'message': 'Token exchanged successfully', 'access_token': access_token})
     except KeyError as e:
         logger.error(f"Missing public token in request: {str(e)}")
-        return jsonify({'error': 'Missing public token'}), 400
+        # FIX: Added more specific error message
+        return jsonify({'error': 'Missing public token in request body'}), 400
     except Exception as e:
         logger.error(f"Error exchanging public token: {str(e)}")
         logger.error(traceback.format_exc())
@@ -234,8 +252,9 @@ def get_transactions():
             logger.info("Fetching transactions from Plaid")
             
             # Set date range for transaction fetching
+            # FIX: Extended date range to ensure we get transactions
             start_date = datetime.strptime("2024-01-01", "%Y-%m-%d").date()
-            end_date = datetime.strptime("2025-02-25", "%Y-%m-%d").date()
+            end_date = datetime.now().date()
 
             try:
                 transactions_request = TransactionsGetRequest(
@@ -243,9 +262,18 @@ def get_transactions():
                     start_date=start_date,
                     end_date=end_date
                 )
+                
+                # FIX: Added debugging for transactions request
+                logger.debug(f"Requesting transactions from {start_date} to {end_date}")
+                
                 response = client.transactions_get(transactions_request)
                 transactions = response['transactions']
                 logger.info(f"Fetched {len(transactions)} transactions from Plaid")
+                
+                # FIX: Log a sample transaction for debugging
+                if transactions and len(transactions) > 0:
+                    sample_tx = transactions[0]
+                    logger.debug(f"Sample transaction: {sample_tx.account_id}, {sample_tx.name}, {sample_tx.amount}")
                 
                 # Process Plaid transactions
                 for tx in transactions:
@@ -257,7 +285,8 @@ def get_transactions():
                         continue
                     
                     # Default values from Plaid
-                    category = tx['category'][0] if tx['category'] else 'Uncategorized'
+                    # FIX: Added safer category extraction
+                    category = tx['category'][0] if tx.get('category') and len(tx.get('category', [])) > 0 else 'Uncategorized'
                     merchant = tx['name']
                     date_str = tx['date']
                     amount = abs(float(tx['amount']))
@@ -367,6 +396,11 @@ def get_transactions():
                 except Exception as e:
                     logger.error(f"Error processing manual transaction {tx_id}: {str(e)}")
         
+        # FIX: Added more debugging around the transaction list
+        logger.debug(f"Final transaction list length: {len(transaction_list)}")
+        if len(transaction_list) > 0:
+            logger.debug(f"First transaction in list: {transaction_list[0]['merchant']}, {transaction_list[0]['amount']}, {transaction_list[0]['date']}")
+        
         # Sort transactions by date (newest first)
         transaction_list.sort(key=lambda x: x.get('raw_date', ''), reverse=True)
         
@@ -422,6 +456,9 @@ def get_transactions():
                 row[month_display] = f"${abs(amount):.2f}"
                 
             monthly_table.append(row)
+        
+        # FIX: Log summary of monthly totals for debugging
+        logger.debug(f"Generated monthly totals with {len(months)} months and {len(all_categories)} categories")
         
         return jsonify({
             'transactions': transaction_list,
@@ -605,8 +642,9 @@ def delete_transaction():
     except Exception as e:
         logger.error(f"Transaction deletion error: {str(e)}")
         logger.error(traceback.format_exc())
+        return jsonify({'error': 'Failed to delete transaction', 'details': str(e)}), 500
 
-# Add these new routes to your app.py file
+# Additional routes for enhanced functionality
 
 # New route for category management page
 @app.route('/categories')
@@ -618,44 +656,82 @@ def categories_page():
 def annual_totals_page():
     return render_template('annual_totals.html')
 
-# New route to get all categories
+# Route to get all categories
 @app.route('/get_categories', methods=['GET'])
 def get_categories():
     try:
-        # Load saved transactions to extract categories
-        saved_transactions = load_saved_transactions()
-        
-        # Get unique categories from saved transactions
+        # FIX: First check if we have saved categories in categories.json
+        categories_file = os.path.join(os.getcwd(), 'logs_and_json', 'categories.json')
         categories = set()
-        for tx_id, tx_data in saved_transactions.items():
-            if 'category' in tx_data and not tx_data.get('deleted', False):
-                categories.add(tx_data['category'])
         
-        # Also get categories from Plaid transactions if available
-        access_token = load_access_token()
-        if access_token:
+        if os.path.exists(categories_file):
             try:
-                # Set date range for transaction fetching
-                start_date = datetime.strptime("2020-01-01", "%Y-%m-%d").date()
-                end_date = datetime.now().date()
-
-                transactions_request = TransactionsGetRequest(
-                    access_token=access_token,
-                    start_date=start_date,
-                    end_date=end_date
-                )
-                response = client.transactions_get(transactions_request)
-                transactions = response['transactions']
-                
-                # Extract categories from Plaid transactions
-                for tx in transactions:
-                    if tx['category'] and len(tx['category']) > 0:
-                        categories.add(tx['category'][0])
+                with open(categories_file, 'r') as f:
+                    file_categories = json.load(f)
+                    # Add categories from file
+                    categories.update(file_categories)
             except Exception as e:
-                logger.error(f"Error fetching categories from Plaid: {str(e)}")
+                logger.error(f"Error reading categories file: {str(e)}")
+        
+        # If we have no categories yet, extract them from transactions
+        if not categories:
+            logger.debug("No categories found in categories.json, extracting from transactions")
+            
+            # Load saved transactions to extract categories
+            saved_transactions = load_saved_transactions()
+            
+            # Get unique categories from saved transactions
+            for tx_id, tx_data in saved_transactions.items():
+                if 'category' in tx_data and not tx_data.get('deleted', False):
+                    categories.add(tx_data['category'])
+            
+            # Also get categories from Plaid transactions if available
+            access_token = load_access_token()
+            if access_token:
+                try:
+                    # Set date range for transaction fetching
+                    start_date = datetime.strptime("2020-01-01", "%Y-%m-%d").date()
+                    end_date = datetime.now().date()
+
+                    transactions_request = TransactionsGetRequest(
+                        access_token=access_token,
+                        start_date=start_date,
+                        end_date=end_date
+                    )
+                    response = client.transactions_get(transactions_request)
+                    transactions = response['transactions']
+                    
+                    # Extract categories from Plaid transactions
+                    for tx in transactions:
+                        if tx.get('category') and len(tx.get('category', [])) > 0:
+                            categories.add(tx['category'][0])
+                except Exception as e:
+                    logger.error(f"Error fetching categories from Plaid: {str(e)}")
+        
+        # FIX: Add some default categories if none found
+        if len(categories) == 0:
+            default_categories = [
+                "Food and Drink", 
+                "Transportation", 
+                "Housing", 
+                "Entertainment", 
+                "Shopping", 
+                "Medical", 
+                "Travel", 
+                "Education", 
+                "Income",
+                "Utilities",
+                "Subscriptions"
+            ]
+            categories.update(default_categories)
+            
+            # Save default categories to file
+            with open(categories_file, 'w') as f:
+                json.dump(list(categories), f)
         
         # Convert to sorted list
         category_list = sorted(list(categories))
+        logger.debug(f"Returning {len(category_list)} categories")
         
         return jsonify({'categories': category_list})
     except Exception as e:
@@ -663,77 +739,254 @@ def get_categories():
         logger.error(traceback.format_exc())
         return jsonify({'error': 'Failed to retrieve categories', 'details': str(e)}), 500
 
-# Route to add a new category
-@app.route('/add_category', methods=['POST'])
-def add_category():
-    try:
-        data = request.json
-        new_category = data.get('category')
+# Helper function to parse dates in various formats
+def parse_date(date_str):
+    """
+    Parse date string in various formats and return a datetime.date object
+    
+    Parameters:
+    date_str (str|datetime|date): Date to parse, can be string, datetime object, or date object
+    
+    Returns:
+    datetime.date: The parsed date as a date object
+    
+    Raises:
+    ValueError: If the date cannot be parsed
+    """
+    # If it's already a date object, return it
+    if isinstance(date_str, datetime.date):
+        return date_str
         
-        if not new_category:
-            return jsonify({'error': 'Category name is required'}), 400
+    # If it's a datetime object, return its date component
+    if isinstance(date_str, datetime):
+        return date_str.date()
+    
+    # If it's not a string, try to convert it to string
+    if not isinstance(date_str, str):
+        try:
+            date_str = str(date_str)
+        except:
+            raise ValueError(f"Could not convert {type(date_str)} to string")
+    
+    # Try different formats
+    formats = [
+        "%Y-%m-%d",  # ISO format: 2023-01-31
+        "%m/%d/%Y",  # US format: 01/31/2023 
+        "%d/%m/%Y",  # European format: 31/01/2023
+        "%b %d, %Y", # Jan 31, 2023
+        "%d %b %Y"   # 31 Jan 2023
+    ]
+    
+    for fmt in formats:
+        try:
+            return datetime.strptime(date_str, fmt).date()
+        except ValueError:
+            continue
             
-        # Load saved category preferences
-        categories_file = os.path.join(os.getcwd(), 'logs_and_json', 'categories.json')
-        
-        categories = []
-        if os.path.exists(categories_file):
-            with open(categories_file, 'r') as f:
-                categories = json.load(f)
-        
-        # Check if category already exists
-        if new_category in categories:
-            return jsonify({'message': 'Category already exists', 'categories': categories})
-        
-        # Add new category
-        categories.append(new_category)
-        categories.sort()
-        
-        # Save categories
-        with open(categories_file, 'w') as f:
-            json.dump(categories, f)
-            
-        return jsonify({'message': 'Category added successfully', 'categories': categories})
-    except Exception as e:
-        logger.error(f"Error adding category: {str(e)}")
-        logger.error(traceback.format_exc())
-        return jsonify({'error': 'Failed to add category', 'details': str(e)}), 500
+    # If we get here, none of the formats worked
+    raise ValueError(f"Could not parse date string: {date_str}")
 
-# Route to delete a category
-@app.route('/delete_category', methods=['POST'])
-def delete_category():
+# Route to get annual category totals
+@app.route('/get_annual_totals', methods=['GET'])
+def get_annual_totals():
     try:
-        data = request.json
-        category = data.get('category')
+        # Load all transactions
+        transactions = []
+        access_token = load_access_token()
+        saved_transactions = load_saved_transactions()
         
-        if not category:
-            return jsonify({'error': 'Category name is required'}), 400
+        # Get Plaid transactions if token exists
+        if access_token:
+            try:
+                # Use a wide date range
+                start_date = datetime(2020, 1, 1).date()
+                end_date = datetime.now().date()
+                
+                transactions_request = TransactionsGetRequest(
+                    access_token=access_token,
+                    start_date=start_date,
+                    end_date=end_date
+                )
+                response = client.transactions_get(transactions_request)
+                plaid_txs = response['transactions']
+                
+                # Process transactions
+                for tx in plaid_txs:
+                    tx_id = tx.get('transaction_id')
+                    # Skip if manually deleted
+                    if tx_id in saved_transactions and saved_transactions[tx_id].get('deleted', False):
+                        continue
+                    
+                    # Get transaction date
+                    date_str = tx['date']
+                    tx_date = None
+                    
+                    # Improved date parsing logic
+                    try:
+                        # Parse the date string
+                        if isinstance(date_str, str):
+                            tx_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+                        elif hasattr(date_str, 'date') and callable(getattr(date_str, 'date')):
+                            # It's a datetime object
+                            tx_date = date_str.date()
+                        elif isinstance(date_str, datetime.date):
+                            # It's already a date
+                            tx_date = date_str
+                        else:
+                            # Use today as fallback
+                            logger.warning(f"Couldn't determine date format for {tx_id}, using today's date")
+                            tx_date = datetime.now().date()
+                    except Exception as e:
+                        logger.warning(f"Error parsing date {date_str} for transaction {tx_id}, using today's date: {str(e)}")
+                        tx_date = datetime.now().date()
+                    
+                    # Use saved modifications if available
+                    category = tx['category'][0] if tx['category'] else 'Uncategorized'
+                    amount = abs(float(tx['amount']))
+                    is_debit = float(tx['amount']) > 0
+                    
+                    if tx_id in saved_transactions:
+                        saved_tx = saved_transactions[tx_id]
+                        if 'category' in saved_tx:
+                            category = saved_tx['category']
+                        if 'date' in saved_tx:
+                            saved_date = saved_tx['date']
+                            try:
+                                if isinstance(saved_date, str):
+                                    tx_date = datetime.strptime(saved_date, "%Y-%m-%d").date()
+                                elif hasattr(saved_date, 'date') and callable(getattr(saved_date, 'date')):
+                                    tx_date = saved_date.date()
+                                elif isinstance(saved_date, datetime.date):
+                                    tx_date = saved_date
+                            except:
+                                logger.debug(f"Keeping original transaction date for {tx_id}")
+                        if 'amount' in saved_tx:
+                            amount = abs(float(saved_tx['amount']))
+                        if 'is_debit' in saved_tx:
+                            is_debit = saved_tx['is_debit']
+                    
+                    transactions.append({
+                        'date': tx_date,
+                        'amount': amount,
+                        'is_debit': is_debit,
+                        'category': category
+                    })
+            except Exception as e:
+                logger.error(f"Error processing Plaid transactions for annual totals: {str(e)}")
+        
+        # Add manual transactions
+        for tx_id, tx_data in saved_transactions.items():
+            if tx_data.get('manual', False) and not tx_data.get('deleted', False):
+                date_str = tx_data.get('date')
+                if not date_str:
+                    continue
+                
+                tx_date = None
+                try:
+                    if isinstance(date_str, str):
+                        tx_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+                    elif hasattr(date_str, 'date') and callable(getattr(date_str, 'date')):
+                        tx_date = date_str.date()
+                    elif isinstance(date_str, datetime.date):
+                        tx_date = date_str
+                    else:
+                        # Use today as fallback
+                        logger.warning(f"Couldn't determine date format for manual transaction {tx_id}, using today's date")
+                        tx_date = datetime.now().date()
+                except Exception as e:
+                    logger.warning(f"Error parsing date for manual transaction {tx_id}, using today's date: {str(e)}")
+                    tx_date = datetime.now().date()
+                
+                transactions.append({
+                    'date': tx_date,
+                    'amount': tx_data.get('amount', 0),
+                    'is_debit': tx_data.get('is_debit', True),
+                    'category': tx_data.get('category', 'Uncategorized')
+                })
+        
+        # FIX: Handle empty transaction list
+        if not transactions:
+            logger.warning("No transactions found for annual totals")
+            return jsonify({
+                'annual_category_totals': [],
+                'years': []
+            })
             
-        # Load saved category preferences
-        categories_file = os.path.join(os.getcwd(), 'logs_and_json', 'categories.json')
+        # Calculate annual totals
+        annual_totals = {}
         
-        categories = []
-        if os.path.exists(categories_file):
-            with open(categories_file, 'r') as f:
-                categories = json.load(f)
+        # Get current date for LTM calculation
+        current_date = datetime.now().date()
+        ltm_start_date = datetime(current_date.year - 1, current_date.month, 1).date()
         
-        # Check if category exists
-        if category not in categories:
-            return jsonify({'error': 'Category not found'}), 404
-        
-        # Remove category
-        categories.remove(category)
-        
-        # Save categories
-        with open(categories_file, 'w') as f:
-            json.dump(categories, f)
+        # Process each transaction
+        for tx in transactions:
+            # Verify we have a valid date object
+            tx_date = tx.get('date')
+            if not tx_date or not isinstance(tx_date, datetime.date):
+                logger.warning(f"Invalid date in transaction: {tx_date} - skipping")
+                continue
+                
+            year = tx_date.year
+            category = tx.get('category', 'Uncategorized')
+            amount = tx.get('amount', 0)
+            is_debit = tx.get('is_debit', True)
             
-        return jsonify({'message': 'Category deleted successfully', 'categories': categories})
+            # For debits, count as negative in totals (money spent)
+            if is_debit:
+                amount = -amount
+            
+            # Add to year totals
+            if year not in annual_totals:
+                annual_totals[year] = {}
+            
+            if category not in annual_totals[year]:
+                annual_totals[year][category] = 0
+                
+            annual_totals[year][category] += amount
+            
+            # Add to LTM if applicable
+            if tx_date >= ltm_start_date and tx_date < current_date:
+                if 'LTM' not in annual_totals:
+                    annual_totals['LTM'] = {}
+                
+                if category not in annual_totals['LTM']:
+                    annual_totals['LTM'][category] = 0
+                    
+                annual_totals['LTM'][category] += amount
+        
+        # Convert to a format suitable for the frontend table
+        years = sorted([y for y in annual_totals.keys() if y != 'LTM'])
+        if 'LTM' in annual_totals:
+            years.append('LTM')
+            
+        all_categories = set()
+        for year_data in annual_totals.values():
+            all_categories.update(year_data.keys())
+        
+        all_categories = sorted(all_categories)
+        
+        annual_table = []
+        for category in all_categories:
+            row = {'category': category}
+            
+            for year in years:
+                year_str = str(year)
+                amount = annual_totals[year].get(category, 0)
+                row[year_str] = f"${abs(amount):.2f}"
+                
+            annual_table.append(row)
+        
+        return jsonify({
+            'annual_category_totals': annual_table,
+            'years': [str(y) for y in years]
+        })
+        
     except Exception as e:
-        logger.error(f"Error deleting category: {str(e)}")
+        logger.error(f"Error generating annual totals: {str(e)}")
         logger.error(traceback.format_exc())
-        return jsonify({'error': 'Failed to delete category', 'details': str(e)}), 500
-
+        return jsonify({'error': 'Failed to generate annual totals', 'details': str(e)}), 500
+    
 # Route to export transactions as CSV
 @app.route('/export_transactions', methods=['POST'])
 def export_transactions():
@@ -935,248 +1188,76 @@ def export_transactions():
     except Exception as e:
         logger.error(f"Error exporting transactions: {str(e)}")
         logger.error(traceback.format_exc())
-        return jsonify({'error': 'Failed to export transactions', 'details': str(e)}), 500
-
-        
-# Helper function to parse dates in various formats
-def parse_date(date_str):
-    """
-    Parse date string in various formats and return a datetime.date object
-    
-    Parameters:
-    date_str (str|datetime|date): Date to parse, can be string, datetime object, or date object
-    
-    Returns:
-    datetime.date: The parsed date as a date object
-    
-    Raises:
-    ValueError: If the date cannot be parsed
-    """
-    # If it's already a date object, return it
-    if isinstance(date_str, datetime.date):
-        return date_str
-        
-    # If it's a datetime object, return its date component
-    if isinstance(date_str, datetime):
-        return date_str.date()
-    
-    # If it's not a string, try to convert it to string
-    if not isinstance(date_str, str):
-        try:
-            date_str = str(date_str)
-        except:
-            raise ValueError(f"Could not convert {type(date_str)} to string")
-    
-    # Try different formats
-    formats = [
-        "%Y-%m-%d",  # ISO format: 2023-01-31
-        "%m/%d/%Y",  # US format: 01/31/2023 
-        "%d/%m/%Y",  # European format: 31/01/2023
-        "%b %d, %Y", # Jan 31, 2023
-        "%d %b %Y"   # 31 Jan 2023
-    ]
-    
-    for fmt in formats:
-        try:
-            return datetime.strptime(date_str, fmt).date()
-        except ValueError:
-            continue
-            
-    # If we get here, none of the formats worked
-    raise ValueError(f"Could not parse date string: {date_str}")
-
-# Route to get annual category totals
-@app.route('/get_annual_totals', methods=['GET'])
-def get_annual_totals():
+        return jsonify({'error': 'Failed to export transactions', 'details': str(e)}), 500# Route to add a new category
+@app.route('/add_category', methods=['POST'])
+def add_category():
     try:
-        # Load all transactions
-        transactions = []
-        access_token = load_access_token()
-        saved_transactions = load_saved_transactions()
+        data = request.json
+        new_category = data.get('category')
         
-        # Get Plaid transactions if token exists
-        if access_token:
-            try:
-                # Use a wide date range
-                start_date = datetime(2020, 1, 1).date()
-                end_date = datetime.now().date()
-                
-                transactions_request = TransactionsGetRequest(
-                    access_token=access_token,
-                    start_date=start_date,
-                    end_date=end_date
-                )
-                response = client.transactions_get(transactions_request)
-                plaid_txs = response['transactions']
-                
-                # Process transactions
-                for tx in plaid_txs:
-                    tx_id = tx.get('transaction_id')
-                    # Skip if manually deleted
-                    if tx_id in saved_transactions and saved_transactions[tx_id].get('deleted', False):
-                        continue
-                    
-                    # Get transaction date
-                    date_str = tx['date']
-                    tx_date = None
-                    
-                    # Improved date parsing logic
-                    try:
-                        # Parse the date string
-                        if isinstance(date_str, str):
-                            tx_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                        elif hasattr(date_str, 'date') and callable(getattr(date_str, 'date')):
-                            # It's a datetime object
-                            tx_date = date_str.date()
-                        elif isinstance(date_str, datetime.date):
-                            # It's already a date
-                            tx_date = date_str
-                        else:
-                            # Use today as fallback
-                            logger.warning(f"Couldn't determine date format for {tx_id}, using today's date")
-                            tx_date = datetime.now().date()
-                    except Exception as e:
-                        logger.warning(f"Error parsing date {date_str} for transaction {tx_id}, using today's date: {str(e)}")
-                        tx_date = datetime.now().date()
-                    
-                    # Use saved modifications if available
-                    category = tx['category'][0] if tx['category'] else 'Uncategorized'
-                    amount = abs(float(tx['amount']))
-                    is_debit = float(tx['amount']) > 0
-                    
-                    if tx_id in saved_transactions:
-                        saved_tx = saved_transactions[tx_id]
-                        if 'category' in saved_tx:
-                            category = saved_tx['category']
-                        if 'date' in saved_tx:
-                            saved_date = saved_tx['date']
-                            try:
-                                if isinstance(saved_date, str):
-                                    tx_date = datetime.strptime(saved_date, "%Y-%m-%d").date()
-                                elif hasattr(saved_date, 'date') and callable(getattr(saved_date, 'date')):
-                                    tx_date = saved_date.date()
-                                elif isinstance(saved_date, datetime.date):
-                                    tx_date = saved_date
-                            except:
-                                logger.debug(f"Keeping original transaction date for {tx_id}")
-                        if 'amount' in saved_tx:
-                            amount = abs(float(saved_tx['amount']))
-                        if 'is_debit' in saved_tx:
-                            is_debit = saved_tx['is_debit']
-                    
-                    transactions.append({
-                        'date': tx_date,
-                        'amount': amount,
-                        'is_debit': is_debit,
-                        'category': category
-                    })
-            except Exception as e:
-                logger.error(f"Error processing Plaid transactions for annual totals: {str(e)}")
-        
-        # Add manual transactions
-        for tx_id, tx_data in saved_transactions.items():
-            if tx_data.get('manual', False) and not tx_data.get('deleted', False):
-                date_str = tx_data.get('date')
-                if not date_str:
-                    continue
-                
-                tx_date = None
-                try:
-                    if isinstance(date_str, str):
-                        tx_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                    elif hasattr(date_str, 'date') and callable(getattr(date_str, 'date')):
-                        tx_date = date_str.date()
-                    elif isinstance(date_str, datetime.date):
-                        tx_date = date_str
-                    else:
-                        # Use today as fallback
-                        logger.warning(f"Couldn't determine date format for manual transaction {tx_id}, using today's date")
-                        tx_date = datetime.now().date()
-                except Exception as e:
-                    logger.warning(f"Error parsing date for manual transaction {tx_id}, using today's date: {str(e)}")
-                    tx_date = datetime.now().date()
-                
-                transactions.append({
-                    'date': tx_date,
-                    'amount': tx_data.get('amount', 0),
-                    'is_debit': tx_data.get('is_debit', True),
-                    'category': tx_data.get('category', 'Uncategorized')
-                })
-        
-        # Calculate annual totals
-        annual_totals = {}
-        
-        # Get current date for LTM calculation
-        current_date = datetime.now().date()
-        ltm_start_date = datetime(current_date.year - 1, current_date.month, 1).date()
-        
-        # Process each transaction
-        for tx in transactions:
-            # Verify we have a valid date object
-            tx_date = tx['date']
-            if not tx_date or not isinstance(tx_date, datetime.date):
-                logger.warning(f"Invalid date in transaction: {tx_date} - skipping")
-                continue
-                
-            year = tx_date.year
-            category = tx['category']
-            amount = tx['amount']
-            is_debit = tx['is_debit']
+        if not new_category:
+            return jsonify({'error': 'Category name is required'}), 400
             
-            # For debits, count as negative in totals (money spent)
-            if is_debit:
-                amount = -amount
-            
-            # Add to year totals
-            if year not in annual_totals:
-                annual_totals[year] = {}
-            
-            if category not in annual_totals[year]:
-                annual_totals[year][category] = 0
-                
-            annual_totals[year][category] += amount
-            
-            # Add to LTM if applicable
-            if tx_date >= ltm_start_date and tx_date < current_date:
-                if 'LTM' not in annual_totals:
-                    annual_totals['LTM'] = {}
-                
-                if category not in annual_totals['LTM']:
-                    annual_totals['LTM'][category] = 0
-                    
-                annual_totals['LTM'][category] += amount
+        # Load saved category preferences
+        categories_file = os.path.join(os.getcwd(), 'logs_and_json', 'categories.json')
         
-        # Convert to a format suitable for the frontend table
-        years = sorted([y for y in annual_totals.keys() if y != 'LTM'])
-        if 'LTM' in annual_totals:
-            years.append('LTM')
+        categories = []
+        if os.path.exists(categories_file):
+            with open(categories_file, 'r') as f:
+                categories = json.load(f)
+        
+        # Check if category already exists
+        if new_category in categories:
+            return jsonify({'message': 'Category already exists', 'categories': categories})
+        
+        # Add new category
+        categories.append(new_category)
+        categories.sort()
+        
+        # Save categories
+        with open(categories_file, 'w') as f:
+            json.dump(categories, f)
             
-        all_categories = set()
-        for year_data in annual_totals.values():
-            all_categories.update(year_data.keys())
-        
-        all_categories = sorted(all_categories)
-        
-        annual_table = []
-        for category in all_categories:
-            row = {'category': category}
-            
-            for year in years:
-                year_str = str(year)
-                amount = annual_totals[year].get(category, 0)
-                row[year_str] = f"${abs(amount):.2f}"
-                
-            annual_table.append(row)
-        
-        return jsonify({
-            'annual_category_totals': annual_table,
-            'years': [str(y) for y in years]
-        })
-        
+        return jsonify({'message': 'Category added successfully', 'categories': categories})
     except Exception as e:
-        logger.error(f"Error generating annual totals: {str(e)}")
+        logger.error(f"Error adding category: {str(e)}")
         logger.error(traceback.format_exc())
-        return jsonify({'error': 'Failed to generate annual totals', 'details': str(e)}), 500
+        return jsonify({'error': 'Failed to add category', 'details': str(e)}), 500
+
+# Route to delete a category
+@app.route('/delete_category', methods=['POST'])
+def delete_category():
+    try:
+        data = request.json
+        category = data.get('category')
+        
+        if not category:
+            return jsonify({'error': 'Category name is required'}), 400
+            
+        # Load saved category preferences
+        categories_file = os.path.join(os.getcwd(), 'logs_and_json', 'categories.json')
+        
+        categories = []
+        if os.path.exists(categories_file):
+            with open(categories_file, 'r') as f:
+                categories = json.load(f)
+        
+        # Check if category exists
+        if category not in categories:
+            return jsonify({'error': 'Category not found'}), 404
+        
+        # Remove category
+        categories.remove(category)
+        
+        # Save categories
+        with open(categories_file, 'w') as f:
+            json.dump(categories, f)
+            
+        return jsonify({'message': 'Category deleted successfully', 'categories': categories})
+    except Exception as e:
+        logger.error(f"Error deleting category: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({'error': 'Failed to delete category', 'details': str(e)}), 500
     
 # Route to view logs
 @app.route('/logs')
@@ -1242,10 +1323,78 @@ def get_logs():
         logger.error(traceback.format_exc())
         return jsonify({'error': 'Failed to retrieve logs', 'details': str(e)}), 500
 
+# FIX: Add a debug endpoint to check environment
+@app.route('/debug_info')
+def debug_info():
+    """Endpoint to help with troubleshooting - returns basic app info"""
+    try:
+        # Check if token file exists
+        token_exists = os.path.exists(TOKEN_FILE)
+        token_content = None
+        if token_exists:
+            with open(TOKEN_FILE, 'r') as f:
+                token_content = json.load(f)
+        
+        # Check transactions file
+        tx_exists = os.path.exists(TRANSACTIONS_FILE)
+        tx_count = 0
+        if tx_exists:
+            with open(TRANSACTIONS_FILE, 'r') as f:
+                tx_data = json.load(f)
+                tx_count = len(tx_data)
+        
+        # Check directories
+        logs_dir_exists = os.path.exists(os.path.dirname(LOG_FILE))
+        
+        # Check plaid client is working
+        plaid_client_ok = False
+        try:
+            # Make a simple call to check connectivity
+            if client:
+                plaid_client_ok = True
+        except Exception as e:
+            logger.error(f"Error checking Plaid client: {str(e)}")
+        
+        # Return basic info
+        info = {
+            'app_status': 'running',
+            'token_file_exists': token_exists,
+            'token_present': bool(token_content.get('access_token')) if token_content else False,
+            'transaction_file_exists': tx_exists,
+            'transaction_count': tx_count,
+            'logs_directory_exists': logs_dir_exists,
+            'plaid_client_initialized': plaid_client_ok,
+            'app_version': '1.0.1',  # Version with fixes
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        return jsonify(info)
+    except Exception as e:
+        logger.error(f"Error in debug_info: {str(e)}")
+        return jsonify({
+            'app_status': 'error',
+            'error': str(e)
+        })
+
 # Step 5.2: Serve the webpage with Plaid Link
 @app.route('/')
 def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # FIX: Log startup message
+    logger.info("================================")
+    logger.info("Starting Personal Finance App")
+    logger.info(f"Environment: {'Development' if app.debug else 'Production'}")
+    logger.info(f"Token file: {TOKEN_FILE}")
+    logger.info(f"Log file: {LOG_FILE}")
+    logger.info("================================")
+    
+    # Check if token file exists
+    token_exists = os.path.exists(TOKEN_FILE)
+    if token_exists:
+        logger.info("Access token file found")
+    else:
+        logger.info("No access token file found - bank connection required")
+    
+    app.run(debug=True)        
