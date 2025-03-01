@@ -733,7 +733,7 @@
                 }
 
                 // Update the text to show the selected range
-                customRangeOption.textContent = `${customDateStart.value} - ${customDateEnd.value}`;
+                customRangeOption.textContent = `${customDateStart.value.replace(/\/\d{4}$/, (match) => '/' + match.slice(-2))} - ${customDateEnd.value.replace(/\/\d{4}$/, (match) => '/' + match.slice(-2))}`;
 
                 // Select the custom option
                 dateFilter.value = 'custom';
