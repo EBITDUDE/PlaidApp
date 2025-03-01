@@ -108,3 +108,19 @@ TypeError: isinstance() arg 2 must be a type or tuple of types
 2025-03-01 09:57:04,033 [INFO] 127.0.0.1 - - [01/Mar/2025 09:57:04] "[35m[1mGET /get_annual_totals HTTP/1.1[0m" 500 -
 2025-03-01 09:57:09,567 [INFO] 127.0.0.1 - - [01/Mar/2025 09:57:09] "GET / HTTP/1.1" 200 -
 2025-03-01 09:57:09,775 [INFO] 127.0.0.1 - - [01/Mar/2025 09:57:09] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-01 13:20:25,147 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\item_public_token_exchange_request.py', reloading
+2025-03-01 13:20:25,636 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-01 13:20:26,827 [WARNING]  * Debugger is active!
+2025-03-01 13:20:26,831 [INFO]  * Debugger PIN: 109-758-015
+2025-03-01 13:40:15,665 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\accounts_get_response.py', reloading
+2025-03-01 13:40:15,684 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\accounts_get_request.py', reloading
+2025-03-01 13:40:16,697 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-01 13:40:17,778 [WARNING]  * Debugger is active!
+2025-03-01 13:40:17,781 [INFO]  * Debugger PIN: 109-758-015
+2025-03-01 13:45:30,960 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\datetime.py', reloading
+2025-03-01 13:45:31,413 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-01 13:45:32,476 [WARNING]  * Debugger is active!
+2025-03-01 13:45:32,479 [INFO]  * Debugger PIN: 109-758-015
+2025-03-01 14:00:35,003 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
+2025-03-01 14:00:35,007 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
+2025-03-01 14:00:35,134 [INFO]  * Restarting with watchdog (windowsapi)

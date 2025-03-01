@@ -283,25 +283,48 @@ def get_transactions():
                             amount = saved_tx['amount']
                         if 'is_debit' in saved_tx:
                             is_debit = saved_tx['is_debit']
-                    
-                    # Parse and format the date
+                                        
+                    # Parse and format the date with better error handling
                     try:
+                        # First try to parse the date string
                         if isinstance(date_str, str):
-                            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+                            try:
+                                # Try ISO format first (YYYY-MM-DD)
+                                date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+                            except ValueError:
+                                # Fall back to US format (MM/DD/YYYY)
+                                date_obj = datetime.strptime(date_str, "%m/%d/%Y")
+                            
+                            # Format for display and store raw value for sorting/filtering
                             formatted_date = date_obj.strftime("%m/%d/%Y")
-                            raw_date = date_str
-                        else:
+                            raw_date = date_obj.strftime("%Y-%m-%d")
+                        elif isinstance(date_str, datetime.date):
+                            # It's already a date object
+                            date_obj = datetime.combine(date_str, datetime.min.time())
                             formatted_date = date_str.strftime("%m/%d/%Y")
                             raw_date = date_str.strftime("%Y-%m-%d")
+                        elif isinstance(date_str, datetime):
+                            # It's a datetime object
+                            date_obj = date_str
+                            formatted_date = date_str.strftime("%m/%d/%Y")
+                            raw_date = date_str.strftime("%Y-%m-%d")
+                        else:
+                            # Unknown format, try to convert to string and parse
+                            logger.warning(f"Unexpected date type: {type(date_str).__name__}")
+                            date_str = str(date_str)
+                            date_obj = parse_date(date_str)
+                            formatted_date = date_obj.strftime("%m/%d/%Y")
+                            raw_date = date_obj.strftime("%Y-%m-%d")
                     except Exception as e:
-                        logger.error(f"Error formatting date: {e}")
-                        formatted_date = str(date_str)
+                        logger.error(f"Error formatting date: {e} for date: {date_str}")
+                        # Use a default format but mark it as having an issue
+                        formatted_date = str(date_str) + " (error)"
                         raw_date = str(date_str)
-                    
+                        
                     transaction_list.append({
                         'id': tx_id,
                         'date': formatted_date,
-                        'raw_date': raw_date,
+                        'raw_date': raw_date,  # Keep the raw date for sorting/filtering
                         'amount': amount,
                         'is_debit': is_debit,
                         'merchant': merchant,
@@ -310,6 +333,7 @@ def get_transactions():
                         'account_name': account_name,
                         'manual': False
                     })
+
             except Exception as e:
                 logger.error(f"Error fetching transactions from Plaid: {str(e)}")
                 logger.error(traceback.format_exc())
@@ -740,13 +764,13 @@ def export_transactions():
                 return jsonify({'error': 'Start and end dates are required for custom range'}), 400
                 
             try:
-                # Try to parse the date strings (handle multiple formats)
+                # Try to parse the date strings
                 start_date = parse_date(start_date_str)
                 end_date = parse_date(end_date_str)
             except Exception as e:
                 return jsonify({'error': f'Invalid date format: {str(e)}'}), 400
         else:
-            # All history - go back 5 years as a reasonable default
+            # All history - use a reasonable default of 5 years
             start_date = (current_date - timedelta(days=365*5))
         
         # Default end date is current date if not custom
@@ -761,9 +785,15 @@ def export_transactions():
         # Get Plaid transactions if token exists
         if access_token:
             try:
-                # Use a wide date range and filter later
+                # Use a wide date range and filter later (more efficient for multiple exports)
                 plaid_start = datetime(2020, 1, 1).date()
                 plaid_end = current_date
+                
+                # Cache the account data for better performance
+                accounts_response = client.accounts_get(AccountsGetRequest(access_token=access_token))
+                account_names = {}
+                for account in accounts_response.get('accounts', []):
+                    account_names[account.get('account_id')] = account.get('name', '')
                 
                 transactions_request = TransactionsGetRequest(
                     access_token=access_token,
@@ -772,11 +802,6 @@ def export_transactions():
                 )
                 response = client.transactions_get(transactions_request)
                 plaid_txs = response['transactions']
-                
-                # Get accounts for reference
-                account_names = {}
-                for account in response.get('accounts', []):
-                    account_names[account.get('account_id')] = account.get('name', '')
                 
                 # Process transactions
                 for tx in plaid_txs:
@@ -818,15 +843,15 @@ def export_transactions():
                                 # Check if still in range after modification
                                 if tx_date < start_date or tx_date > end_date:
                                     continue
-                            except:
+                            except Exception as e:
+                                logger.warning(f"Error parsing saved date: {str(e)}")
                                 # Keep original date if saved date is invalid
-                                pass
                         if 'amount' in saved_tx:
                             amount = abs(float(saved_tx['amount']))
                         if 'is_debit' in saved_tx:
                             is_debit = saved_tx['is_debit']
                     
-                    # Get account name
+                    # Get account name - use our cached account names instead of looping
                     account_id = tx.get('account_id', '')
                     account_name = account_names.get(account_id, '')
                     
@@ -852,10 +877,11 @@ def export_transactions():
                 
                 try:
                     tx_date = parse_date(date_str)
+                    # Skip if outside filter range
                     if tx_date < start_date or tx_date > end_date:
                         continue
                 except Exception as e:
-                    logger.warning(f"Error parsing date for manual transaction: {str(e)}")
+                    logger.warning(f"Error parsing date for manual transaction {tx_id}: {str(e)}")
                     continue
                 
                 transactions.append({
@@ -873,47 +899,78 @@ def export_transactions():
         
         # Convert to CSV format
         csv_data = "Date,Amount,Type,Category,Merchant,Account\n"
+        
+        # Define a helper function to properly escape CSV fields
+        def escape_csv_field(field):
+            if isinstance(field, str) and (',' in field or '"' in field or '\n' in field):
+                # Escape quotes by doubling them and wrap in quotes
+                return '"' + field.replace('"', '""') + '"'
+            return str(field)
+        
         for tx in transactions:
             # Format amount (positive number regardless of type)
             amount_str = f"{tx['amount']:.2f}"
             
-            # Escape values with commas
-            merchant = f'"{tx["merchant"]}"' if ',' in tx['merchant'] else tx['merchant']
-            category = f'"{tx["category"]}"' if ',' in tx['category'] else tx['category']
-            account = f'"{tx["account"]}"' if ',' in tx['account'] else tx['account']
+            # Properly escape all fields
+            date = escape_csv_field(tx['date'])
+            amount = escape_csv_field(amount_str)
+            tx_type = escape_csv_field(tx['type'])
+            category = escape_csv_field(tx['category'])
+            merchant = escape_csv_field(tx['merchant'])
+            account = escape_csv_field(tx['account'])
             
-            csv_data += f"{tx['date']},{amount_str},{tx['type']},{category},{merchant},{account}\n"
+            csv_data += f"{date},{amount},{tx_type},{category},{merchant},{account}\n"
         
         # Format filename
         start_date_str = start_date.strftime("%Y-%m-%d")
         end_date_str = end_date.strftime("%Y-%m-%d")
+        filename = f"transactions_{start_date_str}_to_{end_date_str}.csv"
         
         # Return CSV data
         return jsonify({
             'csv_data': csv_data,
-            'filename': f"transactions_{start_date_str}_to_{end_date_str}.csv"
+            'filename': filename
         })
-        
+
     except Exception as e:
         logger.error(f"Error exporting transactions: {str(e)}")
         logger.error(traceback.format_exc())
         return jsonify({'error': 'Failed to export transactions', 'details': str(e)}), 500
 
+        
 # Helper function to parse dates in various formats
 def parse_date(date_str):
     """
     Parse date string in various formats and return a datetime.date object
+    
+    Parameters:
+    date_str (str|datetime|date): Date to parse, can be string, datetime object, or date object
+    
+    Returns:
+    datetime.date: The parsed date as a date object
+    
+    Raises:
+    ValueError: If the date cannot be parsed
     """
+    # If it's already a date object, return it
     if isinstance(date_str, datetime.date):
         return date_str
         
+    # If it's a datetime object, return its date component
     if isinstance(date_str, datetime):
         return date_str.date()
-        
+    
+    # If it's not a string, try to convert it to string
+    if not isinstance(date_str, str):
+        try:
+            date_str = str(date_str)
+        except:
+            raise ValueError(f"Could not convert {type(date_str)} to string")
+    
     # Try different formats
     formats = [
         "%Y-%m-%d",  # ISO format: 2023-01-31
-        "%m/%d/%Y",  # US format: 01/31/2023
+        "%m/%d/%Y",  # US format: 01/31/2023 
         "%d/%m/%Y",  # European format: 31/01/2023
         "%b %d, %Y", # Jan 31, 2023
         "%d %b %Y"   # 31 Jan 2023
@@ -961,23 +1018,26 @@ def get_annual_totals():
                     
                     # Get transaction date
                     date_str = tx['date']
+                    tx_date = None
                     
                     # Improved date parsing logic
                     try:
-                        # Check if date_str is already a date object
-                        if isinstance(date_str, datetime.date):
+                        # Parse the date string
+                        if isinstance(date_str, str):
+                            tx_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+                        elif hasattr(date_str, 'date') and callable(getattr(date_str, 'date')):
+                            # It's a datetime object
+                            tx_date = date_str.date()
+                        elif isinstance(date_str, datetime.date):
+                            # It's already a date
                             tx_date = date_str
                         else:
-                            # Handle string date format
-                            tx_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                    except Exception as e:
-                        logger.debug(f"Using default date format for {tx_id}: {date_str}")
-                        # Try alternate format or use today's date as fallback
-                        try:
-                            tx_date = datetime.strptime(date_str, "%m/%d/%Y").date()
-                        except:
-                            logger.warning(f"Couldn't parse date {date_str} for transaction {tx_id}, using today's date")
+                            # Use today as fallback
+                            logger.warning(f"Couldn't determine date format for {tx_id}, using today's date")
                             tx_date = datetime.now().date()
+                    except Exception as e:
+                        logger.warning(f"Error parsing date {date_str} for transaction {tx_id}, using today's date: {str(e)}")
+                        tx_date = datetime.now().date()
                     
                     # Use saved modifications if available
                     category = tx['category'][0] if tx['category'] else 'Uncategorized'
@@ -991,10 +1051,12 @@ def get_annual_totals():
                         if 'date' in saved_tx:
                             saved_date = saved_tx['date']
                             try:
-                                if isinstance(saved_date, datetime.date):
-                                    tx_date = saved_date
-                                else:
+                                if isinstance(saved_date, str):
                                     tx_date = datetime.strptime(saved_date, "%Y-%m-%d").date()
+                                elif hasattr(saved_date, 'date') and callable(getattr(saved_date, 'date')):
+                                    tx_date = saved_date.date()
+                                elif isinstance(saved_date, datetime.date):
+                                    tx_date = saved_date
                             except:
                                 logger.debug(f"Keeping original transaction date for {tx_id}")
                         if 'amount' in saved_tx:
@@ -1018,19 +1080,21 @@ def get_annual_totals():
                 if not date_str:
                     continue
                 
+                tx_date = None
                 try:
-                    if isinstance(date_str, datetime.date):
+                    if isinstance(date_str, str):
+                        tx_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+                    elif hasattr(date_str, 'date') and callable(getattr(date_str, 'date')):
+                        tx_date = date_str.date()
+                    elif isinstance(date_str, datetime.date):
                         tx_date = date_str
                     else:
-                        tx_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                except Exception as e:
-                    logger.debug(f"Manual transaction date parse issue: {str(e)}")
-                    try:
-                        # Try alternate format
-                        tx_date = datetime.strptime(date_str, "%m/%d/%Y").date()
-                    except:
-                        logger.warning(f"Couldn't parse date for manual transaction {tx_id}, using today's date")
+                        # Use today as fallback
+                        logger.warning(f"Couldn't determine date format for manual transaction {tx_id}, using today's date")
                         tx_date = datetime.now().date()
+                except Exception as e:
+                    logger.warning(f"Error parsing date for manual transaction {tx_id}, using today's date: {str(e)}")
+                    tx_date = datetime.now().date()
                 
                 transactions.append({
                     'date': tx_date,
@@ -1048,12 +1112,13 @@ def get_annual_totals():
         
         # Process each transaction
         for tx in transactions:
-            # Make sure we have a valid date
-            if not isinstance(tx['date'], datetime.date):
-                logger.warning(f"Invalid date type in transaction: {type(tx['date'])}")
+            # Verify we have a valid date object
+            tx_date = tx['date']
+            if not tx_date or not isinstance(tx_date, datetime.date):
+                logger.warning(f"Invalid date in transaction: {tx_date} - skipping")
                 continue
                 
-            year = tx['date'].year
+            year = tx_date.year
             category = tx['category']
             amount = tx['amount']
             is_debit = tx['is_debit']
@@ -1072,7 +1137,7 @@ def get_annual_totals():
             annual_totals[year][category] += amount
             
             # Add to LTM if applicable
-            if tx['date'] >= ltm_start_date and tx['date'] < current_date:
+            if tx_date >= ltm_start_date and tx_date < current_date:
                 if 'LTM' not in annual_totals:
                     annual_totals['LTM'] = {}
                 
