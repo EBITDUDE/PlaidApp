@@ -3,8 +3,14 @@
 ├── plaid_client.py        (Your existing Plaid client)
 ├── templates/             (Directory for HTML templates)
 │   ├── index.html         (Corrected main page)
-│   └── log_viewer.html    (Log viewer page)
-└── simple_test/           (Created automatically)
-    ├── tokens.json        (Stores access tokens)
-    ├── transactions.json  (Stores transaction modifications)
-    └── finance_app.log    (Application logs)
+│   ├── log_viewer.html    (Log viewer page)
+|   ├── categories.html
+|   └── annual_totals.html
+├── logs_and_json/           (Created automatically)
+|   ├── tokens.json        (Stores access tokens)
+|   ├── transactions.json  (Stores transaction modifications)
+|   ├── categories.json  (Stores category modifications)
+|   └── finance_app.log    (Application logs)
+└── static/
+    └── js/
+        └── calendar-components.js
