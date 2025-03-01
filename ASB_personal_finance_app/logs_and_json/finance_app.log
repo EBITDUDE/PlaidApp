@@ -1016,3 +1016,1554 @@ werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on 
 2025-02-28 18:22:47,128 [INFO] Fetched 42 transactions from Plaid
 2025-02-28 18:22:47,128 [INFO] Total transactions: 44
 2025-02-28 18:22:47,128 [INFO] 127.0.0.1 - - [28/Feb/2025 18:22:47] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:24:51,938 [INFO] Plaid transaction 8rxPrxv57LfwrA66GZbvhB5yWNGnqnCWJ9yxz marked as deleted
+2025-02-28 18:24:51,957 [INFO] 127.0.0.1 - - [28/Feb/2025 18:24:51] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 18:24:52,039 [INFO] Fetching transactions from Plaid
+2025-02-28 18:24:52,946 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 18:24:52,946 [INFO] Total transactions: 43
+2025-02-28 18:24:52,946 [INFO] 127.0.0.1 - - [28/Feb/2025 18:24:52] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:24:56,290 [INFO] Plaid transaction EQzWQznPAxikG8eeNJ3bSNvPeQ9WxWu45oLjr marked as deleted
+2025-02-28 18:24:56,307 [INFO] 127.0.0.1 - - [28/Feb/2025 18:24:56] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 18:24:56,406 [INFO] Fetching transactions from Plaid
+2025-02-28 18:24:57,144 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 18:24:57,144 [INFO] Total transactions: 42
+2025-02-28 18:24:57,144 [INFO] 127.0.0.1 - - [28/Feb/2025 18:24:57] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:24:59,156 [INFO] Plaid transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJagaG marked as deleted
+2025-02-28 18:24:59,156 [INFO] 127.0.0.1 - - [28/Feb/2025 18:24:59] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 18:24:59,260 [INFO] Fetching transactions from Plaid
+2025-02-28 18:24:59,931 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 18:24:59,933 [INFO] Total transactions: 41
+2025-02-28 18:24:59,936 [INFO] 127.0.0.1 - - [28/Feb/2025 18:24:59] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:25:01,675 [INFO] Plaid transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVrarN marked as deleted
+2025-02-28 18:25:01,692 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:01] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 18:25:01,817 [INFO] Fetching transactions from Plaid
+2025-02-28 18:25:02,573 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 18:25:02,575 [INFO] Total transactions: 40
+2025-02-28 18:25:02,578 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:02] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:25:03,956 [INFO] Plaid transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMjl marked as deleted
+2025-02-28 18:25:03,958 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:03] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 18:25:04,061 [INFO] Fetching transactions from Plaid
+2025-02-28 18:25:04,813 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 18:25:04,821 [INFO] Total transactions: 39
+2025-02-28 18:25:04,821 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:04] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:25:06,824 [INFO] Plaid transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzkp marked as deleted
+2025-02-28 18:25:06,839 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:06] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 18:25:06,925 [INFO] Fetching transactions from Plaid
+2025-02-28 18:25:07,674 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 18:25:07,689 [INFO] Total transactions: 38
+2025-02-28 18:25:07,691 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:07] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:25:08,824 [INFO] Manual transaction manual-3ba24b90-10de-49f7-9ed2-221499238370 deleted
+2025-02-28 18:25:08,842 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:08] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 18:25:08,940 [INFO] Fetching transactions from Plaid
+2025-02-28 18:25:09,610 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 18:25:09,610 [INFO] Total transactions: 37
+2025-02-28 18:25:09,610 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:09] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:25:16,291 [INFO] Manual transaction manual-2d6ba5ad-90fb-4ad1-b14f-9c2052943b57 deleted
+2025-02-28 18:25:16,308 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:16] "POST /delete_transaction HTTP/1.1" 200 -
+2025-02-28 18:25:16,403 [INFO] Fetching transactions from Plaid
+2025-02-28 18:25:17,040 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 18:25:17,040 [INFO] Total transactions: 36
+2025-02-28 18:25:17,055 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:17] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:25:52,961 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:52] "GET / HTTP/1.1" 200 -
+2025-02-28 18:25:53,260 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:53] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 18:25:53,360 [INFO] Link token created successfully
+2025-02-28 18:25:53,360 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:53] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 18:25:53,393 [INFO] Fetching transactions from Plaid
+2025-02-28 18:25:53,650 [DEBUG] Number of accounts: 4
+2025-02-28 18:25:53,650 [DEBUG] Processing account 0
+2025-02-28 18:25:53,651 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 18:25:53,651 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 18:25:53,651 [DEBUG] Processing account 1
+2025-02-28 18:25:53,652 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 18:25:53,652 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 18:25:53,652 [DEBUG] Processing account 2
+2025-02-28 18:25:53,652 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 18:25:53,653 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 18:25:53,653 [DEBUG] Processing account 3
+2025-02-28 18:25:53,653 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 18:25:53,653 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 18:25:53,654 [INFO] Retrieved 4 accounts
+2025-02-28 18:25:53,654 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 18:25:53,654 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:53] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 18:25:54,142 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 18:25:54,142 [INFO] Total transactions: 36
+2025-02-28 18:25:54,142 [INFO] 127.0.0.1 - - [28/Feb/2025 18:25:54] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:26:10,895 [ERROR] Error processing Plaid transactions for export: strptime() argument 1 must be str, not datetime.date
+2025-02-28 18:26:10,895 [INFO] 127.0.0.1 - - [28/Feb/2025 18:26:10] "POST /export_transactions HTTP/1.1" 200 -
+2025-02-28 20:10:54,892 [INFO] 127.0.0.1 - - [28/Feb/2025 20:10:54] "GET / HTTP/1.1" 200 -
+2025-02-28 20:10:55,249 [INFO] 127.0.0.1 - - [28/Feb/2025 20:10:55] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 20:10:55,348 [INFO] Fetching transactions from Plaid
+2025-02-28 20:10:55,504 [INFO] Link token created successfully
+2025-02-28 20:10:55,504 [INFO] 127.0.0.1 - - [28/Feb/2025 20:10:55] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 20:10:55,710 [DEBUG] Number of accounts: 4
+2025-02-28 20:10:55,710 [DEBUG] Processing account 0
+2025-02-28 20:10:55,710 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:10:55,718 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:10:55,718 [DEBUG] Processing account 1
+2025-02-28 20:10:55,718 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:10:55,718 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:10:55,718 [DEBUG] Processing account 2
+2025-02-28 20:10:55,718 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:10:55,718 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:10:55,720 [DEBUG] Processing account 3
+2025-02-28 20:10:55,720 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:10:55,720 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:10:55,720 [INFO] Retrieved 4 accounts
+2025-02-28 20:10:55,720 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:10:55,720 [INFO] 127.0.0.1 - - [28/Feb/2025 20:10:55] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:10:56,037 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:10:56,037 [INFO] Total transactions: 36
+2025-02-28 20:10:56,037 [INFO] 127.0.0.1 - - [28/Feb/2025 20:10:56] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:35:04,577 [INFO] 127.0.0.1 - - [28/Feb/2025 20:35:04] "GET / HTTP/1.1" 200 -
+2025-02-28 20:35:04,918 [INFO] 127.0.0.1 - - [28/Feb/2025 20:35:04] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 20:35:05,036 [INFO] Fetching transactions from Plaid
+2025-02-28 20:35:05,156 [INFO] Link token created successfully
+2025-02-28 20:35:05,156 [INFO] 127.0.0.1 - - [28/Feb/2025 20:35:05] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 20:35:05,393 [DEBUG] Number of accounts: 4
+2025-02-28 20:35:05,393 [DEBUG] Processing account 0
+2025-02-28 20:35:05,393 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:35:05,393 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:35:05,393 [DEBUG] Processing account 1
+2025-02-28 20:35:05,393 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:35:05,393 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:35:05,393 [DEBUG] Processing account 2
+2025-02-28 20:35:05,393 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:35:05,393 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:35:05,393 [DEBUG] Processing account 3
+2025-02-28 20:35:05,393 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:35:05,393 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:35:05,393 [INFO] Retrieved 4 accounts
+2025-02-28 20:35:05,393 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:35:05,393 [INFO] 127.0.0.1 - - [28/Feb/2025 20:35:05] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:35:05,714 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:35:05,715 [INFO] Total transactions: 36
+2025-02-28 20:35:05,716 [INFO] 127.0.0.1 - - [28/Feb/2025 20:35:05] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:35:14,685 [DEBUG] Number of accounts: 4
+2025-02-28 20:35:14,686 [DEBUG] Processing account 0
+2025-02-28 20:35:14,687 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:35:14,688 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:35:14,689 [DEBUG] Processing account 1
+2025-02-28 20:35:14,689 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:35:14,690 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:35:14,691 [DEBUG] Processing account 2
+2025-02-28 20:35:14,692 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:35:14,692 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:35:14,693 [DEBUG] Processing account 3
+2025-02-28 20:35:14,694 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:35:14,694 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:35:14,695 [INFO] Retrieved 4 accounts
+2025-02-28 20:35:14,695 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:35:14,696 [INFO] 127.0.0.1 - - [28/Feb/2025 20:35:14] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:35:14,924 [INFO] 127.0.0.1 - - [28/Feb/2025 20:35:14] "GET /get_categories HTTP/1.1" 200 -
+2025-02-28 20:35:32,393 [INFO] 127.0.0.1 - - [28/Feb/2025 20:35:32] "POST /add_category HTTP/1.1" 200 -
+2025-02-28 20:35:44,072 [INFO] Manual transaction manual-f3d8e806-3b86-4575-ba0a-1d9545fddd8c created successfully
+2025-02-28 20:35:44,072 [INFO] 127.0.0.1 - - [28/Feb/2025 20:35:44] "POST /add_transaction HTTP/1.1" 200 -
+2025-02-28 20:35:44,092 [INFO] Fetching transactions from Plaid
+2025-02-28 20:35:44,663 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:35:44,673 [INFO] Total transactions: 37
+2025-02-28 20:35:44,675 [INFO] 127.0.0.1 - - [28/Feb/2025 20:35:44] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:36:18,069 [DEBUG] Number of accounts: 4
+2025-02-28 20:36:18,070 [DEBUG] Processing account 0
+2025-02-28 20:36:18,071 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:36:18,071 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:36:18,072 [DEBUG] Processing account 1
+2025-02-28 20:36:18,072 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:36:18,073 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:36:18,074 [DEBUG] Processing account 2
+2025-02-28 20:36:18,074 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:36:18,075 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:36:18,076 [DEBUG] Processing account 3
+2025-02-28 20:36:18,076 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:36:18,077 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:36:18,077 [INFO] Retrieved 4 accounts
+2025-02-28 20:36:18,077 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:36:18,078 [INFO] 127.0.0.1 - - [28/Feb/2025 20:36:18] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:36:18,348 [INFO] 127.0.0.1 - - [28/Feb/2025 20:36:18] "GET /get_categories HTTP/1.1" 200 -
+2025-02-28 20:40:24,817 [INFO] 127.0.0.1 - - [28/Feb/2025 20:40:24] "GET / HTTP/1.1" 200 -
+2025-02-28 20:40:25,072 [INFO] 127.0.0.1 - - [28/Feb/2025 20:40:25] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 20:40:25,301 [INFO] Fetching transactions from Plaid
+2025-02-28 20:40:25,305 [INFO] Link token created successfully
+2025-02-28 20:40:25,306 [INFO] 127.0.0.1 - - [28/Feb/2025 20:40:25] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 20:40:25,503 [DEBUG] Number of accounts: 4
+2025-02-28 20:40:25,504 [DEBUG] Processing account 0
+2025-02-28 20:40:25,504 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:40:25,505 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:40:25,505 [DEBUG] Processing account 1
+2025-02-28 20:40:25,505 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:40:25,506 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:40:25,506 [DEBUG] Processing account 2
+2025-02-28 20:40:25,506 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:40:25,506 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:40:25,506 [DEBUG] Processing account 3
+2025-02-28 20:40:25,506 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:40:25,507 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:40:25,507 [INFO] Retrieved 4 accounts
+2025-02-28 20:40:25,507 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:40:25,507 [INFO] 127.0.0.1 - - [28/Feb/2025 20:40:25] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:40:25,956 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:40:25,958 [INFO] Total transactions: 37
+2025-02-28 20:40:25,959 [INFO] 127.0.0.1 - - [28/Feb/2025 20:40:25] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:40:27,722 [DEBUG] Number of accounts: 4
+2025-02-28 20:40:27,724 [DEBUG] Processing account 0
+2025-02-28 20:40:27,725 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:40:27,725 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:40:27,726 [DEBUG] Processing account 1
+2025-02-28 20:40:27,727 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:40:27,727 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:40:27,728 [DEBUG] Processing account 2
+2025-02-28 20:40:27,729 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:40:27,730 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:40:27,730 [DEBUG] Processing account 3
+2025-02-28 20:40:27,731 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:40:27,732 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:40:27,733 [INFO] Retrieved 4 accounts
+2025-02-28 20:40:27,734 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:40:27,735 [INFO] 127.0.0.1 - - [28/Feb/2025 20:40:27] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:40:27,953 [INFO] 127.0.0.1 - - [28/Feb/2025 20:40:27] "GET /get_categories HTTP/1.1" 200 -
+2025-02-28 20:40:44,197 [INFO] Manual transaction manual-dae41153-dc08-4af9-903e-3a9c61dba54a created successfully
+2025-02-28 20:40:44,198 [INFO] 127.0.0.1 - - [28/Feb/2025 20:40:44] "POST /add_transaction HTTP/1.1" 200 -
+2025-02-28 20:40:44,301 [INFO] Fetching transactions from Plaid
+2025-02-28 20:40:44,907 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:40:44,908 [INFO] Total transactions: 38
+2025-02-28 20:40:44,910 [INFO] 127.0.0.1 - - [28/Feb/2025 20:40:44] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:41:01,665 [INFO] 127.0.0.1 - - [28/Feb/2025 20:41:01] "GET / HTTP/1.1" 200 -
+2025-02-28 20:41:01,949 [INFO] 127.0.0.1 - - [28/Feb/2025 20:41:01] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 20:41:02,115 [INFO] Link token created successfully
+2025-02-28 20:41:02,117 [INFO] 127.0.0.1 - - [28/Feb/2025 20:41:02] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 20:41:02,312 [INFO] Fetching transactions from Plaid
+2025-02-28 20:41:02,604 [DEBUG] Number of accounts: 4
+2025-02-28 20:41:02,604 [DEBUG] Processing account 0
+2025-02-28 20:41:02,605 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:41:02,605 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:41:02,605 [DEBUG] Processing account 1
+2025-02-28 20:41:02,606 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:41:02,606 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:41:02,606 [DEBUG] Processing account 2
+2025-02-28 20:41:02,607 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:41:02,607 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:41:02,607 [DEBUG] Processing account 3
+2025-02-28 20:41:02,607 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:41:02,608 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:41:02,608 [INFO] Retrieved 4 accounts
+2025-02-28 20:41:02,608 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:41:02,609 [INFO] 127.0.0.1 - - [28/Feb/2025 20:41:02] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:41:02,950 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:41:02,951 [INFO] Total transactions: 38
+2025-02-28 20:41:02,953 [INFO] 127.0.0.1 - - [28/Feb/2025 20:41:02] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:41:05,695 [DEBUG] Number of accounts: 4
+2025-02-28 20:41:05,697 [DEBUG] Processing account 0
+2025-02-28 20:41:05,698 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:41:05,699 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:41:05,700 [DEBUG] Processing account 1
+2025-02-28 20:41:05,701 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:41:05,702 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:41:05,703 [DEBUG] Processing account 2
+2025-02-28 20:41:05,704 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:41:05,705 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:41:05,706 [DEBUG] Processing account 3
+2025-02-28 20:41:05,707 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:41:05,708 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:41:05,708 [INFO] Retrieved 4 accounts
+2025-02-28 20:41:05,709 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:41:05,711 [INFO] 127.0.0.1 - - [28/Feb/2025 20:41:05] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:41:05,996 [INFO] 127.0.0.1 - - [28/Feb/2025 20:41:05] "GET /get_categories HTTP/1.1" 200 -
+2025-02-28 20:41:13,261 [INFO] Manual transaction manual-b945e11e-1209-4ab0-b403-fe7f0baa0528 created successfully
+2025-02-28 20:41:13,263 [INFO] 127.0.0.1 - - [28/Feb/2025 20:41:13] "POST /add_transaction HTTP/1.1" 200 -
+2025-02-28 20:41:13,392 [INFO] Fetching transactions from Plaid
+2025-02-28 20:41:13,988 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:41:13,989 [INFO] Total transactions: 39
+2025-02-28 20:41:13,991 [INFO] 127.0.0.1 - - [28/Feb/2025 20:41:13] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:49:02,088 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:02] "GET / HTTP/1.1" 200 -
+2025-02-28 20:49:02,310 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:02] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 20:49:02,409 [INFO] Fetching transactions from Plaid
+2025-02-28 20:49:02,544 [INFO] Link token created successfully
+2025-02-28 20:49:02,546 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:02] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 20:49:02,750 [DEBUG] Number of accounts: 4
+2025-02-28 20:49:02,751 [DEBUG] Processing account 0
+2025-02-28 20:49:02,752 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:49:02,753 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:49:02,753 [DEBUG] Processing account 1
+2025-02-28 20:49:02,754 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:49:02,756 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:49:02,757 [DEBUG] Processing account 2
+2025-02-28 20:49:02,757 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:49:02,758 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:49:02,759 [DEBUG] Processing account 3
+2025-02-28 20:49:02,759 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:49:02,760 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:49:02,761 [INFO] Retrieved 4 accounts
+2025-02-28 20:49:02,762 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:49:02,763 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:02] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:49:03,047 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:49:03,049 [INFO] Total transactions: 39
+2025-02-28 20:49:03,050 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:03] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:49:18,087 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:18] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 20:49:18,905 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 20:49:18,906 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 20:49:18,906 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 20:49:18,907 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 20:49:18,907 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 20:49:18,907 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 20:49:18,908 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 20:49:18,908 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 20:49:18,909 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 20:49:18,909 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 20:49:18,909 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 20:49:18,910 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 20:49:18,910 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 20:49:18,910 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 20:49:18,911 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 20:49:18,911 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 20:49:18,911 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 20:49:18,912 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 20:49:18,912 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 20:49:18,912 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 20:49:18,913 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 20:49:18,914 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 20:49:18,914 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 20:49:18,914 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 20:49:18,914 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 20:49:18,914 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 20:49:18,915 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 20:49:18,915 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 20:49:18,915 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 20:49:18,915 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 20:49:18,915 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 20:49:18,916 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 20:49:18,916 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 20:49:18,916 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 20:49:18,916 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 20:49:18,917 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 20:49:18,917 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 20:49:18,917 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:18] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 20:49:23,074 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:23] "GET / HTTP/1.1" 200 -
+2025-02-28 20:49:23,396 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:23] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 20:49:23,478 [INFO] Link token created successfully
+2025-02-28 20:49:23,479 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:23] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 20:49:23,520 [INFO] Fetching transactions from Plaid
+2025-02-28 20:49:23,761 [DEBUG] Number of accounts: 4
+2025-02-28 20:49:23,761 [DEBUG] Processing account 0
+2025-02-28 20:49:23,762 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:49:23,762 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:49:23,762 [DEBUG] Processing account 1
+2025-02-28 20:49:23,763 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:49:23,763 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:49:23,764 [DEBUG] Processing account 2
+2025-02-28 20:49:23,764 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:49:23,764 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:49:23,764 [DEBUG] Processing account 3
+2025-02-28 20:49:23,765 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:49:23,765 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:49:23,765 [INFO] Retrieved 4 accounts
+2025-02-28 20:49:23,765 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:49:23,766 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:23] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:49:24,222 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:49:24,224 [INFO] Total transactions: 39
+2025-02-28 20:49:24,225 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:24] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:49:29,911 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:29] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 20:49:30,637 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 20:49:30,638 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 20:49:30,638 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 20:49:30,638 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 20:49:30,639 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 20:49:30,639 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 20:49:30,640 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 20:49:30,640 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 20:49:30,640 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 20:49:30,640 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 20:49:30,640 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 20:49:30,641 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 20:49:30,641 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 20:49:30,641 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 20:49:30,641 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 20:49:30,641 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 20:49:30,641 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 20:49:30,641 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 20:49:30,642 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 20:49:30,642 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 20:49:30,642 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 20:49:30,642 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 20:49:30,642 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 20:49:30,643 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 20:49:30,643 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 20:49:30,643 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 20:49:30,643 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 20:49:30,644 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 20:49:30,644 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 20:49:30,644 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 20:49:30,645 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 20:49:30,645 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 20:49:30,645 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 20:49:30,645 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 20:49:30,645 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 20:49:30,645 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 20:49:30,646 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 20:49:30,646 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:30] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 20:49:32,218 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:32] "GET /categories HTTP/1.1" 200 -
+2025-02-28 20:49:32,982 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:32] "GET /get_categories HTTP/1.1" 200 -
+2025-02-28 20:49:34,331 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:34] "GET / HTTP/1.1" 200 -
+2025-02-28 20:49:34,635 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:34] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 20:49:34,719 [INFO] Link token created successfully
+2025-02-28 20:49:34,719 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:34] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 20:49:34,726 [INFO] Fetching transactions from Plaid
+2025-02-28 20:49:34,967 [DEBUG] Number of accounts: 4
+2025-02-28 20:49:34,968 [DEBUG] Processing account 0
+2025-02-28 20:49:34,968 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:49:34,968 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:49:34,968 [DEBUG] Processing account 1
+2025-02-28 20:49:34,968 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:49:34,968 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:49:34,969 [DEBUG] Processing account 2
+2025-02-28 20:49:34,969 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:49:34,969 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:49:34,969 [DEBUG] Processing account 3
+2025-02-28 20:49:34,969 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:49:34,969 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:49:34,969 [INFO] Retrieved 4 accounts
+2025-02-28 20:49:34,970 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:49:34,970 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:34] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:49:35,265 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:49:35,266 [INFO] Total transactions: 39
+2025-02-28 20:49:35,268 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:35] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:49:50,251 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:50] "GET / HTTP/1.1" 200 -
+2025-02-28 20:49:50,568 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:50] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 20:49:50,646 [INFO] Link token created successfully
+2025-02-28 20:49:50,646 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:50] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 20:49:50,679 [INFO] Fetching transactions from Plaid
+2025-02-28 20:49:50,796 [DEBUG] Number of accounts: 4
+2025-02-28 20:49:50,796 [DEBUG] Processing account 0
+2025-02-28 20:49:50,797 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:49:50,797 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:49:50,798 [DEBUG] Processing account 1
+2025-02-28 20:49:50,798 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:49:50,799 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:49:50,799 [DEBUG] Processing account 2
+2025-02-28 20:49:50,799 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:49:50,800 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:49:50,800 [DEBUG] Processing account 3
+2025-02-28 20:49:50,800 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:49:50,801 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:49:50,801 [INFO] Retrieved 4 accounts
+2025-02-28 20:49:50,801 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:49:50,802 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:50] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:49:51,043 [DEBUG] Number of accounts: 4
+2025-02-28 20:49:51,044 [DEBUG] Processing account 0
+2025-02-28 20:49:51,045 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:49:51,045 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:49:51,045 [DEBUG] Processing account 1
+2025-02-28 20:49:51,045 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:49:51,046 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:49:51,046 [DEBUG] Processing account 2
+2025-02-28 20:49:51,046 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:49:51,046 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:49:51,046 [DEBUG] Processing account 3
+2025-02-28 20:49:51,047 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:49:51,047 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:49:51,047 [INFO] Retrieved 4 accounts
+2025-02-28 20:49:51,047 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:49:51,048 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:51] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:49:51,237 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:49:51,238 [INFO] Total transactions: 39
+2025-02-28 20:49:51,240 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:51] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:49:51,552 [DEBUG] Number of accounts: 4
+2025-02-28 20:49:51,553 [DEBUG] Processing account 0
+2025-02-28 20:49:51,553 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:49:51,553 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:49:51,554 [DEBUG] Processing account 1
+2025-02-28 20:49:51,554 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:49:51,555 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:49:51,555 [DEBUG] Processing account 2
+2025-02-28 20:49:51,555 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:49:51,555 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:49:51,555 [DEBUG] Processing account 3
+2025-02-28 20:49:51,556 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:49:51,556 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:49:51,556 [INFO] Retrieved 4 accounts
+2025-02-28 20:49:51,556 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:49:51,556 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:51] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:49:54,424 [DEBUG] Number of accounts: 4
+2025-02-28 20:49:54,425 [DEBUG] Processing account 0
+2025-02-28 20:49:54,425 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:49:54,425 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:49:54,425 [DEBUG] Processing account 1
+2025-02-28 20:49:54,426 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:49:54,426 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:49:54,426 [DEBUG] Processing account 2
+2025-02-28 20:49:54,426 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:49:54,427 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:49:54,427 [DEBUG] Processing account 3
+2025-02-28 20:49:54,428 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:49:54,428 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:49:54,428 [INFO] Retrieved 4 accounts
+2025-02-28 20:49:54,428 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:49:54,428 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:54] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:49:54,891 [INFO] 127.0.0.1 - - [28/Feb/2025 20:49:54] "GET /get_categories HTTP/1.1" 200 -
+2025-02-28 20:50:11,110 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:11] "GET / HTTP/1.1" 200 -
+2025-02-28 20:50:12,632 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:12] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 20:50:12,721 [INFO] Link token created successfully
+2025-02-28 20:50:12,721 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:12] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 20:50:12,758 [INFO] Fetching transactions from Plaid
+2025-02-28 20:50:12,873 [DEBUG] Number of accounts: 4
+2025-02-28 20:50:12,874 [DEBUG] Processing account 0
+2025-02-28 20:50:12,874 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:50:12,875 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:50:12,876 [DEBUG] Processing account 1
+2025-02-28 20:50:12,877 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:50:12,877 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:50:12,878 [DEBUG] Processing account 2
+2025-02-28 20:50:12,879 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:50:12,880 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:50:12,881 [DEBUG] Processing account 3
+2025-02-28 20:50:12,882 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:50:12,882 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:50:12,883 [INFO] Retrieved 4 accounts
+2025-02-28 20:50:12,884 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:50:12,886 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:12] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:50:13,132 [DEBUG] Number of accounts: 4
+2025-02-28 20:50:13,132 [DEBUG] Processing account 0
+2025-02-28 20:50:13,132 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:50:13,133 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:50:13,134 [DEBUG] Processing account 1
+2025-02-28 20:50:13,134 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:50:13,134 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:50:13,135 [DEBUG] Processing account 2
+2025-02-28 20:50:13,135 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:50:13,135 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:50:13,135 [DEBUG] Processing account 3
+2025-02-28 20:50:13,136 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:50:13,136 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:50:13,136 [INFO] Retrieved 4 accounts
+2025-02-28 20:50:13,136 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:50:13,137 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:13] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:50:13,325 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:50:13,327 [INFO] Total transactions: 39
+2025-02-28 20:50:13,329 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:13] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:50:13,662 [DEBUG] Number of accounts: 4
+2025-02-28 20:50:13,663 [DEBUG] Processing account 0
+2025-02-28 20:50:13,663 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:50:13,664 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:50:13,664 [DEBUG] Processing account 1
+2025-02-28 20:50:13,664 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:50:13,665 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:50:13,665 [DEBUG] Processing account 2
+2025-02-28 20:50:13,665 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:50:13,666 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:50:13,666 [DEBUG] Processing account 3
+2025-02-28 20:50:13,666 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:50:13,666 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:50:13,667 [INFO] Retrieved 4 accounts
+2025-02-28 20:50:13,667 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:50:13,667 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:13] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:50:14,821 [DEBUG] Number of accounts: 4
+2025-02-28 20:50:14,822 [DEBUG] Processing account 0
+2025-02-28 20:50:14,823 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:50:14,824 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:50:14,825 [DEBUG] Processing account 1
+2025-02-28 20:50:14,826 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:50:14,827 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:50:14,827 [DEBUG] Processing account 2
+2025-02-28 20:50:14,829 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:50:14,830 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:50:14,831 [DEBUG] Processing account 3
+2025-02-28 20:50:14,832 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:50:14,832 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:50:14,833 [INFO] Retrieved 4 accounts
+2025-02-28 20:50:14,834 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:50:14,835 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:14] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:50:15,153 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:15] "GET /get_categories HTTP/1.1" 200 -
+2025-02-28 20:50:18,501 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:18] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 20:50:19,203 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 20:50:19,204 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 20:50:19,204 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 20:50:19,205 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 20:50:19,205 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 20:50:19,206 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 20:50:19,206 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 20:50:19,207 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 20:50:19,207 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 20:50:19,207 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 20:50:19,207 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 20:50:19,208 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 20:50:19,208 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 20:50:19,208 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 20:50:19,208 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 20:50:19,208 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 20:50:19,209 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 20:50:19,209 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 20:50:19,209 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 20:50:19,210 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 20:50:19,210 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 20:50:19,210 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 20:50:19,211 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 20:50:19,211 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 20:50:19,211 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 20:50:19,211 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 20:50:19,211 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 20:50:19,212 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 20:50:19,212 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 20:50:19,212 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 20:50:19,212 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 20:50:19,212 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 20:50:19,213 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 20:50:19,213 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 20:50:19,213 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 20:50:19,213 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 20:50:19,213 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 20:50:19,214 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:19] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 20:50:20,058 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:20] "GET /categories HTTP/1.1" 200 -
+2025-02-28 20:50:20,761 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:20] "GET /get_categories HTTP/1.1" 200 -
+2025-02-28 20:50:23,194 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:23] "[33mPOST /delete_category HTTP/1.1[0m" 404 -
+2025-02-28 20:50:26,855 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:26] "POST /delete_category HTTP/1.1" 200 -
+2025-02-28 20:50:30,107 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:30] "GET / HTTP/1.1" 200 -
+2025-02-28 20:50:30,402 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:30] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 20:50:30,483 [INFO] Link token created successfully
+2025-02-28 20:50:30,484 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:30] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 20:50:30,503 [INFO] Fetching transactions from Plaid
+2025-02-28 20:50:30,646 [DEBUG] Number of accounts: 4
+2025-02-28 20:50:30,647 [DEBUG] Processing account 0
+2025-02-28 20:50:30,648 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:50:30,649 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:50:30,650 [DEBUG] Processing account 1
+2025-02-28 20:50:30,651 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:50:30,651 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:50:30,651 [DEBUG] Processing account 2
+2025-02-28 20:50:30,653 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:50:30,654 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:50:30,655 [DEBUG] Processing account 3
+2025-02-28 20:50:30,655 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:50:30,656 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:50:30,656 [INFO] Retrieved 4 accounts
+2025-02-28 20:50:30,657 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:50:30,658 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:30] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:50:31,052 [DEBUG] Number of accounts: 4
+2025-02-28 20:50:31,052 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 20:50:31,052 [DEBUG] Processing account 0
+2025-02-28 20:50:31,053 [INFO] Total transactions: 39
+2025-02-28 20:50:31,054 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:50:31,055 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:31] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 20:50:31,056 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:50:31,056 [DEBUG] Processing account 1
+2025-02-28 20:50:31,056 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:50:31,056 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:50:31,057 [DEBUG] Processing account 2
+2025-02-28 20:50:31,057 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:50:31,058 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:50:31,058 [DEBUG] Processing account 3
+2025-02-28 20:50:31,058 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:50:31,059 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:50:31,059 [INFO] Retrieved 4 accounts
+2025-02-28 20:50:31,059 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:50:31,060 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:31] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 20:50:31,313 [DEBUG] Number of accounts: 4
+2025-02-28 20:50:31,314 [DEBUG] Processing account 0
+2025-02-28 20:50:31,315 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 20:50:31,316 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 20:50:31,316 [DEBUG] Processing account 1
+2025-02-28 20:50:31,317 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 20:50:31,318 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 20:50:31,318 [DEBUG] Processing account 2
+2025-02-28 20:50:31,318 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 20:50:31,318 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 20:50:31,320 [DEBUG] Processing account 3
+2025-02-28 20:50:31,320 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 20:50:31,320 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 20:50:31,320 [INFO] Retrieved 4 accounts
+2025-02-28 20:50:31,321 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 20:50:31,321 [INFO] 127.0.0.1 - - [28/Feb/2025 20:50:31] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:00:04,556 [INFO] 127.0.0.1 - - [28/Feb/2025 21:00:04] "GET / HTTP/1.1" 200 -
+2025-02-28 21:00:04,797 [INFO] 127.0.0.1 - - [28/Feb/2025 21:00:04] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 21:00:04,897 [INFO] Fetching transactions from Plaid
+2025-02-28 21:00:05,034 [INFO] Link token created successfully
+2025-02-28 21:00:05,036 [INFO] 127.0.0.1 - - [28/Feb/2025 21:00:05] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 21:00:05,197 [DEBUG] Number of accounts: 4
+2025-02-28 21:00:05,198 [DEBUG] Processing account 0
+2025-02-28 21:00:05,199 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:00:05,200 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:00:05,200 [DEBUG] Processing account 1
+2025-02-28 21:00:05,200 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:00:05,202 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:00:05,202 [DEBUG] Processing account 2
+2025-02-28 21:00:05,202 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:00:05,202 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:00:05,202 [DEBUG] Processing account 3
+2025-02-28 21:00:05,203 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:00:05,204 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:00:05,204 [INFO] Retrieved 4 accounts
+2025-02-28 21:00:05,205 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:00:05,206 [INFO] 127.0.0.1 - - [28/Feb/2025 21:00:05] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:00:05,466 [DEBUG] Number of accounts: 4
+2025-02-28 21:00:05,496 [DEBUG] Processing account 0
+2025-02-28 21:00:05,541 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:00:05,557 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:00:05,559 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 21:00:05,560 [DEBUG] Processing account 1
+2025-02-28 21:00:05,561 [INFO] Total transactions: 39
+2025-02-28 21:00:05,561 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:00:05,564 [INFO] 127.0.0.1 - - [28/Feb/2025 21:00:05] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 21:00:05,564 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:00:05,565 [DEBUG] Processing account 2
+2025-02-28 21:00:05,565 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:00:05,565 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:00:05,566 [DEBUG] Processing account 3
+2025-02-28 21:00:05,566 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:00:05,567 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:00:05,567 [INFO] Retrieved 4 accounts
+2025-02-28 21:00:05,568 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:00:05,568 [INFO] 127.0.0.1 - - [28/Feb/2025 21:00:05] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:00:05,809 [DEBUG] Number of accounts: 4
+2025-02-28 21:00:05,810 [DEBUG] Processing account 0
+2025-02-28 21:00:05,811 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:00:05,811 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:00:05,812 [DEBUG] Processing account 1
+2025-02-28 21:00:05,812 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:00:05,812 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:00:05,813 [DEBUG] Processing account 2
+2025-02-28 21:00:05,813 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:00:05,814 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:00:05,814 [DEBUG] Processing account 3
+2025-02-28 21:00:05,814 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:00:05,815 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:00:05,815 [INFO] Retrieved 4 accounts
+2025-02-28 21:00:05,815 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:00:05,816 [INFO] 127.0.0.1 - - [28/Feb/2025 21:00:05] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:02:47,662 [INFO] 127.0.0.1 - - [28/Feb/2025 21:02:47] "GET / HTTP/1.1" 200 -
+2025-02-28 21:02:47,961 [INFO] 127.0.0.1 - - [28/Feb/2025 21:02:47] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 21:02:48,047 [INFO] Fetching transactions from Plaid
+2025-02-28 21:02:48,175 [INFO] Link token created successfully
+2025-02-28 21:02:48,175 [INFO] 127.0.0.1 - - [28/Feb/2025 21:02:48] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 21:02:48,335 [DEBUG] Number of accounts: 4
+2025-02-28 21:02:48,336 [DEBUG] Processing account 0
+2025-02-28 21:02:48,336 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:02:48,336 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:02:48,337 [DEBUG] Processing account 1
+2025-02-28 21:02:48,337 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:02:48,337 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:02:48,337 [DEBUG] Processing account 2
+2025-02-28 21:02:48,337 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:02:48,338 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:02:48,338 [DEBUG] Processing account 3
+2025-02-28 21:02:48,338 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:02:48,339 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:02:48,339 [INFO] Retrieved 4 accounts
+2025-02-28 21:02:48,339 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:02:48,356 [INFO] 127.0.0.1 - - [28/Feb/2025 21:02:48] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:02:48,646 [DEBUG] Number of accounts: 4
+2025-02-28 21:02:48,664 [DEBUG] Processing account 0
+2025-02-28 21:02:48,679 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:02:48,687 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 21:02:48,687 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:02:48,689 [INFO] Total transactions: 39
+2025-02-28 21:02:48,689 [DEBUG] Processing account 1
+2025-02-28 21:02:48,692 [INFO] 127.0.0.1 - - [28/Feb/2025 21:02:48] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 21:02:48,692 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:02:48,693 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:02:48,694 [DEBUG] Processing account 2
+2025-02-28 21:02:48,694 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:02:48,694 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:02:48,695 [DEBUG] Processing account 3
+2025-02-28 21:02:48,695 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:02:48,696 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:02:48,696 [INFO] Retrieved 4 accounts
+2025-02-28 21:02:48,696 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:02:48,697 [INFO] 127.0.0.1 - - [28/Feb/2025 21:02:48] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:02:49,060 [DEBUG] Number of accounts: 4
+2025-02-28 21:02:49,060 [DEBUG] Processing account 0
+2025-02-28 21:02:49,061 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:02:49,061 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:02:49,062 [DEBUG] Processing account 1
+2025-02-28 21:02:49,062 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:02:49,062 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:02:49,063 [DEBUG] Processing account 2
+2025-02-28 21:02:49,063 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:02:49,064 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:02:49,064 [DEBUG] Processing account 3
+2025-02-28 21:02:49,064 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:02:49,065 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:02:49,065 [INFO] Retrieved 4 accounts
+2025-02-28 21:02:49,065 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:02:49,066 [INFO] 127.0.0.1 - - [28/Feb/2025 21:02:49] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:03:32,455 [INFO] 127.0.0.1 - - [28/Feb/2025 21:03:32] "GET / HTTP/1.1" 200 -
+2025-02-28 21:03:32,731 [INFO] 127.0.0.1 - - [28/Feb/2025 21:03:32] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 21:03:32,823 [INFO] Link token created successfully
+2025-02-28 21:03:32,824 [INFO] 127.0.0.1 - - [28/Feb/2025 21:03:32] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 21:03:32,832 [INFO] Fetching transactions from Plaid
+2025-02-28 21:03:32,983 [DEBUG] Number of accounts: 4
+2025-02-28 21:03:32,983 [DEBUG] Processing account 0
+2025-02-28 21:03:32,984 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:03:32,984 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:03:32,984 [DEBUG] Processing account 1
+2025-02-28 21:03:32,984 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:03:32,985 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:03:32,985 [DEBUG] Processing account 2
+2025-02-28 21:03:32,986 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:03:32,986 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:03:32,986 [DEBUG] Processing account 3
+2025-02-28 21:03:32,986 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:03:32,986 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:03:32,986 [INFO] Retrieved 4 accounts
+2025-02-28 21:03:32,987 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:03:32,987 [INFO] 127.0.0.1 - - [28/Feb/2025 21:03:32] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:03:33,260 [DEBUG] Number of accounts: 4
+2025-02-28 21:03:33,260 [DEBUG] Processing account 0
+2025-02-28 21:03:33,260 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:03:33,260 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:03:33,261 [DEBUG] Processing account 1
+2025-02-28 21:03:33,261 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:03:33,261 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:03:33,261 [DEBUG] Processing account 2
+2025-02-28 21:03:33,262 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:03:33,262 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:03:33,262 [DEBUG] Processing account 3
+2025-02-28 21:03:33,262 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:03:33,262 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:03:33,263 [INFO] Retrieved 4 accounts
+2025-02-28 21:03:33,263 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:03:33,263 [INFO] 127.0.0.1 - - [28/Feb/2025 21:03:33] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:03:33,420 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 21:03:33,422 [INFO] Total transactions: 39
+2025-02-28 21:03:33,425 [INFO] 127.0.0.1 - - [28/Feb/2025 21:03:33] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 21:03:33,769 [DEBUG] Number of accounts: 4
+2025-02-28 21:03:33,770 [DEBUG] Processing account 0
+2025-02-28 21:03:33,770 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:03:33,771 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:03:33,771 [DEBUG] Processing account 1
+2025-02-28 21:03:33,772 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:03:33,772 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:03:33,772 [DEBUG] Processing account 2
+2025-02-28 21:03:33,772 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:03:33,773 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:03:33,773 [DEBUG] Processing account 3
+2025-02-28 21:03:33,773 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:03:33,774 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:03:33,774 [INFO] Retrieved 4 accounts
+2025-02-28 21:03:33,774 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:03:33,775 [INFO] 127.0.0.1 - - [28/Feb/2025 21:03:33] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:03:58,670 [INFO] 127.0.0.1 - - [28/Feb/2025 21:03:58] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:03:59,457 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:03:59,467 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:03:59,467 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:03:59,467 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:03:59,468 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:03:59,468 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:03:59,468 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:03:59,468 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:03:59,468 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:03:59,468 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:03:59,469 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:03:59,469 [INFO] 127.0.0.1 - - [28/Feb/2025 21:03:59] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:04:12,782 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:12] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:04:13,502 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:04:13,503 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:04:13,504 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:04:13,505 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:04:13,505 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:04:13,506 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:04:13,506 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:04:13,506 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:04:13,507 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:04:13,507 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:04:13,507 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:04:13,507 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:04:13,507 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:04:13,508 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:04:13,508 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:04:13,508 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:04:13,508 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:04:13,508 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:04:13,509 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:04:13,509 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:04:13,509 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:04:13,509 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:04:13,510 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:04:13,510 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:04:13,510 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:04:13,510 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:04:13,511 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:04:13,511 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:04:13,511 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:04:13,511 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:04:13,512 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:04:13,512 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:04:13,512 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:04:13,512 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:04:13,512 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:04:13,513 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:04:13,513 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:04:13,513 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:13] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:04:15,871 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:15] "GET / HTTP/1.1" 200 -
+2025-02-28 21:04:16,234 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:16] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 21:04:16,312 [INFO] Link token created successfully
+2025-02-28 21:04:16,313 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:16] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 21:04:16,336 [INFO] Fetching transactions from Plaid
+2025-02-28 21:04:16,480 [DEBUG] Number of accounts: 4
+2025-02-28 21:04:16,481 [DEBUG] Processing account 0
+2025-02-28 21:04:16,481 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:04:16,481 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:04:16,482 [DEBUG] Processing account 1
+2025-02-28 21:04:16,482 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:04:16,482 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:04:16,483 [DEBUG] Processing account 2
+2025-02-28 21:04:16,483 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:04:16,483 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:04:16,483 [DEBUG] Processing account 3
+2025-02-28 21:04:16,484 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:04:16,484 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:04:16,484 [INFO] Retrieved 4 accounts
+2025-02-28 21:04:16,484 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:04:16,485 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:16] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:04:16,748 [DEBUG] Number of accounts: 4
+2025-02-28 21:04:16,748 [DEBUG] Processing account 0
+2025-02-28 21:04:16,749 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:04:16,749 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:04:16,749 [DEBUG] Processing account 1
+2025-02-28 21:04:16,749 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:04:16,750 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:04:16,750 [DEBUG] Processing account 2
+2025-02-28 21:04:16,750 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:04:16,750 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:04:16,751 [DEBUG] Processing account 3
+2025-02-28 21:04:16,751 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:04:16,751 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:04:16,751 [INFO] Retrieved 4 accounts
+2025-02-28 21:04:16,752 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:04:16,752 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:16] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:04:16,903 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 21:04:16,904 [INFO] Total transactions: 39
+2025-02-28 21:04:16,905 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:16] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 21:04:17,333 [DEBUG] Number of accounts: 4
+2025-02-28 21:04:17,334 [DEBUG] Processing account 0
+2025-02-28 21:04:17,336 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:04:17,337 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:04:17,337 [DEBUG] Processing account 1
+2025-02-28 21:04:17,338 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:04:17,339 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:04:17,340 [DEBUG] Processing account 2
+2025-02-28 21:04:17,341 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:04:17,341 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:04:17,342 [DEBUG] Processing account 3
+2025-02-28 21:04:17,343 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:04:17,344 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:04:17,345 [INFO] Retrieved 4 accounts
+2025-02-28 21:04:17,346 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:04:17,347 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:17] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:04:51,361 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:51] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:04:52,079 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:04:52,090 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:04:52,090 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:04:52,090 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:04:52,090 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:04:52,091 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:04:52,091 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:04:52,091 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:04:52,091 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:04:52,091 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:04:52,091 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:04:52,092 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:04:52,092 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:04:52,092 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:04:52,092 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:04:52,093 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:04:52,093 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:04:52,093 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:04:52,094 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:04:52,094 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:04:52,094 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:04:52,094 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:04:52,094 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:04:52,095 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:04:52,096 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:04:52,096 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:04:52,096 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:04:52,096 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:52] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:04:56,787 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:56] "GET / HTTP/1.1" 200 -
+2025-02-28 21:04:57,079 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:57] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 21:04:57,178 [INFO] Fetching transactions from Plaid
+2025-02-28 21:04:57,187 [INFO] Link token created successfully
+2025-02-28 21:04:57,188 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:57] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 21:04:57,326 [DEBUG] Number of accounts: 4
+2025-02-28 21:04:57,326 [DEBUG] Processing account 0
+2025-02-28 21:04:57,327 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:04:57,327 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:04:57,327 [DEBUG] Processing account 1
+2025-02-28 21:04:57,328 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:04:57,328 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:04:57,329 [DEBUG] Processing account 2
+2025-02-28 21:04:57,329 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:04:57,329 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:04:57,330 [DEBUG] Processing account 3
+2025-02-28 21:04:57,330 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:04:57,330 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:04:57,330 [INFO] Retrieved 4 accounts
+2025-02-28 21:04:57,330 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:04:57,331 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:57] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:04:57,582 [DEBUG] Number of accounts: 4
+2025-02-28 21:04:57,583 [DEBUG] Processing account 0
+2025-02-28 21:04:57,583 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:04:57,583 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:04:57,584 [DEBUG] Processing account 1
+2025-02-28 21:04:57,584 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:04:57,584 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:04:57,584 [DEBUG] Processing account 2
+2025-02-28 21:04:57,585 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:04:57,585 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:04:57,585 [DEBUG] Processing account 3
+2025-02-28 21:04:57,585 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:04:57,586 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:04:57,586 [INFO] Retrieved 4 accounts
+2025-02-28 21:04:57,586 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:04:57,586 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:57] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:04:57,864 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 21:04:57,866 [INFO] Total transactions: 39
+2025-02-28 21:04:57,868 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:57] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 21:04:58,204 [DEBUG] Number of accounts: 4
+2025-02-28 21:04:58,205 [DEBUG] Processing account 0
+2025-02-28 21:04:58,205 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:04:58,206 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:04:58,206 [DEBUG] Processing account 1
+2025-02-28 21:04:58,206 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:04:58,206 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:04:58,206 [DEBUG] Processing account 2
+2025-02-28 21:04:58,207 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:04:58,207 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:04:58,207 [DEBUG] Processing account 3
+2025-02-28 21:04:58,207 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:04:58,207 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:04:58,207 [INFO] Retrieved 4 accounts
+2025-02-28 21:04:58,208 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:04:58,208 [INFO] 127.0.0.1 - - [28/Feb/2025 21:04:58] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:07:58,985 [INFO] 127.0.0.1 - - [28/Feb/2025 21:07:58] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:07:59,826 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:07:59,827 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:07:59,827 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:07:59,828 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:07:59,828 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:07:59,828 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:07:59,828 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:07:59,829 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:07:59,829 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:07:59,829 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:07:59,829 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:07:59,829 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:07:59,830 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:07:59,830 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:07:59,830 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:07:59,830 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:07:59,830 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:07:59,831 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:07:59,831 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:07:59,831 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:07:59,831 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:07:59,831 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:07:59,832 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:07:59,832 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:07:59,832 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:07:59,832 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:07:59,833 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:07:59,833 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:07:59,833 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:07:59,834 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:07:59,834 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:07:59,834 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:07:59,835 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:07:59,835 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:07:59,835 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:07:59,835 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:07:59,836 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:07:59,836 [INFO] 127.0.0.1 - - [28/Feb/2025 21:07:59] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:08:01,912 [INFO] 127.0.0.1 - - [28/Feb/2025 21:08:01] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:08:02,670 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:08:02,671 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:08:02,671 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:08:02,672 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:08:02,672 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:08:02,673 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:08:02,673 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:08:02,673 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:08:02,674 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:08:02,674 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:08:02,674 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:08:02,674 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:08:02,675 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:08:02,675 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:08:02,675 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:08:02,675 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:08:02,675 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:08:02,676 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:08:02,676 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:08:02,676 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:08:02,676 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:08:02,677 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:08:02,677 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:08:02,677 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:08:02,677 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:08:02,678 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:08:02,678 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:08:02,678 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:08:02,678 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:08:02,678 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:08:02,679 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:08:02,679 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:08:02,679 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:08:02,679 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:08:02,679 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:08:02,679 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:08:02,680 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:08:02,680 [INFO] 127.0.0.1 - - [28/Feb/2025 21:08:02] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:08:16,044 [INFO] 127.0.0.1 - - [28/Feb/2025 21:08:16] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:08:16,804 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:08:16,806 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:08:16,806 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:08:16,806 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:08:16,806 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:08:16,806 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:08:16,807 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:08:16,807 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:08:16,807 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:08:16,808 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:08:16,808 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:08:16,808 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:08:16,809 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:08:16,809 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:08:16,809 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:08:16,809 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:08:16,810 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:08:16,810 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:08:16,810 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:08:16,810 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:08:16,811 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:08:16,811 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:08:16,811 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:08:16,812 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:08:16,812 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:08:16,812 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:08:16,812 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:08:16,812 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:08:16,812 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:08:16,813 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:08:16,813 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:08:16,813 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:08:16,813 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:08:16,813 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:08:16,814 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:08:16,814 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:08:16,814 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:08:16,814 [INFO] 127.0.0.1 - - [28/Feb/2025 21:08:16] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:09:04,325 [INFO] 127.0.0.1 - - [28/Feb/2025 21:09:04] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:09:05,132 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:09:05,132 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:09:05,133 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:09:05,133 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:09:05,134 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:09:05,134 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:09:05,134 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:09:05,135 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:09:05,135 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:09:05,135 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:09:05,136 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:09:05,136 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:09:05,136 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:09:05,136 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:09:05,137 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:09:05,137 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:09:05,137 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:09:05,137 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:09:05,138 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:09:05,138 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:09:05,138 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:09:05,139 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:09:05,139 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:09:05,139 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:09:05,140 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:09:05,140 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:09:05,140 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:09:05,140 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:09:05,141 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:09:05,141 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:09:05,141 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:09:05,141 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:09:05,141 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:09:05,141 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:09:05,142 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:09:05,142 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:09:05,142 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:09:05,142 [INFO] 127.0.0.1 - - [28/Feb/2025 21:09:05] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:09:27,238 [INFO] 127.0.0.1 - - [28/Feb/2025 21:09:27] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:09:28,003 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:09:28,004 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:09:28,004 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:09:28,004 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:09:28,005 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:09:28,006 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:09:28,006 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:09:28,006 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:09:28,006 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:09:28,006 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:09:28,007 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:09:28,007 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:09:28,007 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:09:28,007 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:09:28,007 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:09:28,007 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:09:28,008 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:09:28,008 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:09:28,008 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:09:28,008 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:09:28,008 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:09:28,008 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:09:28,009 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:09:28,009 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:09:28,009 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:09:28,009 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:09:28,009 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:09:28,010 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:09:28,010 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:09:28,010 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:09:28,010 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:09:28,011 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:09:28,011 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:09:28,011 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:09:28,012 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:09:28,012 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:09:28,012 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:09:28,013 [INFO] 127.0.0.1 - - [28/Feb/2025 21:09:28] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:12:14,066 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:14] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:12:14,913 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:12:14,913 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:12:14,913 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:12:14,913 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:12:14,914 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:12:14,914 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:12:14,914 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:12:14,914 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:12:14,914 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:12:14,914 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:12:14,915 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:12:14,915 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:12:14,915 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:12:14,915 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:12:14,915 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:12:14,915 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:12:14,916 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:12:14,916 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:12:14,916 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:12:14,916 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:12:14,916 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:12:14,916 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:12:14,916 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:12:14,917 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:12:14,917 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:12:14,917 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:12:14,917 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:12:14,917 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:12:14,918 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:12:14,918 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:12:14,918 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:12:14,918 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:12:14,919 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:12:14,919 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:12:14,919 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:12:14,920 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:12:14,920 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:12:14,921 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:14] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:12:17,453 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:12:17,454 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:12:17,455 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:12:17,455 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:12:17,456 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:12:17,456 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:12:17,456 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:12:17,457 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:12:17,457 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:12:17,457 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:12:17,457 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:12:17,457 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:12:17,457 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:12:17,457 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:12:17,458 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:12:17,458 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:12:17,458 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:12:17,458 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:12:17,458 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:12:17,458 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:12:17,459 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:12:17,459 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:12:17,459 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:12:17,459 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:12:17,460 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:12:17,460 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:12:17,460 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:12:17,460 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:12:17,461 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:12:17,461 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:12:17,462 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:12:17,462 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:12:17,462 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:12:17,462 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:12:17,462 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:12:17,463 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:12:17,463 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:12:17,464 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:17] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:12:18,527 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:18] "GET / HTTP/1.1" 200 -
+2025-02-28 21:12:18,928 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:18] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 21:12:19,029 [INFO] Fetching transactions from Plaid
+2025-02-28 21:12:19,113 [INFO] Link token created successfully
+2025-02-28 21:12:19,115 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:19] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 21:12:19,179 [DEBUG] Number of accounts: 4
+2025-02-28 21:12:19,180 [DEBUG] Processing account 0
+2025-02-28 21:12:19,180 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:12:19,181 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:12:19,181 [DEBUG] Processing account 1
+2025-02-28 21:12:19,181 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:12:19,182 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:12:19,182 [DEBUG] Processing account 2
+2025-02-28 21:12:19,182 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:12:19,182 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:12:19,183 [DEBUG] Processing account 3
+2025-02-28 21:12:19,183 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:12:19,183 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:12:19,183 [INFO] Retrieved 4 accounts
+2025-02-28 21:12:19,184 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:12:19,184 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:19] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:12:19,430 [DEBUG] Number of accounts: 4
+2025-02-28 21:12:19,431 [DEBUG] Processing account 0
+2025-02-28 21:12:19,431 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:12:19,432 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:12:19,432 [DEBUG] Processing account 1
+2025-02-28 21:12:19,432 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:12:19,432 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:12:19,433 [DEBUG] Processing account 2
+2025-02-28 21:12:19,433 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:12:19,433 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:12:19,433 [DEBUG] Processing account 3
+2025-02-28 21:12:19,434 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:12:19,434 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:12:19,434 [INFO] Retrieved 4 accounts
+2025-02-28 21:12:19,434 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:12:19,435 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:19] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:12:19,685 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 21:12:19,687 [INFO] Total transactions: 39
+2025-02-28 21:12:19,689 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:19] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 21:12:20,070 [DEBUG] Number of accounts: 4
+2025-02-28 21:12:20,070 [DEBUG] Processing account 0
+2025-02-28 21:12:20,071 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:12:20,071 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:12:20,072 [DEBUG] Processing account 1
+2025-02-28 21:12:20,072 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:12:20,073 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:12:20,073 [DEBUG] Processing account 2
+2025-02-28 21:12:20,073 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:12:20,074 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:12:20,074 [DEBUG] Processing account 3
+2025-02-28 21:12:20,075 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:12:20,075 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:12:20,075 [INFO] Retrieved 4 accounts
+2025-02-28 21:12:20,076 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:12:20,078 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:20] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:12:42,551 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:42] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:12:43,244 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:12:43,245 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:12:43,245 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:12:43,246 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:12:43,246 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:12:43,246 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:12:43,247 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:12:43,247 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:12:43,248 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:12:43,248 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:12:43,248 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:12:43,248 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:12:43,248 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:12:43,249 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:12:43,249 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:12:43,249 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:12:43,249 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:12:43,250 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:12:43,250 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:12:43,250 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:12:43,250 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:12:43,251 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:12:43,251 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:12:43,251 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:12:43,252 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:12:43,252 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:12:43,252 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:12:43,252 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:12:43,253 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:12:43,253 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:12:43,253 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:12:43,253 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:12:43,253 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:12:43,254 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:12:43,254 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:12:43,254 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:12:43,254 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:12:43,255 [INFO] 127.0.0.1 - - [28/Feb/2025 21:12:43] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:14:38,090 [INFO] 127.0.0.1 - - [28/Feb/2025 21:14:38] "GET /annual_totals HTTP/1.1" 200 -
+2025-02-28 21:14:39,132 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:14:39,134 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:14:39,134 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:14:39,134 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:14:39,135 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:14:39,135 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:14:39,135 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:14:39,135 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:14:39,136 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:14:39,136 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:14:39,136 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:14:39,137 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:14:39,137 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:14:39,137 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:14:39,137 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:14:39,138 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:14:39,138 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:14:39,138 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:14:39,138 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:14:39,139 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:14:39,139 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:14:39,139 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:14:39,139 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:14:39,140 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:14:39,140 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:14:39,140 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:14:39,141 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:14:39,141 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:14:39,141 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:14:39,141 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:14:39,141 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:14:39,141 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:14:39,142 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:14:39,142 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:14:39,142 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:14:39,142 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:14:39,142 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:14:39,143 [INFO] 127.0.0.1 - - [28/Feb/2025 21:14:39] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:14:53,964 [ERROR] Error parsing date 2025-02-28 for transaction APlWPl4dgrtKAeWW7EDyHmbZ6d5WNWS9xgvWM
+2025-02-28 21:14:53,964 [ERROR] Error parsing date 2025-02-27 for transaction bMaoMaw5l4HGQgyyBWXlHpG48Mg5N5cm6WwGy
+2025-02-28 21:14:53,965 [ERROR] Error parsing date 2025-02-27 for transaction nrX9rXbNPofG8qddzWePHwWoyQM6K6FAMzB8m
+2025-02-28 21:14:53,965 [ERROR] Error parsing date 2025-02-27 for transaction GMG6MGR7qaHKMEJJQavXHdWwmkZA5Au67b4WR
+2025-02-28 21:14:53,965 [ERROR] Error parsing date 2025-02-18 for transaction M81V81RLxef9rnvvNkb7UreENjgpKptLRQoDD
+2025-02-28 21:14:53,965 [ERROR] Error parsing date 2025-02-17 for transaction WxoAxopbZEfk6W44AJyBSZzb5egGMGc6QpGWB
+2025-02-28 21:14:53,966 [ERROR] Error parsing date 2025-02-15 for transaction LkRwkRQ137UbKEWWMZ8yI5WxPRpKyKHkWNJLk
+2025-02-28 21:14:53,966 [ERROR] Error parsing date 2025-02-15 for transaction pBJmBJlj78cEkryy3bZGSWonmBdVEVipQ5xDJ
+2025-02-28 21:14:53,966 [ERROR] Error parsing date 2025-02-14 for transaction ozRozRWPjgfGkKvvBLnjHEGy1Vp6k6soVN3Xk
+2025-02-28 21:14:53,966 [ERROR] Error parsing date 2025-02-03 for transaction y7aR7aDogxH9BmQQ3W4GU1XxEj57b7U48EQr7
+2025-02-28 21:14:53,967 [ERROR] Error parsing date 2025-02-01 for transaction ggr6grNzBeIENKLL4GQBSp8B6Qdn4ncE7KXlM
+2025-02-28 21:14:53,967 [ERROR] Error parsing date 2025-01-29 for transaction 9zvjzv5lepfNAJMMoR4ks6ombX7n5nf49Zmld
+2025-02-28 21:14:53,967 [ERROR] Error parsing date 2025-01-28 for transaction 4R3dR3pX4QF5oj33NGbrsGDXDXmzkvhJVra5p
+2025-02-28 21:14:53,967 [ERROR] Error parsing date 2025-01-28 for transaction aZEGZEPwAafKdmrrzlwQHmZkZkoWlDsZJag4K
+2025-02-28 21:14:53,967 [ERROR] Error parsing date 2025-01-28 for transaction ggr6grNzBeIENKLL4GQBSp8383VmyncERVKD5
+2025-02-28 21:14:53,968 [ERROR] Error parsing date 2025-01-19 for transaction V3Xm3XwnQ8hyP8RRDwQLIe3q3qXM9lS9ymKmv
+2025-02-28 21:14:53,968 [ERROR] Error parsing date 2025-01-18 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXlv
+2025-02-28 21:14:53,968 [ERROR] Error parsing date 2025-01-17 for transaction NEeyEeMpdQuwzZ11PnkehwQXQX74opfypjMZp
+2025-02-28 21:14:53,969 [ERROR] Error parsing date 2025-01-17 for transaction wPz1PzxLpBtGyArr5xjpHzEaEaKnmgCPRNWNy
+2025-02-28 21:14:53,969 [ERROR] Error parsing date 2025-01-16 for transaction 5lwalwJDNZiRAp44PJNwH1XjXjqB9GS5ywNwz
+2025-02-28 21:14:53,969 [ERROR] Error parsing date 2025-01-16 for transaction JpGWpGQZzPfDlqpp98kdhPwQwQA38puBM4R4b
+2025-02-28 21:14:53,970 [ERROR] Error parsing date 2025-01-15 for transaction kleolepda1i6MgWWqG39IN6363Q4dEFLDQZQW
+2025-02-28 21:14:53,970 [ERROR] Error parsing date 2025-01-04 for transaction PlyAlyjg4Mib3vKKMexoIgEXEXlPbpio5kzd6
+2025-02-28 21:14:53,970 [ERROR] Error parsing date 2025-01-02 for transaction lkXokXJa4LUGDBjjKx34H8GNGNl1aMipgwbwp
+2025-02-28 21:14:53,971 [ERROR] Error parsing date 2024-12-30 for transaction jWe6WekxdMi97BaaDdzGUDojojyWnAi6mMJ4g
+2025-02-28 21:14:53,971 [ERROR] Error parsing date 2024-12-29 for transaction QqeAqe78N1Iex844Aga7S7QNQN9jBxsw6MKo8
+2025-02-28 21:14:53,971 [ERROR] Error parsing date 2024-12-29 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDw
+2025-02-28 21:14:53,971 [ERROR] Error parsing date 2024-12-29 for transaction 7KJNKJLwj1hvAmLL75MlSy6X6X9xzBHdylXQo
+2025-02-28 21:14:53,972 [ERROR] Error parsing date 2024-12-20 for transaction q3mo3mq7eEhWoZEExXMesnW5W5eBX6igPmwm6
+2025-02-28 21:14:53,972 [ERROR] Error parsing date 2024-12-19 for transaction epqDpqyKrjfGPkRRdn8rHZ9l9ldXv5irBdWDW
+2025-02-28 21:14:53,972 [ERROR] Error parsing date 2024-12-18 for transaction Z4xA4xp9LKckQwDDAERzSJy9y9RgVzcemR7L5
+2025-02-28 21:14:53,973 [ERROR] Error parsing date 2024-12-18 for transaction KoeWoeyMBjIpqEBByvRauQdEdEyx4khRkZzZG
+2025-02-28 21:14:53,973 [ERROR] Error parsing date 2024-12-17 for transaction rxLoxLKeQlfGZexxdyBQHZGXGXbgyzi79PZPD
+2025-02-28 21:14:53,973 [ERROR] Error parsing date 2024-12-17 for transaction ze41e4Ag8diMyqWWxz98S7pKpKenzjslB7x7q
+2025-02-28 21:14:53,974 [ERROR] Error parsing date 2024-12-05 for transaction M81V81RLxef9rnvvNkb7Ure4e4wa9puLplQxK
+2025-02-28 21:14:53,974 [ERROR] Error parsing date 2024-12-03 for transaction 3RWxRWL6aeFN1BKK4G7wsgLkLk3EAViZbr9rW
+2025-02-28 21:14:53,974 [ERROR] Error parsing date 2024-11-30 for transaction 1ReBReLvxjF7owyyXl4rSL9696Xr5WtpXKM7k
+2025-02-28 21:14:53,975 [INFO] 127.0.0.1 - - [28/Feb/2025 21:14:53] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-02-28 21:14:56,526 [INFO] 127.0.0.1 - - [28/Feb/2025 21:14:56] "GET / HTTP/1.1" 200 -
+2025-02-28 21:14:56,833 [INFO] 127.0.0.1 - - [28/Feb/2025 21:14:56] "GET /has_access_token HTTP/1.1" 200 -
+2025-02-28 21:14:56,929 [INFO] Fetching transactions from Plaid
+2025-02-28 21:14:57,047 [INFO] Link token created successfully
+2025-02-28 21:14:57,048 [INFO] 127.0.0.1 - - [28/Feb/2025 21:14:57] "GET /create_link_token HTTP/1.1" 200 -
+2025-02-28 21:14:57,070 [DEBUG] Number of accounts: 4
+2025-02-28 21:14:57,070 [DEBUG] Processing account 0
+2025-02-28 21:14:57,071 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:14:57,071 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:14:57,071 [DEBUG] Processing account 1
+2025-02-28 21:14:57,072 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:14:57,072 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:14:57,072 [DEBUG] Processing account 2
+2025-02-28 21:14:57,072 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:14:57,073 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:14:57,073 [DEBUG] Processing account 3
+2025-02-28 21:14:57,073 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:14:57,074 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:14:57,074 [INFO] Retrieved 4 accounts
+2025-02-28 21:14:57,074 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:14:57,075 [INFO] 127.0.0.1 - - [28/Feb/2025 21:14:57] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:14:57,338 [DEBUG] Number of accounts: 4
+2025-02-28 21:14:57,338 [DEBUG] Processing account 0
+2025-02-28 21:14:57,338 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:14:57,338 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:14:57,338 [DEBUG] Processing account 1
+2025-02-28 21:14:57,338 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:14:57,338 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:14:57,338 [DEBUG] Processing account 2
+2025-02-28 21:14:57,338 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:14:57,338 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:14:57,338 [DEBUG] Processing account 3
+2025-02-28 21:14:57,338 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:14:57,338 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:14:57,338 [INFO] Retrieved 4 accounts
+2025-02-28 21:14:57,338 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:14:57,338 [INFO] 127.0.0.1 - - [28/Feb/2025 21:14:57] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 21:14:57,575 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 21:14:57,591 [INFO] Total transactions: 39
+2025-02-28 21:14:57,591 [INFO] 127.0.0.1 - - [28/Feb/2025 21:14:57] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 21:14:57,984 [DEBUG] Number of accounts: 4
+2025-02-28 21:14:57,984 [DEBUG] Processing account 0
+2025-02-28 21:14:57,984 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 21:14:57,984 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 21:14:57,984 [DEBUG] Processing account 1
+2025-02-28 21:14:57,984 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 21:14:57,984 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 21:14:57,984 [DEBUG] Processing account 2
+2025-02-28 21:14:57,984 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 21:14:57,984 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 21:14:57,984 [DEBUG] Processing account 3
+2025-02-28 21:14:57,984 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 21:14:57,984 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 21:14:57,999 [INFO] Retrieved 4 accounts
+2025-02-28 21:14:58,000 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 21:14:58,001 [INFO] 127.0.0.1 - - [28/Feb/2025 21:14:58] "GET /get_accounts HTTP/1.1" 200 -

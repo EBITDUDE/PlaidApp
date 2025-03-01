@@ -684,20 +684,23 @@
             const customDateEnd = document.getElementById('custom-date-end');
             const customDateCancel = document.getElementById('custom-date-cancel');
             const customDateApply = document.getElementById('custom-date-apply');
-            
+
             // Set default dates (current month)
             const today = new Date();
             const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
             customDateStart.value = formatDate(firstDayOfMonth);
             customDateEnd.value = formatDate(today);
-            
+
             // Make date inputs clickable for calendar
-            customDateStart.addEventListener('click', function() {
-                showCalendarForInput(this);
+            customDateStart.setAttribute('readonly', true); // Make readonly to prevent keyboard input
+            customDateEnd.setAttribute('readonly', true);
+
+            customDateStart.addEventListener('click', function () {
+                showCalendarForCustomDate(this);
             });
-            
-            customDateEnd.addEventListener('click', function() {
-                showCalendarForInput(this);
+
+            customDateEnd.addEventListener('click', function () {
+                showCalendarForCustomDate(this);
             });
             
             // Cancel button
@@ -707,17 +710,34 @@
                 dateFilter.value = dateFilter.getAttribute('data-previous') || 'all';
             });
             
-            // Apply button
-            customDateApply.addEventListener('click', function() {
+            // Apply button modified to update the dropdown text
+            customDateApply.addEventListener('click', function () {
                 if (!customDateStart.value || !customDateEnd.value) {
                     alert('Please select both start and end dates');
                     return;
                 }
-                
+
                 // Store custom date range
                 localStorage.setItem('custom-date-start', customDateStart.value);
                 localStorage.setItem('custom-date-end', customDateEnd.value);
-                
+
+                // Update date filter dropdown to show the selected range
+                const dateFilter = document.getElementById('date-filter');
+
+                // Create a new option for this specific date range
+                let customRangeOption = dateFilter.querySelector('option[value="custom"]');
+                if (!customRangeOption) {
+                    customRangeOption = document.createElement('option');
+                    customRangeOption.value = 'custom';
+                    dateFilter.appendChild(customRangeOption);
+                }
+
+                // Update the text to show the selected range
+                customRangeOption.textContent = `${customDateStart.value} - ${customDateEnd.value}`;
+
+                // Select the custom option
+                dateFilter.value = 'custom';
+
                 // Close modal and apply filter
                 customDateModal.style.display = 'none';
                 applyFilters();
@@ -1233,7 +1253,7 @@
                         const row = document.createElement('tr');
                         row.setAttribute('data-id', tx.id);
                         row.setAttribute('data-category', tx.category);
-                        row.setAttribute('data-date', tx.date);
+                        row.setAttribute('data-date', tx.date); // Make sure this is in MM/DD/YYYY format
                         row.setAttribute('data-type', tx.is_debit ? 'expense' : 'income');
 
                         // Format amount - always positive, with +/- sign depending on type
@@ -1332,12 +1352,12 @@
             const dateFilter = document.getElementById('date-filter').value;
             const categoryFilter = document.getElementById('category-filter').value;
             const typeFilter = document.getElementById('type-filter').value;
-            
+
             // Calculate date threshold for date filter
             let startDate = null;
             let endDate = null;
             const current = new Date();
-            
+
             if (dateFilter === '30') {
                 startDate = new Date(current);
                 startDate.setDate(current.getDate() - 30);
@@ -1355,35 +1375,35 @@
             } else if (dateFilter === 'custom') {
                 const customStart = localStorage.getItem('custom-date-start');
                 const customEnd = localStorage.getItem('custom-date-end');
-                
+
                 if (customStart && customEnd) {
                     const startParts = customStart.split('/');
                     const endParts = customEnd.split('/');
-                    
+
                     if (startParts.length === 3 && endParts.length === 3) {
                         startDate = new Date(
-                            parseInt(startParts[2]), 
-                            parseInt(startParts[0]) - 1, 
+                            parseInt(startParts[2]),
+                            parseInt(startParts[0]) - 1,
                             parseInt(startParts[1])
                         );
-                        
+
                         endDate = new Date(
-                            parseInt(endParts[2]), 
-                            parseInt(endParts[0]) - 1, 
+                            parseInt(endParts[2]),
+                            parseInt(endParts[0]) - 1,
                             parseInt(endParts[1])
                         );
                     }
                 }
             }
-            
+
             // Default end date is current date
             if (!endDate) {
                 endDate = new Date(current);
             }
-            
+
             document.querySelectorAll('#transactions-body tr').forEach(row => {
                 let showRow = true;
-                
+
                 // Text search
                 if (showRow && searchTerm) {
                     const text = row.textContent.toLowerCase();
@@ -1391,21 +1411,21 @@
                         showRow = false;
                     }
                 }
-                
+
                 // Category filter
                 if (showRow && categoryFilter !== 'all') {
                     if (row.dataset.category !== categoryFilter) {
                         showRow = false;
                     }
                 }
-                
+
                 // Type filter
                 if (showRow && typeFilter !== 'all') {
                     if (row.dataset.type !== typeFilter) {
                         showRow = false;
                     }
                 }
-                
+
                 // Date filter
                 if (showRow && startDate) {
                     const txDateStr = row.dataset.date;
@@ -1413,22 +1433,25 @@
                         const dateParts = txDateStr.split('/');
                         if (dateParts.length === 3) {
                             const txDate = new Date(
-                                parseInt(dateParts[2]), 
-                                parseInt(dateParts[0]) - 1, 
+                                parseInt(dateParts[2]),
+                                parseInt(dateParts[0]) - 1,
                                 parseInt(dateParts[1])
                             );
-                            
+
                             if (txDate < startDate || txDate > endDate) {
                                 showRow = false;
                             }
                         }
                     }
                 }
-                
-                // Mark filtered rows
+
+                // Apply the visibility directly
+                row.style.display = showRow ? '' : 'none';
+
+                // Also mark filtered rows (for pagination)
                 row.setAttribute('data-filtered', !showRow);
             });
-            
+
             // Apply pagination after filtering
             applyPagination();
         }
@@ -1755,6 +1778,207 @@
             }
         });
 
+        // Function to show calendar for custom date input
+        function showCalendarForCustomDate(inputElement) {
+            // Create a calendar element if it doesn't exist
+            let calendarId = 'calendar-' + inputElement.id;
+            let calendarElement = document.getElementById(calendarId);
+
+            if (!calendarElement) {
+                calendarElement = document.createElement('div');
+                calendarElement.id = calendarId;
+                calendarElement.className = 'calendar';
+                calendarElement.style.display = 'block';
+                calendarElement.style.position = 'absolute';
+                calendarElement.style.backgroundColor = 'white';
+                calendarElement.style.border = '1px solid #ddd';
+                calendarElement.style.borderRadius = '4px';
+                calendarElement.style.padding = '10px';
+                calendarElement.style.zIndex = '1001'; // Higher than modal
+                calendarElement.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+                calendarElement.style.marginTop = '5px';
+
+                // Create calendar header
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'calendar-header';
+                headerDiv.style.display = 'flex';
+                headerDiv.style.justifyContent = 'space-between';
+                headerDiv.style.marginBottom = '10px';
+
+                const prevBtn = document.createElement('button');
+                prevBtn.type = 'button';
+                prevBtn.textContent = '<';
+                prevBtn.style.padding = '2px 5px';
+
+                const monthYearSpan = document.createElement('span');
+                monthYearSpan.id = calendarId + '-month-year';
+
+                const nextBtn = document.createElement('button');
+                nextBtn.type = 'button';
+                nextBtn.textContent = '>';
+                nextBtn.style.padding = '2px 5px';
+
+                headerDiv.appendChild(prevBtn);
+                headerDiv.appendChild(monthYearSpan);
+                headerDiv.appendChild(nextBtn);
+
+                // Create weekdays header
+                const weekdaysDiv = document.createElement('div');
+                weekdaysDiv.className = 'calendar-weekdays calendar-grid';
+                weekdaysDiv.style.display = 'grid';
+                weekdaysDiv.style.gridTemplateColumns = 'repeat(7, 1fr)';
+                weekdaysDiv.style.gap = '2px';
+
+                ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(day => {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'calendar-weekday';
+                    dayDiv.style.textAlign = 'center';
+                    dayDiv.style.fontWeight = 'bold';
+                    dayDiv.style.padding = '5px';
+                    dayDiv.textContent = day;
+                    weekdaysDiv.appendChild(dayDiv);
+                });
+
+                // Create days container
+                const daysDiv = document.createElement('div');
+                daysDiv.id = calendarId + '-days';
+                daysDiv.className = 'calendar-grid';
+                daysDiv.style.display = 'grid';
+                daysDiv.style.gridTemplateColumns = 'repeat(7, 1fr)';
+                daysDiv.style.gap = '2px';
+
+                // Assemble calendar
+                calendarElement.appendChild(headerDiv);
+                calendarElement.appendChild(weekdaysDiv);
+                calendarElement.appendChild(daysDiv);
+
+                // Add calendar to document
+                inputElement.parentNode.appendChild(calendarElement);
+
+                // Calendar data variables
+                let currentDate = new Date();
+                if (inputElement.value) {
+                    const dateParts = inputElement.value.split('/');
+                    if (dateParts.length === 3) {
+                        const month = parseInt(dateParts[0]) - 1;
+                        const day = parseInt(dateParts[1]);
+                        const year = parseInt(dateParts[2]);
+                        currentDate = new Date(year, month, day);
+                    }
+                }
+
+                // Update calendar function
+                function updateCustomCalendar() {
+                    const year = currentDate.getFullYear();
+                    const month = currentDate.getMonth();
+
+                    // Update header
+                    document.getElementById(calendarId + '-month-year').textContent =
+                        `${currentDate.toLocaleString('default', { month: 'long' })} ${year}`;
+
+                    // Get calendar days container
+                    const calendarDays = document.getElementById(calendarId + '-days');
+                    calendarDays.innerHTML = '';
+
+                    // Get first day of month and last day
+                    const firstDay = new Date(year, month, 1);
+                    const lastDay = new Date(year, month + 1, 0);
+
+                    // Get day of week for first day (0 = Sunday)
+                    const firstDayOfWeek = firstDay.getDay();
+
+                    // Add days from previous month
+                    const prevMonthLastDay = new Date(year, month, 0).getDate();
+                    for (let i = 0; i < firstDayOfWeek; i++) {
+                        const dayDiv = document.createElement('div');
+                        dayDiv.classList.add('calendar-day', 'other-month');
+                        dayDiv.textContent = prevMonthLastDay - firstDayOfWeek + i + 1;
+                        dayDiv.style.textAlign = 'center';
+                        dayDiv.style.padding = '6px';
+                        dayDiv.style.cursor = 'pointer';
+                        dayDiv.style.borderRadius = '4px';
+                        dayDiv.style.color = '#aaa';
+                        calendarDays.appendChild(dayDiv);
+                    }
+
+                    // Add days of current month
+                    for (let i = 1; i <= lastDay.getDate(); i++) {
+                        const dayDiv = document.createElement('div');
+                        dayDiv.classList.add('calendar-day');
+                        dayDiv.textContent = i;
+                        dayDiv.style.textAlign = 'center';
+                        dayDiv.style.padding = '6px';
+                        dayDiv.style.cursor = 'pointer';
+                        dayDiv.style.borderRadius = '4px';
+
+                        // Check if this is today
+                        const thisDate = new Date(year, month, i);
+                        const today = new Date();
+                        if (thisDate.getDate() === today.getDate() &&
+                            thisDate.getMonth() === today.getMonth() &&
+                            thisDate.getFullYear() === today.getFullYear()) {
+                            dayDiv.style.fontWeight = 'bold';
+                            dayDiv.style.backgroundColor = '#e6f7ff';
+                        }
+
+                        // Select this day
+                        dayDiv.addEventListener('click', function () {
+                            const selectedDate = new Date(year, month, i);
+                            const formattedDate = formatDate(selectedDate);
+                            inputElement.value = formattedDate;
+                            calendarElement.style.display = 'none';
+                        });
+
+                        calendarDays.appendChild(dayDiv);
+                    }
+
+                    // Add days from next month
+                    const daysAdded = firstDayOfWeek + lastDay.getDate();
+                    const nextMonthDays = Math.max(0, 42 - daysAdded); // 6 rows of 7 days = 42
+                    for (let i = 1; i <= nextMonthDays; i++) {
+                        const dayDiv = document.createElement('div');
+                        dayDiv.classList.add('calendar-day', 'other-month');
+                        dayDiv.textContent = i;
+                        dayDiv.style.textAlign = 'center';
+                        dayDiv.style.padding = '6px';
+                        dayDiv.style.cursor = 'pointer';
+                        dayDiv.style.borderRadius = '4px';
+                        dayDiv.style.color = '#aaa';
+                        calendarDays.appendChild(dayDiv);
+                    }
+                }
+
+                // Initialize calendar
+                updateCustomCalendar();
+
+                // Previous month button
+                prevBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                    updateCustomCalendar();
+                });
+
+                // Next month button
+                nextBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                    updateCustomCalendar();
+                });
+            } else {
+                // Toggle visibility
+                calendarElement.style.display = calendarElement.style.display === 'none' ? 'block' : 'none';
+            }
+
+            // Close calendar on outside clicks
+            document.addEventListener('click', function (e) {
+                if (calendarElement && !calendarElement.contains(e.target) && e.target !== inputElement) {
+                    calendarElement.style.display = 'none';
+                }
+            });
+        }
+        
         // Function to set up pagination
         function setupPagination() {
             const pageSizeSelect = document.getElementById('page-size');
@@ -1768,26 +1992,28 @@
         function applyPagination() {
             const pageSize = document.getElementById('page-size').value;
             const rows = document.querySelectorAll('#transactions-body tr');
-            
-            // If All is selected, show all rows
+
+            // If All is selected, show all rows (that pass filters)
             if (pageSize === 'all') {
                 rows.forEach(row => {
                     if (row.getAttribute('data-filtered') !== 'true') {
                         row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
                     }
                 });
                 return;
             }
-            
+
             // Get visible rows (not filtered out)
             const visibleRows = Array.from(rows).filter(row => row.getAttribute('data-filtered') !== 'true');
             const limit = parseInt(pageSize);
-            
+
             // Show only the first 'limit' rows
             visibleRows.forEach((row, index) => {
                 row.style.display = index < limit ? '' : 'none';
             });
-            
+
             // Show message if there are more rows
             if (visibleRows.length > limit) {
                 // Remove existing "load more" row if present
@@ -1795,22 +2021,22 @@
                 if (existingLoadMore) {
                     existingLoadMore.remove();
                 }
-                
+
                 // Add "load more" row
                 const loadMoreRow = document.createElement('tr');
                 loadMoreRow.className = 'load-more-row';
                 loadMoreRow.innerHTML = `
-                    <td colspan="7" style="text-align: center; padding: 10px; background-color: #f8f8f8;">
-                        Showing ${limit} of ${visibleRows.length} transactions. 
-                        <button id="load-more-btn" style="padding: 5px 10px; margin-left: 10px; cursor: pointer;">
-                            Show All
-                        </button>
-                    </td>
-                `;
+            <td colspan="7" style="text-align: center; padding: 10px; background-color: #f8f8f8;">
+                Showing ${limit} of ${visibleRows.length} transactions. 
+                <button id="load-more-btn" style="padding: 5px 10px; margin-left: 10px; cursor: pointer;">
+                    Show All
+                </button>
+            </td>
+        `;
                 document.getElementById('transactions-body').appendChild(loadMoreRow);
-                
+
                 // Add event listener for "load more" button
-                document.getElementById('load-more-btn').addEventListener('click', function() {
+                document.getElementById('load-more-btn').addEventListener('click', function () {
                     document.getElementById('page-size').value = 'all';
                     applyPagination();
                 });
