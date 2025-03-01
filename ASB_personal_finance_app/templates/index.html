@@ -1138,40 +1138,59 @@
                 };
             });
 
-        // Fetch and display accounts
-        function loadAccounts() {
-            fetch('/get_accounts')
-                .then(response => response.json())
-                .then(data => {
+        // Optimized function to load accounts data
+        function loadAccounts(forceRefresh = false) {
+            return fetchAndStoreAccounts(forceRefresh)
+                .then(accountsMap => {
                     const accountsContainer = document.getElementById('accounts-container');
-                    if (data.error) {
-                        accountsContainer.innerHTML = 'Error: ' + data.error;
-                    } else {
-                        const accounts = data.accounts;
-                        
-                        if (accounts.length > 0) {
-                            document.getElementById('accounts-section').style.display = 'block';
-                            
-                            accountsContainer.innerHTML = '';
-                            accounts.forEach(account => {
-                                const accountCard = document.createElement('div');
-                                accountCard.className = 'account-card';
-                                
-                                const availableBalance = account.balance.available !== null ? 
-                                    `${formatCurrency(account.balance.available)}` : 'N/A';
-                                    
-                                accountCard.innerHTML = `
-                                    <h3>${account.name}</h3>
-                                    <p>Type: ${account.type}${account.subtype ? ' - ' + account.subtype : ''}</p>
-                                    <p>Current Balance: ${formatCurrency(account.balance.current)}</p>
-                                    <p>Available Balance: ${availableBalance}</p>
-                                `;
-                                
-                                accountsContainer.appendChild(accountCard);
+
+                    // Check if we have the accounts data from server response
+                    const accountsData = accountsCache.rawData?.accounts;
+                    if (!accountsData || accountsData.length === 0) {
+                        return fetch('/get_accounts')
+                            .then(response => response.json())
+                            .then(data => {
+                                accountsCache.rawData = data;
+                                displayAccounts(data);
                             });
-                        }
+                    } else {
+                        // Use cached data
+                        displayAccounts(accountsCache.rawData);
+                        return Promise.resolve();
                     }
                 });
+        }
+
+        // Helper function to display accounts
+        function displayAccounts(data) {
+            const accountsContainer = document.getElementById('accounts-container');
+            if (data.error) {
+                accountsContainer.innerHTML = 'Error: ' + data.error;
+            } else {
+                const accounts = data.accounts;
+
+                if (accounts && accounts.length > 0) {
+                    document.getElementById('accounts-section').style.display = 'block';
+
+                    accountsContainer.innerHTML = '';
+                    accounts.forEach(account => {
+                        const accountCard = document.createElement('div');
+                        accountCard.className = 'account-card';
+
+                        const availableBalance = account.balance.available !== null ?
+                            `${formatCurrency(account.balance.available)}` : 'N/A';
+
+                        accountCard.innerHTML = `
+                    <h3>${account.name}</h3>
+                    <p>Type: ${account.type}${account.subtype ? ' - ' + account.subtype : ''}</p>
+                    <p>Current Balance: ${formatCurrency(account.balance.current)}</p>
+                    <p>Available Balance: ${availableBalance}</p>
+                `;
+
+                        accountsContainer.appendChild(accountCard);
+                    });
+                }
+            }
         }
         
         // Fetch and display transactions
@@ -1316,8 +1335,23 @@
             }
         }
         
-        // Function to fetch and store account information
-        function fetchAndStoreAccounts() {
+        // Improved account caching implementation
+        let accountsCache = {
+            data: null,
+            timestamp: 0,
+            maxAge: 60000 // Cache expires after 1 minute
+        };
+
+        // Function to fetch and store account information with caching
+        function fetchAndStoreAccounts(forceRefresh = false) {
+            // Check if we have cached data that isn't expired
+            const now = Date.now();
+            if (!forceRefresh && accountsCache.data && (now - accountsCache.timestamp < accountsCache.maxAge)) {
+                console.log("Using cached account data");
+                return Promise.resolve(accountsCache.data);
+            }
+
+            console.log("Fetching fresh account data");
             return fetch('/get_accounts')
                 .then(response => response.json())
                 .then(data => {
@@ -1336,7 +1370,11 @@
                         });
                     }
 
-                    // Store in global variable for later use
+                    // Update cache
+                    accountsCache.data = accountsMap;
+                    accountsCache.timestamp = now;
+
+                    // Store in global variable for compatibility with existing code
                     window.accountsMap = accountsMap;
                     return accountsMap;
                 })
@@ -1346,18 +1384,21 @@
                 });
         }
         
-        // Function to apply all filters
+        // Improved transaction filtering with performance optimizations
         function applyFilters() {
+            // Cache DOM lookups
             const searchTerm = document.getElementById('transaction-search').value.toLowerCase();
             const dateFilter = document.getElementById('date-filter').value;
             const categoryFilter = document.getElementById('category-filter').value;
             const typeFilter = document.getElementById('type-filter').value;
+            const transactionRows = document.querySelectorAll('#transactions-body tr');
 
-            // Calculate date threshold for date filter
+            // Calculate date thresholds once for all rows (not inside the loop)
             let startDate = null;
             let endDate = null;
             const current = new Date();
 
+            // Date filter calculation (moved outside the loop)
             if (dateFilter === '30') {
                 startDate = new Date(current);
                 startDate.setDate(current.getDate() - 30);
@@ -1401,33 +1442,47 @@
                 endDate = new Date(current);
             }
 
-            document.querySelectorAll('#transactions-body tr').forEach(row => {
+            // Use DocumentFragment for better performance when making DOM changes
+            const hasDateFilter = startDate !== null;
+            const hasCategoryFilter = categoryFilter !== 'all';
+            const hasTypeFilter = typeFilter !== 'all';
+            const hasSearchFilter = searchTerm.length > 0;
+
+            // Count visible rows for pagination
+            let visibleCount = 0;
+            const totalRows = transactionRows.length;
+
+            // Process all rows with a single loop (more efficient)
+            transactionRows.forEach(row => {
+                // Skip "load more" rows
+                if (row.classList.contains('load-more-row')) {
+                    row.remove(); // Remove existing load more rows
+                    return;
+                }
+
+                // Get all filter properties once
+                const rowCategory = row.dataset.category;
+                const rowType = row.dataset.type;
+                const rowText = hasSearchFilter ? row.textContent.toLowerCase() : '';
+
+                // Default to showing the row
                 let showRow = true;
 
-                // Text search
-                if (showRow && searchTerm) {
-                    const text = row.textContent.toLowerCase();
-                    if (!text.includes(searchTerm)) {
-                        showRow = false;
-                    }
+                // Apply filters - using short-circuit evaluation for performance
+                // Only check filters that are actually active
+                if (hasSearchFilter && showRow) {
+                    showRow = rowText.includes(searchTerm);
                 }
 
-                // Category filter
-                if (showRow && categoryFilter !== 'all') {
-                    if (row.dataset.category !== categoryFilter) {
-                        showRow = false;
-                    }
+                if (hasCategoryFilter && showRow) {
+                    showRow = rowCategory === categoryFilter;
                 }
 
-                // Type filter
-                if (showRow && typeFilter !== 'all') {
-                    if (row.dataset.type !== typeFilter) {
-                        showRow = false;
-                    }
+                if (hasTypeFilter && showRow) {
+                    showRow = rowType === typeFilter;
                 }
 
-                // Date filter
-                if (showRow && startDate) {
+                if (hasDateFilter && showRow) {
                     const txDateStr = row.dataset.date;
                     if (txDateStr) {
                         const dateParts = txDateStr.split('/');
@@ -1438,22 +1493,23 @@
                                 parseInt(dateParts[1])
                             );
 
-                            if (txDate < startDate || txDate > endDate) {
-                                showRow = false;
-                            }
+                            showRow = txDate >= startDate && txDate <= endDate;
                         }
                     }
                 }
 
-                // Apply the visibility directly
+                // Update visibility state
                 row.style.display = showRow ? '' : 'none';
-
-                // Also mark filtered rows (for pagination)
                 row.setAttribute('data-filtered', !showRow);
+
+                // Count visible rows
+                if (showRow) {
+                    visibleCount++;
+                }
             });
 
-            // Apply pagination after filtering
-            applyPagination();
+            // After filtering, apply pagination
+            applyPagination(visibleCount);
         }
         
         // Display monthly category totals
@@ -1988,34 +2044,37 @@
             });
         }
 
-        // Function to apply pagination
-        function applyPagination() {
+        // Improved pagination function with count parameter
+        function applyPagination(visibleCount) {
             const pageSize = document.getElementById('page-size').value;
-            const rows = document.querySelectorAll('#transactions-body tr');
+            const transactionsBody = document.getElementById('transactions-body');
 
-            // If All is selected, show all rows (that pass filters)
-            if (pageSize === 'all') {
-                rows.forEach(row => {
-                    if (row.getAttribute('data-filtered') !== 'true') {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+            // If All is selected or no count provided, don't apply pagination
+            if (pageSize === 'all' || !visibleCount) {
+                // Remove any existing "load more" rows
+                const existingLoadMore = document.querySelector('#transactions-body tr.load-more-row');
+                if (existingLoadMore) {
+                    existingLoadMore.remove();
+                }
                 return;
             }
 
-            // Get visible rows (not filtered out)
-            const visibleRows = Array.from(rows).filter(row => row.getAttribute('data-filtered') !== 'true');
             const limit = parseInt(pageSize);
+            const rows = document.querySelectorAll('#transactions-body tr:not(.load-more-row)');
 
-            // Show only the first 'limit' rows
-            visibleRows.forEach((row, index) => {
-                row.style.display = index < limit ? '' : 'none';
+            // Count visible rows (not filtered out)
+            let visibleShown = 0;
+
+            // Show/hide rows according to limit
+            rows.forEach(row => {
+                if (row.getAttribute('data-filtered') !== 'true') {
+                    visibleShown++;
+                    row.style.display = visibleShown <= limit ? '' : 'none';
+                }
             });
 
-            // Show message if there are more rows
-            if (visibleRows.length > limit) {
+            // Show message if there are more rows to display
+            if (visibleCount > limit) {
                 // Remove existing "load more" row if present
                 const existingLoadMore = document.querySelector('#transactions-body tr.load-more-row');
                 if (existingLoadMore) {
@@ -2027,13 +2086,13 @@
                 loadMoreRow.className = 'load-more-row';
                 loadMoreRow.innerHTML = `
             <td colspan="7" style="text-align: center; padding: 10px; background-color: #f8f8f8;">
-                Showing ${limit} of ${visibleRows.length} transactions. 
+                Showing ${limit} of ${visibleCount} transactions. 
                 <button id="load-more-btn" style="padding: 5px 10px; margin-left: 10px; cursor: pointer;">
                     Show All
                 </button>
             </td>
         `;
-                document.getElementById('transactions-body').appendChild(loadMoreRow);
+                transactionsBody.appendChild(loadMoreRow);
 
                 // Add event listener for "load more" button
                 document.getElementById('load-more-btn').addEventListener('click', function () {
@@ -2042,8 +2101,7 @@
                 });
             }
         }
-
-
+        
         // Function to set up export data functionality
         function setupExportData() {
             const exportButton = document.getElementById('export-data-btn');
@@ -2113,11 +2171,12 @@
         }  
 
         
-        // Refresh transactions button
-        document.getElementById('transactions-button').addEventListener('click', function() {
-            fetchAndStoreAccounts();
-            loadAccounts();
-            loadTransactions();
+        // Modified transactions refresh button handler
+        document.getElementById('transactions-button').addEventListener('click', function () {
+            // Force refresh of accounts data
+            loadAccounts(true).then(() => {
+                loadTransactions();
+            });
         });
 
         // Helper function to update transaction category
