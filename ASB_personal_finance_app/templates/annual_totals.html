@@ -168,26 +168,45 @@
                 categoryCell.textContent = row.category;
                 tr.appendChild(categoryCell);
                 
-                // Add amounts for each year
                 years.forEach(year => {
                     const td = document.createElement('td');
-                    td.textContent = row[year] || '$0.00';
-                    
-                    // Add color coding based on value
-                    const value = parseFloat((row[year] || '$0.00').replace(/[\$,]/g, ''));
+
+                    // Format currency value properly
+                    if (row[year]) {
+                        if (typeof row[year] === 'string' && row[year].startsWith('$')) {
+                            // If it's already a string with $ sign, parse it first
+                            const value = parseFloat(row[year].replace(/[\$,]/g, ''));
+                            td.textContent = formatCurrency(value);
+                        } else {
+                            // Otherwise format it directly
+                            td.textContent = formatCurrency(row[year]);
+                        }
+                    } else {
+                        td.textContent = formatCurrency(0);
+                    }
+
+                    // Add color coding based on value, but only for negative values
+                    const value = parseFloat((row[year] || '0').replace(/[\$,]/g, ''));
                     if (value < 0) {
                         // Red for negative values (expenses)
                         td.style.color = '#e74c3c';
-                    } else if (value > 0) {
-                        // Green for positive values (income)
-                        td.style.color = '#27ae60';
                     }
-                    
+
                     tr.appendChild(td);
                 });
                 
                 tableBody.appendChild(tr);
             });
+        }
+
+        // Add this function to format currency values
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
         }
     </script>
 </body>
