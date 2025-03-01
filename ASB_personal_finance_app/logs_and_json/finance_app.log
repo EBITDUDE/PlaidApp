@@ -587,3 +587,124 @@ werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on 
 2025-02-28 17:48:34,427 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\routing\\matcher.py', reloading
 2025-02-28 17:48:34,429 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:34] "[35m[1mGET /categories HTTP/1.1[0m" 500 -
 2025-02-28 17:48:34,959 [INFO]  * Restarting with watchdog (windowsapi)
+2025-02-28 17:48:36,119 [WARNING]  * Debugger is active!
+2025-02-28 17:48:36,119 [INFO]  * Debugger PIN: 109-758-015
+2025-02-28 17:48:37,178 [INFO] Fetching transactions from Plaid
+2025-02-28 17:48:37,558 [DEBUG] Number of accounts: 4
+2025-02-28 17:48:37,559 [DEBUG] Processing account 0
+2025-02-28 17:48:37,559 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 17:48:37,559 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 17:48:37,560 [DEBUG] Processing account 1
+2025-02-28 17:48:37,560 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 17:48:37,560 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 17:48:37,560 [DEBUG] Processing account 2
+2025-02-28 17:48:37,560 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 17:48:37,560 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 17:48:37,561 [DEBUG] Processing account 3
+2025-02-28 17:48:37,561 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 17:48:37,561 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 17:48:37,561 [INFO] Retrieved 4 accounts
+2025-02-28 17:48:37,562 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 17:48:37,562 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:37] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 17:48:37,893 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 17:48:37,894 [INFO] Total transactions: 44
+2025-02-28 17:48:37,896 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:37] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 17:48:38,175 [ERROR] Unhandled exception: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+2025-02-28 17:48:38,184 [ERROR] Traceback (most recent call last):
+  File "C:\Users\alexander.bennett\AppData\Local\Programs\Python\Python39\lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\alexander.bennett\AppData\Local\Programs\Python\Python39\lib\site-packages\flask\app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+  File "C:\Users\alexander.bennett\AppData\Local\Programs\Python\Python39\lib\site-packages\flask\app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+  File "C:\Users\alexander.bennett\AppData\Local\Programs\Python\Python39\lib\site-packages\flask\ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+  File "C:\Users\alexander.bennett\AppData\Local\Programs\Python\Python39\lib\site-packages\werkzeug\routing\map.py", line 629, in match
+    raise NotFound() from None
+werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+
+2025-02-28 17:48:38,185 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:38] "[35m[1mGET /annual_totals HTTP/1.1[0m" 500 -
+2025-02-28 17:48:39,267 [INFO] Fetching transactions from Plaid
+2025-02-28 17:48:39,519 [DEBUG] Number of accounts: 4
+2025-02-28 17:48:39,520 [DEBUG] Processing account 0
+2025-02-28 17:48:39,520 [DEBUG] Successfully converted account 0 to dictionary
+2025-02-28 17:48:39,520 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-02-28 17:48:39,521 [DEBUG] Processing account 1
+2025-02-28 17:48:39,521 [DEBUG] Successfully converted account 1 to dictionary
+2025-02-28 17:48:39,522 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-02-28 17:48:39,522 [DEBUG] Processing account 2
+2025-02-28 17:48:39,522 [DEBUG] Successfully converted account 2 to dictionary
+2025-02-28 17:48:39,522 [DEBUG] Created serializable account: Plaid CD, depository
+2025-02-28 17:48:39,523 [DEBUG] Processing account 3
+2025-02-28 17:48:39,523 [DEBUG] Successfully converted account 3 to dictionary
+2025-02-28 17:48:39,523 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-02-28 17:48:39,523 [INFO] Retrieved 4 accounts
+2025-02-28 17:48:39,523 [DEBUG] Account list successfully serialized in pre-check
+2025-02-28 17:48:39,523 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:39] "GET /get_accounts HTTP/1.1" 200 -
+2025-02-28 17:48:39,848 [INFO] Fetched 42 transactions from Plaid
+2025-02-28 17:48:39,848 [INFO] Total transactions: 44
+2025-02-28 17:48:39,848 [INFO] 127.0.0.1 - - [28/Feb/2025 17:48:39] "GET /get_transactions HTTP/1.1" 200 -
+2025-02-28 18:04:33,203 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\plaid_client.py', reloading
+2025-02-28 18:04:33,246 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\__init__.py', reloading
+2025-02-28 18:04:33,248 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\api\\__init__.py', reloading
+2025-02-28 18:04:33,252 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\api\\plaid_api.py', reloading
+2025-02-28 18:04:33,457 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\configuration.py', reloading
+2025-02-28 18:04:33,463 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\api_client.py', reloading
+2025-02-28 18:04:33,471 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\link_token_create_request.py', reloading
+2025-02-28 18:04:33,476 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model_utils.py', reloading
+2025-02-28 18:04:33,489 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\link_token_create_request_user.py', reloading
+2025-02-28 18:04:33,492 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\products.py', reloading
+2025-02-28 18:04:33,494 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\country_code.py', reloading
+2025-02-28 18:04:33,496 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\item_public_token_exchange_request.py', reloading
+2025-02-28 18:04:33,498 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\transactions_get_request.py', reloading
+2025-02-28 18:04:33,500 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\accounts_get_request.py', reloading
+2025-02-28 18:04:33,502 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\__init__.py', reloading
+2025-02-28 18:04:33,518 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\sansio\\app.py', reloading
+2025-02-28 18:04:33,523 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\sansio\\scaffold.py', reloading
+2025-02-28 18:04:33,527 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\templating.py', reloading
+2025-02-28 18:04:33,529 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\jinja2\\__init__.py', reloading
+2025-02-28 18:04:33,530 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\jinja2\\environment.py', reloading
+2025-02-28 18:04:33,544 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\json\\__init__.py', reloading
+2025-02-28 18:04:33,546 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\wrappers.py', reloading
+2025-02-28 18:04:33,547 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\wrappers\\__init__.py', reloading
+2025-02-28 18:04:33,548 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\wrappers\\response.py', reloading
+2025-02-28 18:04:33,552 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\sansio\\response.py', reloading
+2025-02-28 18:04:33,555 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\globals.py', reloading
+2025-02-28 18:04:33,557 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\wrappers\\request.py', reloading
+2025-02-28 18:04:33,561 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\sansio\\request.py', reloading
+2025-02-28 18:04:33,568 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\datetime.py', reloading
+2025-02-28 18:04:33,598 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\uuid.py', reloading
+2025-02-28 18:04:33,612 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\traceback.py', reloading
+2025-02-28 18:04:33,645 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\typing.py', reloading
+2025-02-28 18:04:33,647 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\datastructures\\__init__.py', reloading
+2025-02-28 18:04:33,647 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\datastructures\\headers.py', reloading
+2025-02-28 18:04:33,678 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\accounts_get_response.py', reloading
+2025-02-28 18:04:33,761 [INFO]  * Restarting with watchdog (windowsapi)
+2025-02-28 18:04:34,922 [WARNING]  * Debugger is active!
+2025-02-28 18:04:34,925 [INFO]  * Debugger PIN: 109-758-015
+2025-02-28 18:07:32,720 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\typing.py', reloading
+2025-02-28 18:07:32,743 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\json\\provider.py', reloading
+2025-02-28 18:07:33,189 [INFO]  * Restarting with watchdog (windowsapi)
+2025-02-28 18:07:34,367 [WARNING]  * Debugger is active!
+2025-02-28 18:07:34,371 [INFO]  * Debugger PIN: 109-758-015
+2025-02-28 18:07:44,700 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\jinja2\\loaders.py', reloading
+2025-02-28 18:07:44,722 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\jinja2\\exceptions.py', reloading
+2025-02-28 18:07:44,749 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\helpers.py', reloading
+2025-02-28 18:07:44,766 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\signals.py', reloading
+2025-02-28 18:07:44,776 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\blinker\\__init__.py', reloading
+2025-02-28 18:07:44,788 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\blinker\\base.py', reloading
+2025-02-28 18:07:44,809 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\sessions.py', reloading
+2025-02-28 18:07:44,826 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\jinja2\\defaults.py', reloading
+2025-02-28 18:07:44,843 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\jinja2\\ext.py', reloading
+2025-02-28 18:07:44,864 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\jinja2\\runtime.py', reloading
+2025-02-28 18:07:44,884 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\jinja2\\bccache.py', reloading
+2025-02-28 18:07:44,905 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\config.py', reloading
+2025-02-28 18:07:44,922 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\debughelpers.py', reloading
+2025-02-28 18:07:44,938 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\werkzeug\\utils.py', reloading
+2025-02-28 18:07:44,966 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\flask\\sansio\\blueprints.py', reloading
+2025-02-28 18:07:45,561 [INFO]  * Restarting with watchdog (windowsapi)
+2025-02-28 18:07:46,655 [WARNING]  * Debugger is active!
+2025-02-28 18:07:46,659 [INFO]  * Debugger PIN: 109-758-015
+2025-02-28 18:07:52,234 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
+2025-02-28 18:07:52,235 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
+2025-02-28 18:07:52,789 [INFO]  * Restarting with watchdog (windowsapi)
