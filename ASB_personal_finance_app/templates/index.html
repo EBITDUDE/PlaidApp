@@ -1029,33 +1029,105 @@
             }
         }
         
-        // Call this after transactions are loaded
         function loadTransactions() {
             console.log("Loading transactions...");
+
+            // Add a loading indicator
+            const txTable = document.getElementById('transactions-body');
+            const txSection = document.getElementById('transactions-section');
+
+            // Clear previous content and show loading
+            txTable.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 20px;">
+                        <div class="loading" style="display: inline-block; width: 30px; height: 30px; 
+                            border: 3px solid rgba(0,0,0,0.3); border-radius: 50%; 
+                            border-top-color: #3498db; animation: spin 1s ease-in-out infinite;">
+                            Loading...
+                        </div>
+                    </td>
+                </tr>
+            `;
+            txSection.style.display = 'block';
+
+            // Fetch transactions
             fetch('/get_transactions')
                 .then(response => {
-                    console.log("Transaction response:", response.status);
+                    console.log("Transaction response status:", response.status);
+
+                    // Check for HTTP errors
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
                     return response.json();
                 })
                 .then(data => {
                     console.log("Received transaction data:", data);
+
+                    // Clear loading indicator
+                    txTable.innerHTML = '';
+
+                    // Handle different potential response scenarios
                     if (data.error) {
-                        console.error("Error loading transactions:", data.error);
-                        alert('Error: ' + data.error);
-                    } else {
-                        console.log("Displaying transactions:", data.transactions.length);
-                        displayTransactions(data.transactions);
+                        console.error("Server-side transaction error:", data.error);
 
-                        // Calculate and display monthly totals
-                        const monthlyData = calculateMonthlyCategoryTotals(data.transactions);
-                        displayMonthlyCategoryTotals(monthlyData.monthlyTable, monthlyData.months);
-
-                        // Initialize pagination and filters after loading data
-                        setupPaginationAndFilters();
+                        // Show error message in the table
+                        const errorRow = document.createElement('tr');
+                        errorRow.innerHTML = `
+                            <td colspan="7" style="text-align: center; color: red; padding: 20px;">
+                                Error loading transactions: ${data.error}
+                            </td>
+                        `;
+                        txTable.appendChild(errorRow);
+                        return;
                     }
+
+                    // Verify transactions exist
+                    const transactions = data.transactions || [];
+                    if (transactions.length === 0) {
+                        console.warn("No transactions found");
+
+                        const emptyRow = document.createElement('tr');
+                        emptyRow.innerHTML = `
+                            <td colspan="7" style="text-align: center; color: #666; padding: 20px;">
+                                No transactions available. Connect a bank account or add manual transactions.
+                            </td>
+                        `;
+                        txTable.appendChild(emptyRow);
+                        return;
+                    }
+
+                    // Trigger accounts loading before displaying transactions
+                    fetchAndStoreAccounts()
+                        .then(() => {
+                            // Display transactions
+                            displayTransactions(transactions);
+
+                            // Calculate and display monthly totals
+                            const monthlyData = calculateMonthlyCategoryTotals(transactions);
+                            displayMonthlyCategoryTotals(monthlyData.monthlyTable, monthlyData.months);
+
+                            // Initialize pagination and filters
+                            setupPaginationAndFilters();
+                        })
+                        .catch(err => {
+                            console.error("Error loading accounts:", err);
+                        });
                 })
                 .catch(err => {
                     console.error("Transaction fetch error:", err);
+
+                    // Show error in table
+                    const errorRow = document.createElement('tr');
+                    errorRow.innerHTML = `
+                        <td colspan="7" style="text-align: center; color: red; padding: 20px;">
+                            Error fetching transactions: ${err.message}
+                            <br>
+                            <small>Check console for more details</small>
+                        </td>
+                    `;
+                    txTable.appendChild(errorRow);
                 });
         }
         
@@ -1181,15 +1253,15 @@
                 });
             }
         }
-        
-        // Improved account caching implementation
+        // Improved Account Caching Implementation
         let accountsCache = {
             data: null,
+            rawData: null,
             timestamp: 0,
             maxAge: 60000 // Cache expires after 1 minute
         };
 
-        // Function to fetch and store account information with caching
+        // Fetch and store account information with caching
         function fetchAndStoreAccounts(forceRefresh = false) {
             // Check if we have cached data that isn't expired
             const now = Date.now();
@@ -1200,7 +1272,12 @@
 
             console.log("Fetching fresh account data");
             return fetch('/get_accounts')
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch accounts');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.error) {
                         console.error('Error loading accounts:', data.error);
@@ -1219,6 +1296,7 @@
 
                     // Update cache
                     accountsCache.data = accountsMap;
+                    accountsCache.rawData = data;
                     accountsCache.timestamp = now;
 
                     // Store in global variable for compatibility with existing code
@@ -1230,7 +1308,7 @@
                     return {};
                 });
         }
-        
+
         /**
          * Processes transaction data and calculates monthly category totals
          * @param {Array} transactions - List of transaction objects
@@ -1742,95 +1820,109 @@
         </div>
     </div>
     <script>
-        // Fix for Plaid Link not working
         document.getElementById('link-button').addEventListener('click', function () {
-            console.log('Link button clicked');
+                console.log('Bank connection initiated');
 
-            // Add loading state to button
-            const originalButtonText = this.textContent;
-            this.innerHTML = 'Connecting... <span class="loading"></span>';
-            this.disabled = true;
+                // Add loading state to button
+                const originalButtonText = this.textContent;
+                this.innerHTML = 'Connecting... <span class="loading"></span>';
+                this.disabled = true;
 
-            // Fetch link token with error handling
-            fetch('/create_link_token')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.link_token) {
-                        throw new Error('No link token in response');
-                    }
-                    console.log('Link token received successfully');
-
-                    // Initialize Plaid Link
-                    const handler = Plaid.create({
-                        token: data.link_token,
-                        onSuccess: (public_token, metadata) => {
-                            console.log('Link success - public token received');
-                            // Exchange public token for access token
-                            fetch('/exchange_public_token', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ public_token: public_token })
-                            })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        throw new Error('Token exchange failed: ' + response.status);
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    console.log('Access token received');
-                                    alert('Bank account connected successfully!');
-                                    document.getElementById('transactions-button').style.display = 'block';
-
-                                    // Refresh the page instead of calling functions
-                                    window.location.reload();
-                                })
-                                .catch(err => {
-                                    console.error('Token exchange error:', err);
-                                    alert('Error connecting bank: ' + err.message);
-
-                                    // Reset button
-                                    this.innerHTML = originalButtonText;
-                                    this.disabled = false;
-                                });
-                        },
-                        onExit: (err, metadata) => {
-                            console.log('Link exit:', err ? 'error' : 'normal');
-
-                            // Reset button
-                            this.innerHTML = originalButtonText;
-                            this.disabled = false;
-
-                            if (err) {
-                                console.error('Link error:', err);
-                                alert('Error connecting to bank: ' + (err.display_message || err.error_message || err.message || 'Unknown error'));
-                            }
-                        },
-                        onLoad: () => {
-                            console.log('Link loaded');
-                        },
-                        onEvent: (eventName, metadata) => {
-                            console.log('Link event:', eventName);
+                // Fetch link token
+                fetch('/create_link_token')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
                         }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.link_token) {
+                            throw new Error('No link token in response');
+                        }
+
+                        // Initialize Plaid Link
+                        const handler = Plaid.create({
+                            token: data.link_token,
+                            onSuccess: (public_token, metadata) => {
+                                console.log('Link success - public token received');
+
+                                // Exchange public token
+                                fetch('/exchange_public_token', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ public_token: public_token })
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error('Token exchange failed');
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        console.log('Access token received');
+
+                                        // Add or show Refresh Transactions button
+                                        const buttonsContainer = document.querySelector('.buttons-container');
+                                        let refreshButton = document.getElementById('transactions-button');
+
+                                        if (!refreshButton) {
+                                            refreshButton = document.createElement('button');
+                                            refreshButton.id = 'transactions-button';
+                                            refreshButton.textContent = 'Refresh Transactions';
+                                            refreshButton.addEventListener('click', function () {
+                                                loadAccounts(true)
+                                                    .then(() => loadTransactions());
+                                            });
+                                            buttonsContainer.appendChild(refreshButton);
+                                        }
+
+                                        refreshButton.style.display = 'block';
+
+                                        // Load accounts and transactions
+                                        loadAccounts().then(() => {
+                                            loadTransactions();
+                                        });
+
+                                        // Show success message
+                                        alert('Bank account connected successfully!');
+                                    })
+                                    .catch(err => {
+                                        console.error('Token exchange error:', err);
+                                        alert('Error connecting bank: ' + err.message);
+                                    })
+                                    .finally(() => {
+                                        // Reset button
+                                        this.innerHTML = originalButtonText;
+                                        this.disabled = false;
+                                    });
+                            },
+                            onExit: (err, metadata) => {
+                                console.log('Link exit:', err ? 'error' : 'normal');
+
+                                // Reset button
+                                this.innerHTML = originalButtonText;
+                                this.disabled = false;
+
+                                if (err) {
+                                    console.error('Link error:', err);
+                                    alert('Error connecting to bank: ' + (err.display_message || err.error_message || err.message || 'Unknown error'));
+                                }
+                            }
+                        });
+
+                        // Open Plaid Link
+                        handler.open();
+                    })
+                    .catch(err => {
+                        console.error('Error initializing Plaid Link:', err);
+                        alert('Error connecting to bank: ' + err.message);
+
+                        // Reset button
+                        this.innerHTML = originalButtonText;
+                        this.disabled = false;
                     });
-
-                    // Open Plaid Link
-                    handler.open();
-                })
-                .catch(err => {
-                    console.error('Error initializing Plaid Link:', err);
-                    alert('Error connecting to bank: ' + err.message);
-
-                    // Reset button
-                    this.innerHTML = originalButtonText;
-                    this.disabled = false;
-                });
-        });
+            });
     </script>
 </body>
 </html>
