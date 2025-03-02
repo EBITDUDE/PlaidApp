@@ -542,6 +542,14 @@
     window.accountsMap = {};
     let currentDate = new Date();
     let calendarDate = new Date();
+
+    // Improved Account Caching Implementation
+    let accountsCache = {
+        data: null,
+        rawData: null,
+        timestamp: 0,
+        maxAge: 60000 // Cache expires after 1 minute
+    };
     
     document.addEventListener('DOMContentLoaded', function() {
         // Add date filters and custom date picker code
@@ -984,9 +992,6 @@
                     }
                 });
 
-                document.getElementById('link-button').onclick = () => {
-                    handler.open();
-                };
             });
 
         // Optimized function to load accounts data
@@ -1012,6 +1017,110 @@
                 });
         }
 
+        document.getElementById('link-button').addEventListener('click', function () {
+            console.log('Bank connection initiated');
+
+            // Add loading state to button
+            const originalButtonText = this.textContent;
+            this.innerHTML = '<span style="display: flex; align-items: center;">Connecting... <span class="loading" style="margin-left: 8px;"></span></span>';
+            this.disabled = true;
+
+            // Fetch link token
+            fetch('/create_link_token')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.link_token) {
+                        throw new Error('No link token in response');
+                    }
+
+                    // Initialize Plaid Link
+                    const handler = Plaid.create({
+                        token: data.link_token,
+                        onSuccess: (public_token, metadata) => {
+                            console.log('Link success - public token received');
+
+                            // Exchange public token
+                            fetch('/exchange_public_token', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ public_token: public_token })
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Token exchange failed');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log('Access token received');
+
+                                    // Add or show Refresh Transactions button
+                                    const buttonsContainer = document.querySelector('.buttons-container');
+                                    let refreshButton = document.getElementById('transactions-button');
+
+                                    if (!refreshButton) {
+                                        refreshButton = document.createElement('button');
+                                        refreshButton.id = 'transactions-button';
+                                        refreshButton.textContent = 'Refresh Transactions';
+                                        refreshButton.addEventListener('click', function () {
+                                            loadAccounts(true)
+                                                .then(() => loadTransactions());
+                                        });
+                                        buttonsContainer.appendChild(refreshButton);
+                                    }
+
+                                    refreshButton.style.display = 'block';
+
+                                    // Load accounts and transactions
+                                    loadAccounts().then(() => {
+                                        loadTransactions();
+                                    });
+
+                                    // Show success message
+                                    alert('Bank account connected successfully!');
+                                })
+                                .catch(err => {
+                                    console.error('Token exchange error:', err);
+                                    alert('Error connecting bank: ' + err.message);
+                                })
+                                .finally(() => {
+                                    // Reset button
+                                    this.innerHTML = originalButtonText;
+                                    this.disabled = false;
+                                });
+                        },
+                        onExit: (err, metadata) => {
+                            console.log('Link exit:', err ? 'error' : 'normal');
+
+                            // Reset button
+                            this.innerHTML = originalButtonText;
+                            this.disabled = false;
+
+                            if (err) {
+                                console.error('Link error:', err);
+                                alert('Error connecting to bank: ' + (err.display_message || err.error_message || err.message || 'Unknown error'));
+                            }
+                        }
+                    });
+
+                    // Open Plaid Link
+                    handler.open();
+                })
+                .catch(err => {
+                    console.error('Error initializing Plaid Link:', err);
+                    alert('Error connecting to bank: ' + err.message);
+
+                    // Reset button
+                    this.innerHTML = originalButtonText;
+                    this.disabled = false;
+                });
+        });
+        
         // Helper function to display accounts
         function displayAccounts(data) {
             const accountsContainer = document.getElementById('accounts-container');
@@ -1224,16 +1333,16 @@
                         }
 
                         row.innerHTML = `
-                    <td class="editable" data-field="date">${tx.date}</td>
-                    <td class="editable ${amountClass}" data-field="amount" data-is-debit="${tx.is_debit}">${amountDisplay}</td>
-                    <td>${typeDisplay}</td>
-                    <td class="editable" data-field="category">${tx.category}</td>
-                    <td class="editable" data-field="merchant">${tx.merchant}</td>
-                    <td>${accountDisplay}</td>
-                    <td>
-                        <button class="delete-btn" style="background-color: #ff4d4d; color: white; border: none; padding: 2px 5px; cursor: pointer; border-radius: 3px;">Delete</button>
-                    </td>
-                `;
+                            <td class="editable" data-field="date">${tx.date}</td>
+                            <td class="editable ${amountClass}" data-field="amount" data-is-debit="${tx.is_debit}">${amountDisplay}</td>
+                            <td>${typeDisplay}</td>
+                            <td class="editable" data-field="category">${tx.category}</td>
+                            <td class="editable" data-field="merchant">${tx.merchant}</td>
+                            <td>${accountDisplay}</td>
+                            <td>
+                                <button class="delete-btn" style="background-color: #ff4d4d; color: white; border: none; padding: 2px 5px; cursor: pointer; border-radius: 3px;">Delete</button>
+                            </td>
+                        `;
 
                         txTable.appendChild(row);
 
@@ -1268,13 +1377,6 @@
                 });
             }
         }
-        // Improved Account Caching Implementation
-        let accountsCache = {
-            data: null,
-            rawData: null,
-            timestamp: 0,
-            maxAge: 60000 // Cache expires after 1 minute
-        };
 
         // Fetch and store account information with caching
         function fetchAndStoreAccounts(forceRefresh = false) {
@@ -1834,110 +1936,5 @@
             </div>
         </div>
     </div>
-    <script>
-        document.getElementById('link-button').addEventListener('click', function () {
-                console.log('Bank connection initiated');
-
-                // Add loading state to button
-                const originalButtonText = this.textContent;
-                this.innerHTML = 'Connecting... <span class="loading"></span>';
-                this.disabled = true;
-
-                // Fetch link token
-                fetch('/create_link_token')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok: ' + response.status);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (!data.link_token) {
-                            throw new Error('No link token in response');
-                        }
-
-                        // Initialize Plaid Link
-                        const handler = Plaid.create({
-                            token: data.link_token,
-                            onSuccess: (public_token, metadata) => {
-                                console.log('Link success - public token received');
-
-                                // Exchange public token
-                                fetch('/exchange_public_token', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ public_token: public_token })
-                                })
-                                    .then(response => {
-                                        if (!response.ok) {
-                                            throw new Error('Token exchange failed');
-                                        }
-                                        return response.json();
-                                    })
-                                    .then(data => {
-                                        console.log('Access token received');
-
-                                        // Add or show Refresh Transactions button
-                                        const buttonsContainer = document.querySelector('.buttons-container');
-                                        let refreshButton = document.getElementById('transactions-button');
-
-                                        if (!refreshButton) {
-                                            refreshButton = document.createElement('button');
-                                            refreshButton.id = 'transactions-button';
-                                            refreshButton.textContent = 'Refresh Transactions';
-                                            refreshButton.addEventListener('click', function () {
-                                                loadAccounts(true)
-                                                    .then(() => loadTransactions());
-                                            });
-                                            buttonsContainer.appendChild(refreshButton);
-                                        }
-
-                                        refreshButton.style.display = 'block';
-
-                                        // Load accounts and transactions
-                                        loadAccounts().then(() => {
-                                            loadTransactions();
-                                        });
-
-                                        // Show success message
-                                        alert('Bank account connected successfully!');
-                                    })
-                                    .catch(err => {
-                                        console.error('Token exchange error:', err);
-                                        alert('Error connecting bank: ' + err.message);
-                                    })
-                                    .finally(() => {
-                                        // Reset button
-                                        this.innerHTML = originalButtonText;
-                                        this.disabled = false;
-                                    });
-                            },
-                            onExit: (err, metadata) => {
-                                console.log('Link exit:', err ? 'error' : 'normal');
-
-                                // Reset button
-                                this.innerHTML = originalButtonText;
-                                this.disabled = false;
-
-                                if (err) {
-                                    console.error('Link error:', err);
-                                    alert('Error connecting to bank: ' + (err.display_message || err.error_message || err.message || 'Unknown error'));
-                                }
-                            }
-                        });
-
-                        // Open Plaid Link
-                        handler.open();
-                    })
-                    .catch(err => {
-                        console.error('Error initializing Plaid Link:', err);
-                        alert('Error connecting to bank: ' + err.message);
-
-                        // Reset button
-                        this.innerHTML = originalButtonText;
-                        this.disabled = false;
-                    });
-            });
-    </script>
 </body>
 </html>

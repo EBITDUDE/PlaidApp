@@ -9,7 +9,7 @@ from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchan
 from plaid.model.transactions_get_request import TransactionsGetRequest
 from plaid.model.accounts_get_request import AccountsGetRequest
 from flask import Flask, render_template, jsonify, request
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 import json
 import os
 import uuid
