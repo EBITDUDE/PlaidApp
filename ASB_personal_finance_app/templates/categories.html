@@ -193,33 +193,30 @@
         function addCategory() {
             const categoryInput = document.getElementById('new-category');
             const newCategory = categoryInput.value.trim();
-            
+
             if (!newCategory) {
                 alert('Please enter a category name');
                 return;
             }
-            
+
             fetch('/add_category', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ category: newCategory })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert('Error adding category: ' + data.error);
-                } else {
-                    // Clear input
-                    categoryInput.value = '';
-                    
-                    // Update display
-                    displayCategories(data.categories);
-                }
-            })
-            .catch(err => {
-                console.error('Error adding category:', err);
-                alert('Error adding category: ' + err.message);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error adding category: ' + data.error);
+                    } else {
+                        categoryInput.value = '';
+                        loadCategories(); // Refresh the full list
+                    }
+                })
+                .catch(err => {
+                    console.error('Error adding category:', err);
+                    alert('Error adding category: ' + err.message);
+                });
         }
         
         function deleteCategory(category) {

@@ -9,7 +9,7 @@ from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchan
 from plaid.model.transactions_get_request import TransactionsGetRequest
 from plaid.model.accounts_get_request import AccountsGetRequest
 from flask import Flask, render_template, jsonify, request
-from datetime import datetime, timedelta
+import datetime
 import json
 import os
 import uuid
@@ -49,28 +49,52 @@ TRANSACTIONS_FILE = os.path.join(os.getcwd(), 'logs_and_json', 'transactions.jso
 # Create the logs_and_json directory if it doesn't exist
 os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
 
+# Global cache variables
+_access_token_cache = None
+_saved_transactions_cache = None
+_account_names_cache = {}
+
+# Reset cache before each request
+@app.before_request
+def reset_cache():
+    global _access_token_cache, _saved_transactions_cache
+    _access_token_cache = None
+    _saved_transactions_cache = None
+
 # Helper function to load access token from file
 def load_access_token():
+    global _access_token_cache
+    if _access_token_cache is not None:
+        return _access_token_cache
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, 'r') as f:
             data = json.load(f)
-            return data.get('access_token')
-    return None
+            _access_token_cache = data.get('access_token')
+    return _access_token_cache
 
 # Helper function to save access token to file
 def save_access_token(access_token):
+    global _access_token_cache
+    _access_token_cache = access_token
     with open(TOKEN_FILE, 'w') as f:
         json.dump({'access_token': access_token}, f)
 
 # Helper function to load saved transactions
 def load_saved_transactions():
+    global _saved_transactions_cache
+    if _saved_transactions_cache is not None:
+        return _saved_transactions_cache
     if os.path.exists(TRANSACTIONS_FILE):
         with open(TRANSACTIONS_FILE, 'r') as f:
-            return json.load(f)
-    return {}
+            _saved_transactions_cache = json.load(f)
+    else:
+        _saved_transactions_cache = {}
+    return _saved_transactions_cache
 
 # Helper function to save modified transactions
 def save_transactions(transactions):
+    global _saved_transactions_cache
+    _saved_transactions_cache = transactions
     with open(TRANSACTIONS_FILE, 'w') as f:
         json.dump(transactions, f)
 
@@ -275,9 +299,8 @@ def get_transactions():
                 'transactions': []
             }), 400
 
-        # Prepare date range
-        start_date = datetime(2020, 1, 1).date()
-        end_date = datetime.now().date()
+        start_date = datetime.datetime(2020, 1, 1).date()
+        end_date = datetime.datetime.now().date()
         logger.info(f"Fetching transactions from {start_date} to {end_date}")
 
         # Create transactions request
@@ -300,11 +323,11 @@ def get_transactions():
                 logger.info("Sample Transactions:")
                 for i, tx in enumerate(transactions[:5], 1):
                     logger.info(f"Transaction {i}:")
-                    logger.info(f"  ID: {tx.get('transaction_id')}")
-                    logger.info(f"  Name: {tx.get('name')}")
-                    logger.info(f"  Amount: {tx.get('amount')}")
-                    logger.info(f"  Date: {tx.get('date')}")
-                    logger.info(f"  Category: {tx.get('category')}")
+                    logger.info(f"  ID: {tx.transaction_id}")
+                    logger.info(f"  Name: {tx.name}")
+                    logger.info(f"  Amount: {tx.amount}")
+                    logger.info(f"  Date: {tx.date}")
+                    logger.info(f"  Category: {tx.category}")
             else:
                 logger.warning("No transactions found in Plaid response")
 
@@ -320,38 +343,26 @@ def get_transactions():
         transaction_list = []
         for tx in transactions:
             try:
-                # Robust date parsing
+                # Get the date directly from the Plaid Transaction object
                 try:
-                    # Try multiple date parsing methods
-                    tx_date_str = tx.get('date')
-                    if isinstance(tx_date_str, str):
-                        try:
-                            tx_date = datetime.strptime(tx_date_str, "%Y-%m-%d").date()
-                        except ValueError:
-                            try:
-                                tx_date = datetime.strptime(tx_date_str, "%m/%d/%Y").date()
-                            except ValueError:
-                                logger.warning(f"Could not parse date: {tx_date_str}")
-                                tx_date = datetime.now().date()
-                    elif isinstance(tx_date_str, datetime):
-                        tx_date = tx_date_str.date()
-                    else:
-                        logger.warning(f"Unexpected date type: {type(tx_date_str)}")
-                        tx_date = datetime.now().date()
-                except Exception as date_err:
-                    logger.error(f"Date parsing error: {str(date_err)}")
-                    tx_date = datetime.now().date()
+                    tx_date = tx.date  # Access the date attribute directly
+                    if not isinstance(tx_date, datetime.date):
+                        logger.warning(f"Unexpected date type for transaction {tx.transaction_id}: {type(tx_date)}")
+                        tx_date = datetime.datetime.now().date()
+                except AttributeError:
+                    logger.error(f"Transaction object does not have 'date' attribute for transaction {tx.transaction_id}")
+                    tx_date = datetime.datetime.now().date()
 
-                # Process transaction details
+                # Use attribute access for other fields
                 transaction_list.append({
-                    'id': tx.get('transaction_id', str(uuid.uuid4())),
+                    'id': tx.transaction_id,
                     'date': tx_date.strftime("%m/%d/%Y"),
                     'raw_date': tx_date.strftime("%Y-%m-%d"),
-                    'amount': abs(float(tx.get('amount', 0))),
-                    'is_debit': float(tx.get('amount', 0)) > 0,
-                    'merchant': tx.get('name', 'Unknown'),
-                    'category': tx.get('category', ['Uncategorized'])[0],
-                    'account_id': tx.get('account_id', ''),
+                    'amount': abs(float(tx.amount)),
+                    'is_debit': float(tx.amount) > 0,
+                    'merchant': tx.name,
+                    'category': tx.category[0] if tx.category else 'Uncategorized',
+                    'account_id': tx.account_id,
                     'manual': False
                 })
 
@@ -359,24 +370,19 @@ def get_transactions():
                 logger.error(f"Error processing transaction: {str(tx_error)}")
                 logger.error(traceback.format_exc())
 
-        # Add manual transactions from saved transactions
+        # Add manual transactions from saved transactions (unchanged)
         saved_transactions = load_saved_transactions()
         for tx_id, tx_data in saved_transactions.items():
             if tx_data.get('manual', False) and not tx_data.get('deleted', False):
                 try:
-                    # Parse date for manual transactions
-                    try:
-                        tx_date_str = tx_data.get('date')
-                        if isinstance(tx_date_str, str):
-                            tx_date = datetime.strptime(tx_date_str, "%Y-%m-%d").date()
-                        elif isinstance(tx_date_str, datetime):
-                            tx_date = tx_date_str.date()
-                        else:
-                            logger.warning(f"Unexpected date type for manual transaction: {type(tx_date_str)}")
-                            tx_date = datetime.now().date()
-                    except Exception as date_err:
-                        logger.error(f"Manual transaction date parsing error: {str(date_err)}")
-                        tx_date = datetime.now().date()
+                    tx_date_str = tx_data.get('date')
+                    if isinstance(tx_date_str, str):
+                        tx_date = datetime.datetime.strptime(tx_date_str, "%Y-%m-%d").date()
+                    elif isinstance(tx_date_str, datetime.date):
+                        tx_date = tx_date_str
+                    else:
+                        logger.warning(f"Unexpected date type for manual transaction: {type(tx_date_str)}")
+                        tx_date = datetime.datetime.now().date()
 
                     transaction_list.append({
                         'id': tx_id,
@@ -403,8 +409,6 @@ def get_transactions():
         # Return transactions
         return jsonify({
             'transactions': transaction_list,
-            'monthly_category_totals': [],  # You might want to keep existing monthly total logic
-            'months': []
         })
 
     except Exception as final_error:
@@ -413,8 +417,8 @@ def get_transactions():
         return jsonify({
             'error': f'Unexpected error: {str(final_error)}',
             'transactions': []
-        }), 500  
-      
+        }), 500
+    
 # New route to update a transaction
 @app.route('/update_transaction', methods=['POST'])
 def update_transaction():
@@ -444,7 +448,7 @@ def update_transaction():
             # Validate and standardize date format
             try:
                 # Parse the date string into a datetime object
-                date_obj = datetime.strptime(tx_data.get('date'), "%m/%d/%Y")
+                date_obj = datetime.datetime.strptime(tx_data.get('date'), "%m/%d/%Y")
                 # Store in ISO format for consistency
                 saved_transactions[tx_id]['date'] = date_obj.strftime("%Y-%m-%d")
             except ValueError as e:
@@ -493,7 +497,7 @@ def add_transaction():
         
         # Validate and format date
         try:
-            date_obj = datetime.strptime(tx_data.get('date'), "%m/%d/%Y")
+            date_obj = datetime.datetime.strptime(tx_data.get('date'), "%m/%d/%Y")
             formatted_date = date_obj.strftime("%Y-%m-%d")
         except ValueError as e:
             logger.error(f"Date formatting error: {e}")
@@ -605,85 +609,62 @@ def annual_totals_page():
 @app.route('/get_categories', methods=['GET'])
 def get_categories():
     try:
-        # FIX: First check if we have saved categories in categories.json
+        # Load custom categories from categories.json
         categories_file = os.path.join(os.getcwd(), 'logs_and_json', 'categories.json')
-        categories = set()
-        
+        custom_categories = set()
         if os.path.exists(categories_file):
             try:
                 with open(categories_file, 'r') as f:
-                    file_categories = json.load(f)
-                    # Add categories from file
-                    categories.update(file_categories)
+                    custom_categories = set(json.load(f))
             except Exception as e:
                 logger.error(f"Error reading categories file: {str(e)}")
         
-        # If we have no categories yet, extract them from transactions
-        if not categories:
-            logger.debug("No categories found in categories.json, extracting from transactions")
-            
-            # Load saved transactions to extract categories
-            saved_transactions = load_saved_transactions()
-            
-            # Get unique categories from saved transactions
-            for tx_id, tx_data in saved_transactions.items():
-                if 'category' in tx_data and not tx_data.get('deleted', False):
-                    categories.add(tx_data['category'])
-            
-            # Also get categories from Plaid transactions if available
-            access_token = load_access_token()
-            if access_token:
-                try:
-                    # Set date range for transaction fetching
-                    start_date = datetime.strptime("2020-01-01", "%Y-%m-%d").date()
-                    end_date = datetime.now().date()
-
-                    transactions_request = TransactionsGetRequest(
-                        access_token=access_token,
-                        start_date=start_date,
-                        end_date=end_date
-                    )
-                    response = client.transactions_get(transactions_request)
-                    transactions = response['transactions']
-                    
-                    # Extract categories from Plaid transactions
-                    for tx in transactions:
-                        if tx.get('category') and len(tx.get('category', [])) > 0:
-                            categories.add(tx['category'][0])
-                except Exception as e:
-                    logger.error(f"Error fetching categories from Plaid: {str(e)}")
+        # Always extract categories from transactions
+        transaction_categories = set()
+        saved_transactions = load_saved_transactions()
+        for tx_data in saved_transactions.values():
+            if 'category' in tx_data and not tx_data.get('deleted', False):
+                transaction_categories.add(tx_data['category'])
         
-        # FIX: Add some default categories if none found
-        if len(categories) == 0:
+        # Fetch from Plaid if available
+        access_token = load_access_token()
+        if access_token:
+            try:
+                start_date = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d").date()
+                end_date = datetime.datetime.now().date()
+                transactions_request = TransactionsGetRequest(
+                    access_token=access_token,
+                    start_date=start_date,
+                    end_date=end_date
+                )
+                response = client.transactions_get(transactions_request)
+                for tx in response['transactions']:
+                    if tx.get('category'):
+                        transaction_categories.add(tx['category'][0])
+            except Exception as e:
+                logger.error(f"Error fetching categories from Plaid: {str(e)}")
+        
+        # Combine all categories
+        all_categories = transaction_categories.union(custom_categories)
+        
+        # Add default categories if still empty
+        if not all_categories:
             default_categories = [
-                "Food and Drink", 
-                "Transportation", 
-                "Housing", 
-                "Entertainment", 
-                "Shopping", 
-                "Medical", 
-                "Travel", 
-                "Education", 
-                "Income",
-                "Utilities",
-                "Subscriptions"
+                "Food and Drink", "Transportation", "Housing", "Entertainment",
+                "Shopping", "Medical", "Travel", "Education", "Income",
+                "Utilities", "Subscriptions"
             ]
-            categories.update(default_categories)
-            
-            # Save default categories to file
-            with open(categories_file, 'w') as f:
-                json.dump(list(categories), f)
+            all_categories.update(default_categories)
         
-        # Convert to sorted list
-        category_list = sorted(list(categories))
+        # Return sorted list
+        category_list = sorted(list(all_categories))
         logger.debug(f"Returning {len(category_list)} categories")
-        
+
         return jsonify({'categories': category_list})
     except Exception as e:
         logger.error(f"Error getting categories: {str(e)}")
-        logger.error(traceback.format_exc())
         return jsonify({'error': 'Failed to retrieve categories', 'details': str(e)}), 500
-
+    
 # Helper function to parse dates in various formats
 def parse_date(date_str):
     """
@@ -724,7 +705,7 @@ def parse_date(date_str):
     
     for fmt in formats:
         try:
-            return datetime.strptime(date_str, fmt).date()
+            return datetime.datetime.strptime(date_str, fmt).date()
         except ValueError:
             continue
             
@@ -744,8 +725,8 @@ def get_annual_totals():
         if access_token:
             try:
                 # Use a wide date range
-                start_date = datetime(2020, 1, 1).date()
-                end_date = datetime.now().date()
+                start_date = datetime.datetime(2020, 1, 1).date()
+                end_date = datetime.datetime.now().date()
                 
                 transactions_request = TransactionsGetRequest(
                     access_token=access_token,
@@ -762,29 +743,12 @@ def get_annual_totals():
                     if tx_id in saved_transactions and saved_transactions[tx_id].get('deleted', False):
                         continue
                     
-                    # Get transaction date
-                    date_str = tx['date']
-                    tx_date = None
-                    
-                    # Improved date parsing logic
-                    try:
-                        # Parse the date string
-                        if isinstance(date_str, str):
-                            tx_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                        elif hasattr(date_str, 'date') and callable(getattr(date_str, 'date')):
-                            # It's a datetime object
-                            tx_date = date_str.date()
-                        elif isinstance(date_str, datetime.date):
-                            # It's already a date
-                            tx_date = date_str
-                        else:
-                            # Use today as fallback
-                            logger.warning(f"Couldn't determine date format for {tx_id}, using today's date")
-                            tx_date = datetime.now().date()
-                    except Exception as e:
-                        logger.warning(f"Error parsing date {date_str} for transaction {tx_id}, using today's date: {str(e)}")
-                        tx_date = datetime.now().date()
-                    
+                    # Parse date directly
+                    tx_date = tx.date  # Access the date attribute directly
+                    if not isinstance(tx_date, datetime.date):
+                        logger.warning(f"Invalid date type for transaction {tx_id}: {type(tx_date)} - using today's date")
+                        tx_date = datetime.datetime.datetime.now().date()
+                                        
                     # Use saved modifications if available
                     category = tx['category'][0] if tx['category'] else 'Uncategorized'
                     amount = abs(float(tx['amount']))
@@ -795,15 +759,9 @@ def get_annual_totals():
                         if 'category' in saved_tx:
                             category = saved_tx['category']
                         if 'date' in saved_tx:
-                            saved_date = saved_tx['date']
                             try:
-                                if isinstance(saved_date, str):
-                                    tx_date = datetime.strptime(saved_date, "%Y-%m-%d").date()
-                                elif hasattr(saved_date, 'date') and callable(getattr(saved_date, 'date')):
-                                    tx_date = saved_date.date()
-                                elif isinstance(saved_date, datetime.date):
-                                    tx_date = saved_date
-                            except:
+                                tx_date = datetime.datetime.strptime(saved_tx['date'], "%Y-%m-%d").date()
+                            except (ValueError, TypeError):
                                 logger.debug(f"Keeping original transaction date for {tx_id}")
                         if 'amount' in saved_tx:
                             amount = abs(float(saved_tx['amount']))
@@ -817,7 +775,7 @@ def get_annual_totals():
                         'category': category
                     })
             except Exception as e:
-                logger.error(f"Error processing Plaid transactions for annual totals: {str(e)}")
+                logger.error(f"Error processing Plaid transactions: {str(e)}")
         
         # Add manual transactions
         for tx_id, tx_data in saved_transactions.items():
@@ -826,21 +784,14 @@ def get_annual_totals():
                 if not date_str:
                     continue
                 
-                tx_date = None
                 try:
-                    if isinstance(date_str, str):
-                        tx_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                    elif hasattr(date_str, 'date') and callable(getattr(date_str, 'date')):
-                        tx_date = date_str.date()
-                    elif isinstance(date_str, datetime.date):
-                        tx_date = date_str
-                    else:
-                        # Use today as fallback
-                        logger.warning(f"Couldn't determine date format for manual transaction {tx_id}, using today's date")
-                        tx_date = datetime.now().date()
-                except Exception as e:
-                    logger.warning(f"Error parsing date for manual transaction {tx_id}, using today's date: {str(e)}")
-                    tx_date = datetime.now().date()
+                    tx_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+                except ValueError:
+                    logger.warning(f"Invalid date format for manual transaction {tx_id}: {date_str} - using today's date")
+                    tx_date = datetime.datetime.now().date()
+                except TypeError:
+                    logger.warning(f"Date is not a string for manual transaction {tx_id}: {type(date_str)} - using today's date")
+                    tx_date = datetime.datetime.now().date()
                 
                 transactions.append({
                     'date': tx_date,
@@ -861,17 +812,15 @@ def get_annual_totals():
         annual_totals = {}
         
         # Get current date for LTM calculation
-        current_date = datetime.now().date()
-        ltm_start_date = datetime(current_date.year - 1, current_date.month, 1).date()
+        current_date = datetime.datetime.now().date()
+        ltm_start_date = datetime.datetime(current_date.year - 1, current_date.month, 1).date()
         
-        # Process each transaction
         for tx in transactions:
-            # Verify we have a valid date object
-            tx_date = tx.get('date')
-            if not tx_date or not isinstance(tx_date, datetime.date):
-                logger.warning(f"Invalid date in transaction: {tx_date} - skipping")
+            tx_date = tx['date']
+            if not isinstance(tx_date, datetime.date):
+                logger.warning(f"Invalid date type in transaction: {type(tx_date)} - skipping")
                 continue
-                
+            
             year = tx_date.year
             category = tx.get('category', 'Uncategorized')
             amount = tx.get('amount', 0)
@@ -940,21 +889,21 @@ def export_transactions():
         date_range = data.get('date_range', 'all')
         
         # Get current date
-        current_date = datetime.now().date()
+        current_date = datetime.datetime.now().date()
         
         # Set date range based on selection
         start_date = None
         
         if date_range == '30':
-            start_date = (current_date - timedelta(days=30))
+            start_date = (current_date - datetime.timedelta(days=30))
         elif date_range == '60':
-            start_date = (current_date - timedelta(days=60))
+            start_date = (current_date - datetime.timedelta(days=60))
         elif date_range == '90':
-            start_date = (current_date - timedelta(days=90))
+            start_date = (current_date - datetime.timedelta(days=90))
         elif date_range == '365':
-            start_date = (current_date - timedelta(days=365))
+            start_date = (current_date - datetime.timedelta(days=365))
         elif date_range == 'ytd':
-            start_date = datetime(current_date.year, 1, 1).date()
+            start_date = datetime.datetime(current_date.year, 1, 1).date()
         elif date_range == 'custom':
             start_date_str = data.get('start_date')
             end_date_str = data.get('end_date')
@@ -969,7 +918,7 @@ def export_transactions():
                 return jsonify({'error': f'Invalid date format: {str(e)}'}), 400
         else:
             # All history - use a reasonable default of 5 years
-            start_date = (current_date - timedelta(days=365*5))
+            start_date = (current_date - datetime.timedelta(days=365*5))
         
         # Default end date is current date if not custom
         if date_range != 'custom':
@@ -983,15 +932,17 @@ def export_transactions():
         # Get Plaid transactions if token exists
         if access_token:
             try:
+                global _account_names_cache
+                if not _account_names_cache:
+                    accounts_response = client.accounts_get(AccountsGetRequest(access_token=access_token))
+                    for account in accounts_response.get('accounts', []):
+                        _account_names_cache[account.get('account_id')] = account.get('name', '')
+                
+                account_names = _account_names_cache
+
                 # Use a wide date range and filter later (more efficient for multiple exports)
                 plaid_start = datetime(2020, 1, 1).date()
                 plaid_end = current_date
-                
-                # Cache the account data for better performance
-                accounts_response = client.accounts_get(AccountsGetRequest(access_token=access_token))
-                account_names = {}
-                for account in accounts_response.get('accounts', []):
-                    account_names[account.get('account_id')] = account.get('name', '')
                 
                 transactions_request = TransactionsGetRequest(
                     access_token=access_token,
@@ -1134,6 +1085,7 @@ def export_transactions():
         logger.error(f"Error exporting transactions: {str(e)}")
         logger.error(traceback.format_exc())
         return jsonify({'error': 'Failed to export transactions', 'details': str(e)}), 500# Route to add a new category
+
 @app.route('/add_category', methods=['POST'])
 def add_category():
     try:
@@ -1310,7 +1262,7 @@ def debug_info():
             'logs_directory_exists': logs_dir_exists,
             'plaid_client_initialized': plaid_client_ok,
             'app_version': '1.0.1',  # Version with fixes
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.datetime.now().isoformat()
         }
         
         return jsonify(info)
@@ -1321,7 +1273,7 @@ def debug_info():
             'error': str(e)
         })
 
-# Step 5.2: Serve the webpage with Plaid Link
+# Serve the webpage with Plaid Link
 @app.route('/')
 def index():
     return render_template('index.html')

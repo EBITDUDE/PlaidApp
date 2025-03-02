@@ -356,7 +356,7 @@
     </style>
 </head>
 <body>
-    <h1>My Finance App</h1>
+    <h1>ASB Personal Finance App</h1>
     
     <div class="buttons-container">
         <button id="link-button">Connect a Bank Account</button>
@@ -551,6 +551,14 @@
         maxAge: 60000 // Cache expires after 1 minute
     };
     
+    function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+    
     document.addEventListener('DOMContentLoaded', function() {
         // Add date filters and custom date picker code
         setupDateFilters();
@@ -562,6 +570,8 @@
         initializeAllDatePickers();
 
         fetchAndStoreAccounts();
+
+        initCategoryDropdown();
         
         // Check if an access token exists on page load
         fetch('/has_access_token')
@@ -590,9 +600,9 @@
         document.getElementById('type-filter').addEventListener('change', function () {
             if (transactionFilter) transactionFilter.applyFilters();
         });
-        document.getElementById('transaction-search').addEventListener('keyup', function () {
+        document.getElementById('transaction-search').addEventListener('keyup', debounce(function () {
             if (transactionFilter) transactionFilter.applyFilters();
-        });
+        }, 300));
         
         // Setup compact view toggle
         const viewToggle = document.getElementById('view-toggle');
@@ -1839,14 +1849,14 @@
             window.categoryComponent = categoryComponent;
         }
         
-        // Add this to the add transaction button click handler
+        // Simplify add-transaction-btn handler
         document.getElementById('add-transaction-btn').addEventListener('click', function () {
-            // The existing modal display code
-            addTransactionModal.style.display = 'block';
-            //updateCalendar(); // Initialize calendar
-
-            // Initialize category dropdown
-            initCategoryDropdown();
+            document.getElementById('add-transaction-modal').style.display = 'block';
+            updateAccountDropdown();
+            // Reset category dropdown value instead of recreating
+            if (window.categoryComponent) {
+                window.categoryComponent.setValue('');
+            }
         });
 
         // 2. Fix the account dropdown in new transaction form
