@@ -9,3 +9,75 @@
  * Running on http://127.0.0.1:5000
 2025-03-01 17:56:02,243 [INFO] [33mPress CTRL+C to quit[0m
 2025-03-01 17:56:02,266 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-01 17:56:03,314 [INFO] ================================
+2025-03-01 17:56:03,314 [INFO] Starting Personal Finance App
+2025-03-01 17:56:03,314 [INFO] Environment: Production
+2025-03-01 17:56:03,314 [INFO] Token file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\logs_and_json\tokens.json
+2025-03-01 17:56:03,314 [INFO] Log file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\logs_and_json\finance_app.log
+2025-03-01 17:56:03,314 [INFO] ================================
+2025-03-01 17:56:03,314 [INFO] No access token file found - bank connection required
+2025-03-01 17:56:03,336 [WARNING]  * Debugger is active!
+2025-03-01 17:56:03,340 [INFO]  * Debugger PIN: 109-758-015
+2025-03-01 17:56:23,542 [INFO] 127.0.0.1 - - [01/Mar/2025 17:56:23] "GET / HTTP/1.1" 200 -
+2025-03-01 17:56:24,030 [INFO] 127.0.0.1 - - [01/Mar/2025 17:56:24] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-01 17:56:24,032 [INFO] 127.0.0.1 - - [01/Mar/2025 17:56:24] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-01 17:56:24,081 [INFO] 127.0.0.1 - - [01/Mar/2025 17:56:24] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-01 17:56:24,206 [INFO] 127.0.0.1 - - [01/Mar/2025 17:56:24] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-01 17:56:24,206 [INFO] 127.0.0.1 - - [01/Mar/2025 17:56:24] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-01 17:56:41,460 [DEBUG] Generated client_user_id: user-3c274ad2-faac-48eb-87ff-f62cb92586c6
+2025-03-01 17:56:41,727 [INFO] Link token created successfully: link-sandb...
+2025-03-01 17:56:41,727 [INFO] 127.0.0.1 - - [01/Mar/2025 17:56:41] "GET /create_link_token HTTP/1.1" 200 -
+2025-03-01 17:57:10,996 [DEBUG] Received exchange request with data: {'public_token': 'public-sandbox-9c989aa2-3c9d-4d08-9f0d-729c1158bdf6'}
+2025-03-01 17:57:11,280 [INFO] Access Token exchanged successfully: access-san...
+2025-03-01 17:57:11,302 [INFO] 127.0.0.1 - - [01/Mar/2025 17:57:11] "POST /exchange_public_token HTTP/1.1" 200 -
+2025-03-01 20:11:50,464 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\configuration.py', reloading
+2025-03-01 20:11:50,875 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\copy.py', reloading
+2025-03-01 20:11:50,900 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\urllib3\\__init__.py', reloading
+2025-03-01 20:11:50,923 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\exceptions.py', reloading
+2025-03-01 20:11:51,482 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-01 20:11:52,616 [INFO] ================================
+2025-03-01 20:11:52,616 [INFO] Starting Personal Finance App
+2025-03-01 20:11:52,616 [INFO] Environment: Production
+2025-03-01 20:11:52,616 [INFO] Token file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\logs_and_json\tokens.json
+2025-03-01 20:11:52,616 [INFO] Log file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\logs_and_json\finance_app.log
+2025-03-01 20:11:52,616 [INFO] ================================
+2025-03-01 20:11:52,616 [INFO] Access token file found
+2025-03-01 20:11:52,648 [WARNING]  * Debugger is active!
+2025-03-01 20:11:52,652 [INFO]  * Debugger PIN: 109-758-015
+2025-03-01 20:13:37,775 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\link_token_create_request.py', reloading
+2025-03-01 20:13:37,893 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-01 20:13:38,958 [INFO] ================================
+2025-03-01 20:13:38,958 [INFO] Starting Personal Finance App
+2025-03-01 20:13:38,958 [INFO] Environment: Production
+2025-03-01 20:13:38,958 [INFO] Token file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\logs_and_json\tokens.json
+2025-03-01 20:13:38,958 [INFO] Log file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\logs_and_json\finance_app.log
+2025-03-01 20:13:38,958 [INFO] ================================
+2025-03-01 20:13:38,958 [INFO] Access token file found
+2025-03-01 20:13:38,994 [WARNING]  * Debugger is active!
+2025-03-01 20:13:38,995 [INFO]  * Debugger PIN: 109-758-015
+2025-03-01 20:19:11,999 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
+2025-03-01 20:19:11,999 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
+2025-03-01 20:19:12,102 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-01 20:19:13,185 [INFO] ================================
+2025-03-01 20:19:13,185 [INFO] Starting Personal Finance App
+2025-03-01 20:19:13,185 [INFO] Environment: Production
+2025-03-01 20:19:13,185 [INFO] Token file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\logs_and_json\tokens.json
+2025-03-01 20:19:13,185 [INFO] Log file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\logs_and_json\finance_app.log
+2025-03-01 20:19:13,185 [INFO] ================================
+2025-03-01 20:19:13,185 [INFO] Access token file found
+2025-03-01 20:19:13,208 [WARNING]  * Debugger is active!
+2025-03-01 20:19:13,213 [INFO]  * Debugger PIN: 109-758-015
+2025-03-01 20:19:21,795 [INFO] 127.0.0.1 - - [01/Mar/2025 20:19:21] "GET / HTTP/1.1" 200 -
+2025-03-01 20:19:22,405 [INFO] 127.0.0.1 - - [01/Mar/2025 20:19:22] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-01 20:19:22,405 [INFO] 127.0.0.1 - - [01/Mar/2025 20:19:22] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-01 20:19:22,405 [INFO] 127.0.0.1 - - [01/Mar/2025 20:19:22] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-01 20:19:22,405 [INFO] 127.0.0.1 - - [01/Mar/2025 20:19:22] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-01 20:19:22,412 [INFO] 127.0.0.1 - - [01/Mar/2025 20:19:22] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-01 20:19:24,147 [DEBUG] Creating link token for user ID: user-ec3ceb87-5925-49f0-b892-ee28dd43878b
+2025-03-01 20:19:24,417 [INFO] Link token created successfully: link-sandb...
+2025-03-01 20:19:24,420 [INFO] 127.0.0.1 - - [01/Mar/2025 20:19:24] "GET /create_link_token HTTP/1.1" 200 -
+2025-03-01 20:19:47,672 [DEBUG] Received exchange request with data: {'public_token': 'public-sandbox-d2eaedc6-53d8-4349-a6aa-0f2b55c4bc27'}
+2025-03-01 20:19:47,923 [INFO] Access Token exchanged successfully: access-san...
+2025-03-01 20:19:47,949 [INFO] 127.0.0.1 - - [01/Mar/2025 20:19:47] "POST /exchange_public_token HTTP/1.1" 200 -
+2025-03-01 20:23:22,230 [INFO]  * Detected change in 'C:\\Users\\alexander.bennett\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\plaid\\model\\item_public_token_exchange_response.py', reloading
+2025-03-01 20:23:22,468 [INFO]  * Restarting with watchdog (windowsapi)

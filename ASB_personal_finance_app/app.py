@@ -187,28 +187,49 @@ def get_accounts():
 @app.route('/create_link_token', methods=['GET'])
 def create_link_token():
     try:
-        # FIX: Added proper client user ID (unique per user)
+        # Ensure client_user_id is truly unique
         client_user_id = "user-" + str(uuid.uuid4())
-        logger.debug(f"Generated client_user_id: {client_user_id}")
         
-        request = LinkTokenCreateRequest(
-            products=[Products("transactions")],
-            client_name="My Finance App",
-            country_codes=[CountryCode("US")],
-            language="en",
-            user=LinkTokenCreateRequestUser(client_user_id=client_user_id)
-        )
+        try:
+            request = LinkTokenCreateRequest(
+                products=[Products("transactions")],
+                client_name="My Finance App",
+                country_codes=[CountryCode("US")],
+                language="en",
+                user=LinkTokenCreateRequestUser(client_user_id=client_user_id)
+            )
+            
+            # Add more detailed logging
+            logger.debug(f"Creating link token for user ID: {client_user_id}")
+            
+            response = client.link_token_create(request)
+            
+            # Ensure response contains link_token
+            if not response or 'link_token' not in response:
+                logger.error("No link token in Plaid response")
+                return jsonify({'error': 'Failed to generate link token'}), 500
+            
+            link_token = response['link_token']
+            logger.info(f"Link token created successfully: {link_token[:10]}...")
+            
+            return jsonify({'link_token': link_token})
         
-        # FIX: Added debugging for Plaid API response
-        response = client.link_token_create(request)
-        link_token = response['link_token']
-        logger.info(f"Link token created successfully: {link_token[:10]}...")
-        
-        return jsonify({'link_token': link_token})
+        except plaid.ApiException as e:
+            # More detailed Plaid-specific error handling
+            logger.error(f"Plaid API Exception: {str(e)}")
+            error_response = json.loads(e.body)
+            return jsonify({
+                'error': 'Plaid API error',
+                'details': error_response.get('error_message', 'Unknown Plaid error')
+            }), 500
+    
     except Exception as e:
-        logger.error(f"Error creating link token: {str(e)}")
+        logger.error(f"Unexpected error creating link token: {str(e)}")
         logger.error(traceback.format_exc())
-        return jsonify({'error': 'Failed to create link token', 'details': str(e)}), 500
+        return jsonify({
+            'error': 'Failed to create link token', 
+            'details': str(e)
+        }), 500
 
 # Step 6: Route to exchange public token for access token
 @app.route('/exchange_public_token', methods=['POST'])

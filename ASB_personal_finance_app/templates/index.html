@@ -945,8 +945,23 @@
 
         // Set up Plaid Link
         fetch('/create_link_token')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    // Log the full error response
+                    return response.json().then(errorData => {
+                        console.error('Server error details:', errorData);
+                        throw new Error(errorData.details || 'Failed to create link token');
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
+                // Robust error checking
+                if (!data.link_token) {
+                    console.error('No link token in response', data);
+                    throw new Error('No link token received from server');
+                }
+
                 const handler = Plaid.create({
                     token: data.link_token,
                     onSuccess: (public_token, metadata) => {
