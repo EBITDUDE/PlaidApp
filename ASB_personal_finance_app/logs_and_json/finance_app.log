@@ -269,3 +269,214 @@
 2025-03-02 12:08:28,041 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
 2025-03-02 12:08:28,049 [INFO]  * Detected change in 'c:\\Users\\alexander.bennett\\PycharmProjects\\PlaidApp\\ASB_personal_finance_app\\app.py', reloading
 2025-03-02 12:08:28,695 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-02 12:08:29,735 [INFO] ================================
+2025-03-02 12:08:29,735 [INFO] Starting Personal Finance App
+2025-03-02 12:08:29,735 [INFO] Environment: Production
+2025-03-02 12:08:29,735 [INFO] Token file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\logs_and_json\tokens.json
+2025-03-02 12:08:29,743 [INFO] Log file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\ASB_personal_finance_app\logs_and_json\finance_app.log
+2025-03-02 12:08:29,743 [INFO] ================================
+2025-03-02 12:08:29,743 [INFO] Access token file found
+2025-03-02 12:08:29,755 [WARNING]  * Debugger is active!
+2025-03-02 12:08:29,764 [INFO]  * Debugger PIN: 109-758-015
+2025-03-02 12:08:32,648 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:32] "GET / HTTP/1.1" 200 -
+2025-03-02 12:08:33,311 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:33] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-02 12:08:33,311 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:33] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-02 12:08:33,312 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:33] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-02 12:08:33,314 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:33] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-02 12:08:33,314 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:33] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-02 12:08:33,531 [DEBUG] Access token check: exists
+2025-03-02 12:08:33,531 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:33] "GET /has_access_token HTTP/1.1" 200 -
+2025-03-02 12:08:33,560 [DEBUG] Creating link token for user ID: user-5dc71e9d-e7e7-443f-8c83-67f6100bc36f
+2025-03-02 12:08:33,642 [INFO] === Starting Transaction Retrieval ===
+2025-03-02 12:08:33,643 [INFO] Access Token Status: Present
+2025-03-02 12:08:33,643 [INFO] Fetching transactions from 2020-01-01 to 2025-03-02
+2025-03-02 12:08:33,808 [INFO] Link token created successfully: link-sandb...
+2025-03-02 12:08:33,811 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:33] "GET /create_link_token HTTP/1.1" 200 -
+2025-03-02 12:08:34,015 [DEBUG] Number of accounts: 4
+2025-03-02 12:08:34,015 [DEBUG] Processing account 0
+2025-03-02 12:08:34,015 [DEBUG] Successfully converted account 0 to dictionary
+2025-03-02 12:08:34,015 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-03-02 12:08:34,023 [DEBUG] Processing account 1
+2025-03-02 12:08:34,023 [DEBUG] Successfully converted account 1 to dictionary
+2025-03-02 12:08:34,023 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-03-02 12:08:34,023 [DEBUG] Processing account 2
+2025-03-02 12:08:34,023 [DEBUG] Successfully converted account 2 to dictionary
+2025-03-02 12:08:34,023 [DEBUG] Created serializable account: Plaid CD, depository
+2025-03-02 12:08:34,023 [DEBUG] Processing account 3
+2025-03-02 12:08:34,023 [DEBUG] Successfully converted account 3 to dictionary
+2025-03-02 12:08:34,023 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-03-02 12:08:34,023 [INFO] Retrieved 4 accounts
+2025-03-02 12:08:34,023 [DEBUG] Account list successfully serialized in pre-check
+2025-03-02 12:08:34,023 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:34] "GET /get_accounts HTTP/1.1" 200 -
+2025-03-02 12:08:34,298 [DEBUG] Number of accounts: 4
+2025-03-02 12:08:34,314 [DEBUG] Processing account 0
+2025-03-02 12:08:34,347 [DEBUG] Successfully converted account 0 to dictionary
+2025-03-02 12:08:34,414 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-03-02 12:08:34,416 [INFO] Total transactions retrieved: 45
+2025-03-02 12:08:34,430 [DEBUG] Processing account 1
+2025-03-02 12:08:34,448 [INFO] Sample Transactions:
+2025-03-02 12:08:34,452 [DEBUG] Returning 10 categories
+2025-03-02 12:08:34,452 [DEBUG] Successfully converted account 1 to dictionary
+2025-03-02 12:08:34,453 [INFO] Transaction 1:
+2025-03-02 12:08:34,453 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:34] "GET /get_categories HTTP/1.1" 200 -
+2025-03-02 12:08:34,454 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-03-02 12:08:34,454 [INFO]   ID: M8poGkDAkyHKLVQXXpoxU1WqJn6yBRHL6wVj3
+2025-03-02 12:08:34,454 [DEBUG] Processing account 2
+2025-03-02 12:08:34,455 [INFO]   Name: Tectra Inc
+2025-03-02 12:08:34,455 [DEBUG] Successfully converted account 2 to dictionary
+2025-03-02 12:08:34,455 [INFO]   Amount: 500.0
+2025-03-02 12:08:34,455 [DEBUG] Created serializable account: Plaid CD, depository
+2025-03-02 12:08:34,455 [INFO]   Date: 2025-02-28
+2025-03-02 12:08:34,455 [DEBUG] Processing account 3
+2025-03-02 12:08:34,455 [INFO]   Category: ['Food and Drink', 'Restaurants']
+2025-03-02 12:08:34,455 [DEBUG] Successfully converted account 3 to dictionary
+2025-03-02 12:08:34,455 [INFO] Transaction 2:
+2025-03-02 12:08:34,455 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-03-02 12:08:34,455 [INFO]   ID: pB19pGnzGqhvxoXmmR6NtlwKr7Qy1zupoy37N
+2025-03-02 12:08:34,455 [INFO] Retrieved 4 accounts
+2025-03-02 12:08:34,455 [INFO]   Name: AUTOMATIC PAYMENT - THANK
+2025-03-02 12:08:34,455 [DEBUG] Account list successfully serialized in pre-check
+2025-03-02 12:08:34,455 [INFO]   Amount: 2078.5
+2025-03-02 12:08:34,455 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:34] "GET /get_accounts HTTP/1.1" 200 -
+2025-03-02 12:08:34,455 [INFO]   Date: 2025-02-27
+2025-03-02 12:08:34,455 [INFO]   Category: ['Payment']
+2025-03-02 12:08:34,459 [INFO] Transaction 3:
+2025-03-02 12:08:34,459 [INFO]   ID: LkLoy8DW8mCA1xz66L4vhGoNAvDaVMHkjvGAR
+2025-03-02 12:08:34,459 [INFO]   Name: KFC
+2025-03-02 12:08:34,459 [INFO]   Amount: 500.0
+2025-03-02 12:08:34,460 [INFO]   Date: 2025-02-27
+2025-03-02 12:08:34,460 [INFO]   Category: ['Food and Drink', 'Restaurants', 'Fast Food']
+2025-03-02 12:08:34,460 [INFO] Transaction 4:
+2025-03-02 12:08:34,461 [INFO]   ID: 1Rbm3nEGnzIVD5ENNQmnUQopmKDAqGipjLlnB
+2025-03-02 12:08:34,461 [INFO]   Name: Madison Bicycle Shop
+2025-03-02 12:08:34,461 [INFO]   Amount: 500.0
+2025-03-02 12:08:34,461 [INFO]   Date: 2025-02-27
+2025-03-02 12:08:34,461 [INFO]   Category: ['Shops', 'Sporting Goods']
+2025-03-02 12:08:34,461 [INFO] Transaction 5:
+2025-03-02 12:08:34,461 [INFO]   ID: epd1QZWoZgHXWNZDDoQKI4wKGQEreaCr9R1RA
+2025-03-02 12:08:34,461 [INFO]   Name: CREDIT CARD 3333 PAYMENT *//
+2025-03-02 12:08:34,462 [INFO]   Amount: 25.0
+2025-03-02 12:08:34,462 [INFO]   Date: 2025-02-18
+2025-03-02 12:08:34,462 [INFO]   Category: ['Payment', 'Credit Card']
+2025-03-02 12:08:34,463 [INFO] Total transactions after processing: 45
+2025-03-02 12:08:34,463 [INFO] === Transaction Retrieval Complete ===
+2025-03-02 12:08:34,464 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:34] "GET /get_transactions HTTP/1.1" 200 -
+2025-03-02 12:08:49,384 [DEBUG] Number of accounts: 4
+2025-03-02 12:08:49,384 [DEBUG] Processing account 0
+2025-03-02 12:08:49,385 [DEBUG] Successfully converted account 0 to dictionary
+2025-03-02 12:08:49,385 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-03-02 12:08:49,386 [DEBUG] Processing account 1
+2025-03-02 12:08:49,386 [DEBUG] Successfully converted account 1 to dictionary
+2025-03-02 12:08:49,386 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-03-02 12:08:49,387 [DEBUG] Processing account 2
+2025-03-02 12:08:49,387 [DEBUG] Successfully converted account 2 to dictionary
+2025-03-02 12:08:49,387 [DEBUG] Created serializable account: Plaid CD, depository
+2025-03-02 12:08:49,388 [DEBUG] Processing account 3
+2025-03-02 12:08:49,388 [DEBUG] Successfully converted account 3 to dictionary
+2025-03-02 12:08:49,388 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-03-02 12:08:49,388 [INFO] Retrieved 4 accounts
+2025-03-02 12:08:49,388 [DEBUG] Account list successfully serialized in pre-check
+2025-03-02 12:08:49,389 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:49] "GET /get_accounts HTTP/1.1" 200 -
+2025-03-02 12:08:49,654 [DEBUG] Number of accounts: 4
+2025-03-02 12:08:49,654 [DEBUG] Processing account 0
+2025-03-02 12:08:49,655 [DEBUG] Successfully converted account 0 to dictionary
+2025-03-02 12:08:49,655 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-03-02 12:08:49,655 [DEBUG] Processing account 1
+2025-03-02 12:08:49,655 [DEBUG] Successfully converted account 1 to dictionary
+2025-03-02 12:08:49,656 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-03-02 12:08:49,656 [DEBUG] Processing account 2
+2025-03-02 12:08:49,656 [DEBUG] Successfully converted account 2 to dictionary
+2025-03-02 12:08:49,657 [DEBUG] Created serializable account: Plaid CD, depository
+2025-03-02 12:08:49,657 [DEBUG] Processing account 3
+2025-03-02 12:08:49,657 [DEBUG] Successfully converted account 3 to dictionary
+2025-03-02 12:08:49,658 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-03-02 12:08:49,658 [INFO] Retrieved 4 accounts
+2025-03-02 12:08:49,658 [DEBUG] Account list successfully serialized in pre-check
+2025-03-02 12:08:49,659 [INFO] 127.0.0.1 - - [02/Mar/2025 12:08:49] "GET /get_accounts HTTP/1.1" 200 -
+2025-03-02 12:09:08,174 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:08] "GET /annual_totals HTTP/1.1" 200 -
+2025-03-02 12:09:08,969 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:08] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-03-02 12:09:12,945 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:12] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-03-02 12:09:15,953 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:15] "GET /get_annual_totals HTTP/1.1" 200 -
+2025-03-02 12:09:18,818 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:18] "GET / HTTP/1.1" 200 -
+2025-03-02 12:09:18,937 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:18] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-02 12:09:18,937 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:18] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-02 12:09:18,937 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:18] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-02 12:09:18,937 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:18] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-02 12:09:18,945 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:18] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-02 12:09:19,133 [DEBUG] Access token check: exists
+2025-03-02 12:09:19,133 [DEBUG] Creating link token for user ID: user-e0a491ed-5ab1-4cf4-97bc-9d2256451b5e
+2025-03-02 12:09:19,134 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:19] "GET /has_access_token HTTP/1.1" 200 -
+2025-03-02 12:09:19,218 [INFO] Link token created successfully: link-sandb...
+2025-03-02 12:09:19,219 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:19] "GET /create_link_token HTTP/1.1" 200 -
+2025-03-02 12:09:19,235 [INFO] === Starting Transaction Retrieval ===
+2025-03-02 12:09:19,236 [INFO] Access Token Status: Present
+2025-03-02 12:09:19,236 [INFO] Fetching transactions from 2020-01-01 to 2025-03-02
+2025-03-02 12:09:19,385 [DEBUG] Number of accounts: 4
+2025-03-02 12:09:19,385 [DEBUG] Processing account 0
+2025-03-02 12:09:19,385 [DEBUG] Successfully converted account 0 to dictionary
+2025-03-02 12:09:19,385 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-03-02 12:09:19,385 [DEBUG] Processing account 1
+2025-03-02 12:09:19,385 [DEBUG] Successfully converted account 1 to dictionary
+2025-03-02 12:09:19,385 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-03-02 12:09:19,385 [DEBUG] Processing account 2
+2025-03-02 12:09:19,385 [DEBUG] Successfully converted account 2 to dictionary
+2025-03-02 12:09:19,385 [DEBUG] Created serializable account: Plaid CD, depository
+2025-03-02 12:09:19,385 [DEBUG] Processing account 3
+2025-03-02 12:09:19,385 [DEBUG] Successfully converted account 3 to dictionary
+2025-03-02 12:09:19,385 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-03-02 12:09:19,385 [INFO] Retrieved 4 accounts
+2025-03-02 12:09:19,385 [DEBUG] Account list successfully serialized in pre-check
+2025-03-02 12:09:19,385 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:19] "GET /get_accounts HTTP/1.1" 200 -
+2025-03-02 12:09:19,720 [DEBUG] Returning 10 categories
+2025-03-02 12:09:19,720 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:19] "GET /get_categories HTTP/1.1" 200 -
+2025-03-02 12:09:19,786 [DEBUG] Number of accounts: 4
+2025-03-02 12:09:19,816 [DEBUG] Processing account 0
+2025-03-02 12:09:19,850 [DEBUG] Successfully converted account 0 to dictionary
+2025-03-02 12:09:19,855 [INFO] Total transactions retrieved: 45
+2025-03-02 12:09:19,855 [DEBUG] Created serializable account: Plaid Checking, depository
+2025-03-02 12:09:19,855 [INFO] Sample Transactions:
+2025-03-02 12:09:19,855 [DEBUG] Processing account 1
+2025-03-02 12:09:19,856 [INFO] Transaction 1:
+2025-03-02 12:09:19,856 [DEBUG] Successfully converted account 1 to dictionary
+2025-03-02 12:09:19,857 [INFO]   ID: M8poGkDAkyHKLVQXXpoxU1WqJn6yBRHL6wVj3
+2025-03-02 12:09:19,857 [DEBUG] Created serializable account: Plaid Saving, depository
+2025-03-02 12:09:19,857 [INFO]   Name: Tectra Inc
+2025-03-02 12:09:19,857 [DEBUG] Processing account 2
+2025-03-02 12:09:19,857 [INFO]   Amount: 500.0
+2025-03-02 12:09:19,857 [DEBUG] Successfully converted account 2 to dictionary
+2025-03-02 12:09:19,857 [INFO]   Date: 2025-02-28
+2025-03-02 12:09:19,857 [DEBUG] Created serializable account: Plaid CD, depository
+2025-03-02 12:09:19,857 [INFO]   Category: ['Food and Drink', 'Restaurants']
+2025-03-02 12:09:19,857 [DEBUG] Processing account 3
+2025-03-02 12:09:19,858 [INFO] Transaction 2:
+2025-03-02 12:09:19,858 [DEBUG] Successfully converted account 3 to dictionary
+2025-03-02 12:09:19,858 [INFO]   ID: pB19pGnzGqhvxoXmmR6NtlwKr7Qy1zupoy37N
+2025-03-02 12:09:19,858 [DEBUG] Created serializable account: Plaid Credit Card, credit
+2025-03-02 12:09:19,858 [INFO]   Name: AUTOMATIC PAYMENT - THANK
+2025-03-02 12:09:19,858 [INFO] Retrieved 4 accounts
+2025-03-02 12:09:19,858 [INFO]   Amount: 2078.5
+2025-03-02 12:09:19,858 [DEBUG] Account list successfully serialized in pre-check
+2025-03-02 12:09:19,858 [INFO]   Date: 2025-02-27
+2025-03-02 12:09:19,859 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:19] "GET /get_accounts HTTP/1.1" 200 -
+2025-03-02 12:09:19,859 [INFO]   Category: ['Payment']
+2025-03-02 12:09:19,859 [INFO] Transaction 3:
+2025-03-02 12:09:19,859 [INFO]   ID: LkLoy8DW8mCA1xz66L4vhGoNAvDaVMHkjvGAR
+2025-03-02 12:09:19,859 [INFO]   Name: KFC
+2025-03-02 12:09:19,860 [INFO]   Amount: 500.0
+2025-03-02 12:09:19,860 [INFO]   Date: 2025-02-27
+2025-03-02 12:09:19,860 [INFO]   Category: ['Food and Drink', 'Restaurants', 'Fast Food']
+2025-03-02 12:09:19,860 [INFO] Transaction 4:
+2025-03-02 12:09:19,861 [INFO]   ID: 1Rbm3nEGnzIVD5ENNQmnUQopmKDAqGipjLlnB
+2025-03-02 12:09:19,861 [INFO]   Name: Madison Bicycle Shop
+2025-03-02 12:09:19,861 [INFO]   Amount: 500.0
+2025-03-02 12:09:19,862 [INFO]   Date: 2025-02-27
+2025-03-02 12:09:19,862 [INFO]   Category: ['Shops', 'Sporting Goods']
+2025-03-02 12:09:19,862 [INFO] Transaction 5:
+2025-03-02 12:09:19,862 [INFO]   ID: epd1QZWoZgHXWNZDDoQKI4wKGQEreaCr9R1RA
+2025-03-02 12:09:19,863 [INFO]   Name: CREDIT CARD 3333 PAYMENT *//
+2025-03-02 12:09:19,863 [INFO]   Amount: 25.0
+2025-03-02 12:09:19,863 [INFO]   Date: 2025-02-18
+2025-03-02 12:09:19,863 [INFO]   Category: ['Payment', 'Credit Card']
+2025-03-02 12:09:19,863 [INFO] Total transactions after processing: 45
+2025-03-02 12:09:19,863 [INFO] === Transaction Retrieval Complete ===
+2025-03-02 12:09:19,863 [INFO] 127.0.0.1 - - [02/Mar/2025 12:09:19] "GET /get_transactions HTTP/1.1" 200 -
