@@ -1,28 +1,32 @@
-/your_project_directory/
-├── app.py                 (Main Flask application)
-├── plaid_client.py        (Your existing Plaid client)
-├── templates/             (Directory for HTML templates)
-│   ├── index.html         (Corrected main page)
-│   ├── log_viewer.html    (Log viewer page)
-|   ├── categories.html
-|   └── annual_totals.html
-├── logs_and_json/           (Created automatically)
-|   ├── tokens.json        (Stores access tokens)
-|   ├── transactions.json  (Stores transaction modifications)
-|   ├── categories.json  (Stores category modifications)
-|   └── finance_app.log    (Application logs)
-├── static/
-|   └── js/
-│   │   ├── app.js                    
-│   │   ├── account-manager.js        
-│   │   ├── transaction-manager.js    
-│   │   ├── ui-utilities.js           
-│   │   ├── data-formatter.js         
-│   │   ├── categories.js             
-│   │   ├── annual-totals.js        
-│   │   ├── log-viewer.js             
-│   │   ├── calendar-component.js   
-│   │   ├── category-dropdown.js     
-│   │   ├── date-utils.js             
-│   │   ├── transaction-filter.js     
-│   │   └── transaction-paginator.js  
+/PlaidApp/
+├──/ASB_personal_finance_app/
+│  ├── app.py                 (Main Flask application)
+│  ├─ ─plaid_client.py        (Your existing Plaid client)
+│  ├── data_utils.py
+│  ├── plaid_utils.py
+│  ├── routes.py        
+│  ├── templates/             (Directory for HTML templates)
+│  │   ├── index.html         (Corrected main page)
+│  │   ├── log_viewer.html    (Log viewer page)
+│  │   ├── categories.html
+│  │   └── annual_totals.html
+│  ├── logs_and_json/           (Created automatically)
+│  │   ├── tokens.json        (Stores access tokens)
+│  │   ├── transactions.json  (Stores transaction modifications)
+│  │   ├── categories.json  (Stores category modifications)
+│  │   └── finance_app.log    (Application logs)
+│  ├── static/
+│  │   └── js/
+│  │   │   ├── app.js                    
+│  │   │   ├── account-manager.js        
+│  │   │   ├── transaction-manager.js    
+│  │   │   ├── ui-utilities.js           
+│  │   │   ├── data-formatter.js         
+│  │   │   ├── categories.js             
+│  │   │   ├── annual-totals.js        
+│  │   │   ├── log-viewer.js             
+│  │   │   ├── calendar-component.js   
+│  │   │   ├── category-dropdown.js     
+│  │   │   ├── date-utils.js             
+│  │   │   ├── transaction-filter.js     
+│  │   │   └── transaction-paginator.js  
