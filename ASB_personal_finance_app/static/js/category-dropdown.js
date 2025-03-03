@@ -38,7 +38,7 @@ function createCategoryDropdown(options = {}) {
         <div id="${config.containerId}-new-container" style="display: none; margin-top: 5px;">
             <div style="display: flex; gap: 5px;">
                 <input type="text" id="${newFieldId}" placeholder="Enter new category name" 
-                       style="flex-grow: 1; padding: 5px;" ${config.required ? 'required' : ''}>
+                       style="flex-grow: 1; padding: 5px;">
                 <button type="button" id="${config.containerId}-add-btn" 
                         style="padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 3px;">Add</button>
                 <button type="button" id="${config.containerId}-cancel-btn" 
@@ -90,6 +90,15 @@ function createCategoryDropdown(options = {}) {
             });
     }
 
+    // Check if a category already exists (case-insensitive)
+    function categoryExists(categoryName) {
+        return Array.from(dropdown.options).some(option =>
+            option.value !== 'add_new' &&
+            option.value !== '' &&
+            option.textContent.toLowerCase() === categoryName.toLowerCase()
+        );
+    }
+
     // Save a new category to the server
     function saveNewCategory(categoryName) {
         return fetch('/add_category', {
@@ -101,6 +110,10 @@ function createCategoryDropdown(options = {}) {
             .then(data => {
                 if (data.error) {
                     throw new Error(data.error);
+                }
+                // Handle case where category already exists on server-side check
+                if (data.message && data.message === 'Category already exists') {
+                    throw new Error('Category already exists');
                 }
                 return data;
             });
@@ -131,6 +144,13 @@ function createCategoryDropdown(options = {}) {
 
         if (!newCategory) {
             alert('Please enter a category name');
+            newField.focus();
+            return;
+        }
+
+        // Check if category already exists in dropdown (client-side check)
+        if (categoryExists(newCategory)) {
+            alert('Category already exists');
             newField.focus();
             return;
         }

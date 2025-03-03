@@ -199,6 +199,18 @@
                 return;
             }
 
+            // Client-side check for existing categories
+            const existingCategories = document.querySelectorAll('#categories-body tr td:first-child');
+            const categoryExists = Array.from(existingCategories).some(
+                categoryCell => categoryCell.textContent.toLowerCase() === newCategory.toLowerCase()
+            );
+
+            if (categoryExists) {
+                alert('Category already exists');
+                categoryInput.focus();
+                return;
+            }
+
             fetch('/add_category', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -208,6 +220,10 @@
                 .then(data => {
                     if (data.error) {
                         alert('Error adding category: ' + data.error);
+                    } else if (data.message && data.message === 'Category already exists') {
+                        // Handle server-side duplicate check
+                        alert('Category already exists');
+                        categoryInput.focus();
                     } else {
                         categoryInput.value = '';
                         loadCategories(); // Refresh the full list

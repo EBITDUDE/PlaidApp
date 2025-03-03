@@ -782,7 +782,7 @@ def get_categories():
     access_token = load_access_token()
     if access_token:
         try:
-            start_date = datetime.datetime.strptime("2020-01-01", "%Y-%m-%d").date()
+            start_date = datetime.datetime.strptime("2015-01-01", "%Y-%m-%d").date()
             end_date = datetime.datetime.now().date()
             transactions_request = TransactionsGetRequest(
                 access_token=access_token,
@@ -947,7 +947,7 @@ def get_annual_totals():
     if access_token:
         try:
             # Use a wide date range
-            start_date = datetime.datetime(2020, 1, 1).date()
+            start_date = datetime.datetime(2015, 1, 1).date()
             end_date = datetime.datetime.now().date()
             
             transactions_request = TransactionsGetRequest(
@@ -1178,7 +1178,7 @@ def get_annual_totals():
         'years': [str(y) for y in years]
     })
     
-# Route to export transactions as CSV
+# Route to export transactions as CSV with improved error handling and debugging
 @app.route('/export_transactions', methods=['POST'])
 @api_error_handler
 def export_transactions():
@@ -1215,136 +1215,184 @@ def export_transactions():
             return jsonify({'error': f'Invalid date format: {str(e)}'}), 400
     else:
         # All history - use a reasonable default of 5 years
-        start_date = (current_date - datetime.timedelta(days=365*5))
+        start_date = (current_date - datetime.timedelta(days=365*10))
     
     # Default end date is current date if not custom
     if date_range != 'custom':
         end_date = current_date
-        
+    
+    logger.info(f"Exporting transactions from {start_date} to {end_date}")
+    
     # Load all transactions
     transactions = []
     access_token = load_access_token()
     saved_transactions = load_saved_transactions()
     
+    # Track counts for debugging
+    plaid_count = 0
+    manual_count = 0
+    
     # Get Plaid transactions if token exists
     if access_token:
         try:
-            global _account_names_cache
-            if not _account_names_cache:
+            logger.info("Access token found, fetching Plaid transactions")
+            
+            # Use existing account name cache or initialize it
+            account_names = {}
+            try:
                 accounts_response = client.accounts_get(AccountsGetRequest(access_token=access_token))
                 for account in accounts_response.get('accounts', []):
-                    _account_names_cache[account.get('account_id')] = account.get('name', '')
+                    account_id = account.get('account_id', '')
+                    if account_id:
+                        account_names[account_id] = account.get('name', '')
+                
+                logger.info(f"Found {len(account_names)} accounts")
+            except Exception as account_err:
+                logger.error(f"Error fetching accounts: {str(account_err)}")
             
-            account_names = _account_names_cache
-
             # Use a wide date range and filter later (more efficient for multiple exports)
-            plaid_start = datetime(2020, 1, 1).date()
+            plaid_start = datetime.datetime(2015, 1, 1).date()
             plaid_end = current_date
+            
+            logger.info(f"Requesting Plaid transactions from {plaid_start} to {plaid_end}")
             
             transactions_request = TransactionsGetRequest(
                 access_token=access_token,
-                start_date=plaid_start,
+                start_date=plaid_start, 
                 end_date=plaid_end
             )
+            
             response = client.transactions_get(transactions_request)
-            plaid_txs = response['transactions']
+            plaid_txs = response.get('transactions', [])
+            
+            logger.info(f"Received {len(plaid_txs)} transactions from Plaid")
             
             # Process transactions
             for tx in plaid_txs:
-                tx_id = tx.get('transaction_id')
-                # Skip if manually deleted
-                if tx_id in saved_transactions and saved_transactions[tx_id].get('deleted', False):
+                try:
+                    tx_id = tx.get('transaction_id')
+                    if not tx_id:
+                        logger.warning("Skipping transaction without ID")
+                        continue
+                        
+                    # Skip if manually deleted
+                    if tx_id in saved_transactions and saved_transactions[tx_id].get('deleted', False):
+                        continue
+                    
+                    # Get transaction date
+                    date_str = tx.get('date')
+                    if not date_str:
+                        logger.warning(f"Transaction {tx_id} has no date, skipping")
+                        continue
+                    
+                    # Parse date with improved error handling
+                    try:
+                        tx_date = parse_date(date_str)
+                    except Exception as date_err:
+                        logger.warning(f"Error parsing date {date_str} for transaction {tx_id}: {str(date_err)}")
+                        continue
+                    
+                    # Skip if outside filter range
+                    if tx_date < start_date or tx_date > end_date:
+                        continue
+                    
+                    # Use saved modifications if available
+                    category = 'Uncategorized'
+                    if tx.get('category') and len(tx.get('category')) > 0:
+                        category = tx.get('category')[0]
+                        
+                    merchant = tx.get('name', 'Unknown')
+                    amount = abs(float(tx.get('amount', 0)))
+                    is_debit = float(tx.get('amount', 0)) > 0
+                    
+                    if tx_id in saved_transactions:
+                        saved_tx = saved_transactions[tx_id]
+                        if 'category' in saved_tx:
+                            category = saved_tx['category']
+                        if 'merchant' in saved_tx:
+                            merchant = saved_tx['merchant']
+                        if 'date' in saved_tx:
+                            try:
+                                tx_date = parse_date(saved_tx['date'])
+                                # Check if still in range after modification
+                                if tx_date < start_date or tx_date > end_date:
+                                    continue
+                            except Exception as e:
+                                logger.warning(f"Error parsing saved date for {tx_id}: {str(e)}")
+                        if 'amount' in saved_tx:
+                            amount = abs(float(saved_tx['amount']))
+                        if 'is_debit' in saved_tx:
+                            is_debit = saved_tx['is_debit']
+                    
+                    # Get account name
+                    account_id = tx.get('account_id', '')
+                    account_name = account_names.get(account_id, '')
+                    
+                    transactions.append({
+                        'date': tx_date.strftime("%Y-%m-%d"),
+                        'amount': amount,
+                        'type': 'Expense' if is_debit else 'Income',
+                        'category': category,
+                        'merchant': merchant,
+                        'account': account_name,
+                        'id': tx_id,
+                        'source': 'plaid'
+                    })
+                    
+                    plaid_count += 1
+                except Exception as tx_err:
+                    logger.error(f"Error processing individual Plaid transaction: {str(tx_err)}")
+            
+            logger.info(f"Successfully processed {plaid_count} Plaid transactions for export")
+                
+        except Exception as plaid_err:
+            logger.error(f"Error processing Plaid transactions for export: {str(plaid_err)}")
+            logger.error(traceback.format_exc())
+    else:
+        logger.info("No access token available, skipping Plaid transactions")
+    
+    # Add manual transactions
+    logger.info(f"Processing saved transactions for export, count: {len(saved_transactions)}")
+    for tx_id, tx_data in saved_transactions.items():
+        try:
+            if tx_data.get('manual', False) and not tx_data.get('deleted', False):
+                date_str = tx_data.get('date')
+                if not date_str:
+                    logger.warning(f"Manual transaction {tx_id} has no date, skipping")
                     continue
                 
-                # Get transaction date
-                date_str = tx['date']
-                
-                # Parse date with improved error handling
                 try:
                     tx_date = parse_date(date_str)
-                except Exception as e:
-                    logger.warning(f"Error parsing date {date_str}: {str(e)}")
-                    # Skip transactions with unparseable dates
+                    # Skip if outside filter range
+                    if tx_date < start_date or tx_date > end_date:
+                        continue
+                except Exception as date_err:
+                    logger.warning(f"Error parsing date for manual transaction {tx_id}: {str(date_err)}")
                     continue
-                
-                # Skip if outside filter range
-                if tx_date < start_date or tx_date > end_date:
-                    continue
-                
-                # Use saved modifications if available
-                category = tx['category'][0] if tx['category'] else 'Uncategorized'
-                merchant = tx['name']
-                amount = abs(float(tx['amount']))
-                is_debit = float(tx['amount']) > 0
-                
-                if tx_id in saved_transactions:
-                    saved_tx = saved_transactions[tx_id]
-                    if 'category' in saved_tx:
-                        category = saved_tx['category']
-                    if 'merchant' in saved_tx:
-                        merchant = saved_tx['merchant']
-                    if 'date' in saved_tx:
-                        try:
-                            tx_date = parse_date(saved_tx['date'])
-                            # Check if still in range after modification
-                            if tx_date < start_date or tx_date > end_date:
-                                continue
-                        except Exception as e:
-                            logger.warning(f"Error parsing saved date: {str(e)}")
-                            # Keep original date if saved date is invalid
-                    if 'amount' in saved_tx:
-                        amount = abs(float(saved_tx['amount']))
-                    if 'is_debit' in saved_tx:
-                        is_debit = saved_tx['is_debit']
-                
-                # Get account name - use our cached account names instead of looping
-                account_id = tx.get('account_id', '')
-                account_name = account_names.get(account_id, '')
                 
                 transactions.append({
                     'date': tx_date.strftime("%Y-%m-%d"),
-                    'amount': amount,
-                    'type': 'Expense' if is_debit else 'Income',
-                    'category': category,
-                    'merchant': merchant,
-                    'account': account_name,
-                    'id': tx_id
+                    'amount': abs(float(tx_data.get('amount', 0))),
+                    'type': 'Expense' if tx_data.get('is_debit', True) else 'Income',
+                    'category': tx_data.get('category', 'Uncategorized'),
+                    'merchant': tx_data.get('merchant', 'Unknown'),
+                    'account': tx_data.get('account_name', ''),
+                    'id': tx_id,
+                    'source': 'manual'
                 })
-        except Exception as e:
-            logger.error(f"Error processing Plaid transactions for export: {str(e)}")
-            logger.error(traceback.format_exc())
+                
+                manual_count += 1
+        except Exception as manual_err:
+            logger.error(f"Error processing manual transaction {tx_id}: {str(manual_err)}")
     
-    # Add manual transactions
-    for tx_id, tx_data in saved_transactions.items():
-        if tx_data.get('manual', False) and not tx_data.get('deleted', False):
-            date_str = tx_data.get('date')
-            if not date_str:
-                continue
-            
-            try:
-                tx_date = parse_date(date_str)
-                # Skip if outside filter range
-                if tx_date < start_date or tx_date > end_date:
-                    continue
-            except Exception as e:
-                logger.warning(f"Error parsing date for manual transaction {tx_id}: {str(e)}")
-                continue
-            
-            transactions.append({
-                'date': tx_date.strftime("%Y-%m-%d"),
-                'amount': tx_data.get('amount', 0),
-                'type': 'Expense' if tx_data.get('is_debit', True) else 'Income',
-                'category': tx_data.get('category', 'Uncategorized'),
-                'merchant': tx_data.get('merchant', 'Unknown'),
-                'account': tx_data.get('account_name', ''),
-                'id': tx_id
-            })
+    logger.info(f"Successfully processed {manual_count} manual transactions for export")
+    logger.info(f"Total transactions for export: {len(transactions)} (Plaid: {plaid_count}, Manual: {manual_count})")
     
     # Sort by date
     transactions.sort(key=lambda x: x['date'])
     
     # Convert to CSV format
-    csv_data = "Date,Amount,Type,Category,Merchant,Account\n"
+    csv_data = "Date,Amount,Type,Category,Merchant,Account,Source\n"
     
     # Define a helper function to properly escape CSV fields
     def escape_csv_field(field):
@@ -1364,8 +1412,9 @@ def export_transactions():
         category = escape_csv_field(tx['category'])
         merchant = escape_csv_field(tx['merchant'])
         account = escape_csv_field(tx['account'])
+        source = escape_csv_field(tx.get('source', 'unknown'))
         
-        csv_data += f"{date},{amount},{tx_type},{category},{merchant},{account}\n"
+        csv_data += f"{date},{amount},{tx_type},{category},{merchant},{account},{source}\n"
     
     # Format filename
     start_date_str = start_date.strftime("%Y-%m-%d")
@@ -1375,7 +1424,10 @@ def export_transactions():
     # Return CSV data
     return jsonify({
         'csv_data': csv_data,
-        'filename': filename
+        'filename': filename,
+        'transaction_count': len(transactions),
+        'plaid_count': plaid_count,
+        'manual_count': manual_count
     })
 
 @app.route('/add_category', methods=['POST'])

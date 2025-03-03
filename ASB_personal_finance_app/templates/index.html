@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Finance App</title>
+    <title>ASB Personal Finance App</title>
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
     <script src="/static/js/calendar-component.js"></script>
     <script src="/static/js/category-dropdown.js"></script>
@@ -569,6 +569,9 @@
         // Initialize all date pickers
         initializeAllDatePickers();
 
+        // Initialize the monthly category date pickers
+        setupMonthlyCategoryDatePickers();
+
         fetchAndStoreAccounts();
 
         initCategoryDropdown();
@@ -631,17 +634,19 @@
         // Add this function to set up the custom date range filter
         function setupDateFilters() {
             const dateFilter = document.getElementById('date-filter');
-            
-            dateFilter.addEventListener('change', function() {
+
+            dateFilter.addEventListener('change', function () {
                 if (this.value === 'custom') {
                     // Show custom date dialog
                     showCustomDateModal();
                 } else {
-                    // Apply selected filter
-                    applyFilters();
+                    // Apply selected filter using the transactionFilter object
+                    if (transactionFilter) {
+                        transactionFilter.applyFilters();
+                    }
                 }
             });
-            
+
             // Setup custom date dialog handlers
             const customDateModal = document.getElementById('custom-date-modal');
             const customDateStart = document.getElementById('custom-date-start');
@@ -665,14 +670,14 @@
                 inputSelector: '#custom-date-end',
                 format: 'MM/DD/YYYY'
             });
-            
+
             // Cancel button
-            customDateCancel.addEventListener('click', function() {
+            customDateCancel.addEventListener('click', function () {
                 customDateModal.style.display = 'none';
                 // Reset date filter to previous selection
                 dateFilter.value = dateFilter.getAttribute('data-previous') || 'all';
             });
-            
+
             // Apply button modified to update the dropdown text
             customDateApply.addEventListener('click', function () {
                 if (!customDateStart.value || !customDateEnd.value) {
@@ -901,11 +906,16 @@
             const newAccount = document.getElementById('new-account').value;
 
             // Get category value from our component
-            let newCategory = window.categoryComponent ?
-                window.categoryComponent.getValue() :
-                document.getElementById('new-category').value;
-            
-                // Validate inputs
+            let newCategory = '';
+            if (window.categoryComponent && typeof window.categoryComponent.getValue === 'function') {
+                newCategory = window.categoryComponent.getValue();
+            } else {
+                // Fallback to the original input if component doesn't exist
+                const categoryInput = document.getElementById('new-category');
+                newCategory = categoryInput ? categoryInput.value : '';
+            }
+
+            // Validate inputs
             if (!newDate || !newAmount || !newCategory || !newMerchant) {
                 alert('Please fill in all required fields');
                 return;
@@ -938,20 +948,19 @@
                 })
                 .then(data => {
                     console.log('Transaction added:', data);
+
                     // Reset form
                     document.getElementById('new-amount').value = '';
+                    document.getElementById('new-merchant').value = '';
 
-                    // Handle our new category system
-                    const categoryDropdown = document.getElementById('category-dropdown');
-                    if (categoryDropdown) {
-                        categoryDropdown.value = '';
-                    } else {
-                        document.getElementById('new-category').value = '';
+                    // Reset category safely
+                    if (window.categoryComponent && typeof window.categoryComponent.setValue === 'function') {
+                        window.categoryComponent.setValue('');
                     }
 
-                    document.getElementById('new-merchant').value = '';
                     // Hide modal
                     document.getElementById('add-transaction-modal').style.display = 'none';
+
                     // Refresh transactions
                     loadTransactions();
                 })
@@ -960,7 +969,7 @@
                     alert('Error adding transaction: ' + err.message);
                 });
         });
-
+        
         // Set up Plaid Link
         fetch('/create_link_token')
             .then(response => {
@@ -1134,33 +1143,34 @@
         // Helper function to display accounts
         function displayAccounts(data) {
             const accountsContainer = document.getElementById('accounts-container');
-            if (data.error) {
-                accountsContainer.innerHTML = 'Error: ' + data.error;
-            } else {
-                const accounts = data.accounts;
+            const accountsSection = document.getElementById('accounts-section');
 
-                if (accounts && accounts.length > 0) {
-                    document.getElementById('accounts-section').style.display = 'block';
-
-                    accountsContainer.innerHTML = '';
-                    accounts.forEach(account => {
-                        const accountCard = document.createElement('div');
-                        accountCard.className = 'account-card';
-
-                        const availableBalance = account.balance.available !== null ?
-                            `${formatCurrency(account.balance.available)}` : 'N/A';
-
-                        accountCard.innerHTML = `
-                    <h3>${account.name}</h3>
-                    <p>Type: ${account.type}${account.subtype ? ' - ' + account.subtype : ''}</p>
-                    <p>Current Balance: ${formatCurrency(account.balance.current)}</p>
-                    <p>Available Balance: ${availableBalance}</p>
-                `;
-
-                        accountsContainer.appendChild(accountCard);
-                    });
-                }
+            // If no data or error, hide the accounts section
+            if (!data || data.error || !data.accounts || data.accounts.length === 0) {
+                accountsSection.style.display = 'none';
+                return;
             }
+
+            // Show the accounts section and display the accounts
+            accountsSection.style.display = 'block';
+            accountsContainer.innerHTML = '';
+
+            data.accounts.forEach(account => {
+                const accountCard = document.createElement('div');
+                accountCard.className = 'account-card';
+
+                const availableBalance = account.balance.available !== null ?
+                    `${formatCurrency(account.balance.available)}` : 'N/A';
+
+                accountCard.innerHTML = `
+            <h3>${account.name}</h3>
+            <p>Type: ${account.type}${account.subtype ? ' - ' + account.subtype : ''}</p>
+            <p>Current Balance: ${formatCurrency(account.balance.current)}</p>
+            <p>Available Balance: ${availableBalance}</p>
+        `;
+
+                accountsContainer.appendChild(accountCard);
+            });
         }
         
         function loadTransactions() {
@@ -1397,38 +1407,49 @@
                 return Promise.resolve(accountsCache.data);
             }
 
-            console.log("Fetching fresh account data");
-            return fetch('/get_accounts')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch accounts');
-                    }
-                    return response.json();
-                })
+            // First check if we have an access token before making the request
+            return fetch('/has_access_token')
+                .then(response => response.json())
                 .then(data => {
-                    if (data.error) {
-                        console.error('Error loading accounts:', data.error);
+                    if (!data.has_token) {
+                        console.log("No access token available, skipping account fetch");
+                        // Return empty account map if no token exists
                         return {};
                     }
 
-                    // Create a mapping of account IDs to account names
-                    const accountsMap = {};
-                    if (data.accounts && Array.isArray(data.accounts)) {
-                        data.accounts.forEach(account => {
-                            if (account.id) {
-                                accountsMap[account.id] = account.name || `Account ${account.id.substring(0, 8)}...`;
+                    console.log("Access token found, fetching fresh account data");
+                    return fetch('/get_accounts')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to fetch accounts');
                             }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.error) {
+                                console.error('Error loading accounts:', data.error);
+                                return {};
+                            }
+
+                            // Create a mapping of account IDs to account names
+                            const accountsMap = {};
+                            if (data.accounts && Array.isArray(data.accounts)) {
+                                data.accounts.forEach(account => {
+                                    if (account.id) {
+                                        accountsMap[account.id] = account.name || `Account ${account.id.substring(0, 8)}...`;
+                                    }
+                                });
+                            }
+
+                            // Update cache
+                            accountsCache.data = accountsMap;
+                            accountsCache.rawData = data;
+                            accountsCache.timestamp = now;
+
+                            // Store in global variable for compatibility with existing code
+                            window.accountsMap = accountsMap;
+                            return accountsMap;
                         });
-                    }
-
-                    // Update cache
-                    accountsCache.data = accountsMap;
-                    accountsCache.rawData = data;
-                    accountsCache.timestamp = now;
-
-                    // Store in global variable for compatibility with existing code
-                    window.accountsMap = accountsMap;
-                    return accountsMap;
                 })
                 .catch(err => {
                     console.error('Error fetching accounts:', err);
@@ -1701,69 +1722,94 @@
             const exportModal = document.getElementById('export-data-modal');
             const exportCancel = document.getElementById('export-cancel');
             const exportConfirm = document.getElementById('export-confirm');
-            
-            exportButton.addEventListener('click', function() {
+
+            // Show export modal when button is clicked
+            exportButton.addEventListener('click', function () {
                 exportModal.style.display = 'block';
             });
-            
-            exportCancel.addEventListener('click', function() {
+
+            // Hide modal when cancel is clicked
+            exportCancel.addEventListener('click', function () {
                 exportModal.style.display = 'none';
             });
-            
+
             // Close modal if clicked outside
-            window.addEventListener('click', function(event) {
+            window.addEventListener('click', function (event) {
                 if (event.target === exportModal) {
                     exportModal.style.display = 'none';
                 }
             });
-            
-            exportConfirm.addEventListener('click', function() {
+
+            // Function to export transactions that includes all transactions
+            function exportTransactions() {
                 const dateRange = document.getElementById('export-date-range').value;
-                
+
                 // Show loading state
                 exportConfirm.innerHTML = 'Exporting... <div class="loading" style="width: 12px; height: 12px; margin-left: 5px;"></div>';
                 exportConfirm.disabled = true;
-                
-                // Request export
-                fetch('/export_transactions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ date_range: dateRange })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert('Error exporting transactions: ' + data.error);
-                    } else {
-                        // Create and download CSV file
-                        const blob = new Blob([data.csv_data], { type: 'text/csv' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = data.filename;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        
-                        // Hide modal
-                        exportModal.style.display = 'none';
-                    }
-                    
-                    // Reset button
-                    exportConfirm.innerHTML = 'Export';
-                    exportConfirm.disabled = false;
-                })
-                .catch(err => {
-                    console.error('Error exporting transactions:', err);
-                    alert('Error exporting transactions: ' + err.message);
-                    exportConfirm.innerHTML = 'Export';
-                    exportConfirm.disabled = false;
-                });    
-            });
-        }  
 
-        
+                // First, fetch all transactions to ensure we have everything
+                fetch('/get_transactions')
+                    .then(response => response.json())
+                    .then(transactionData => {
+                        if (transactionData.error) {
+                            throw new Error('Error fetching transactions: ' + transactionData.error);
+                        }
+
+                        const allTransactions = transactionData.transactions || [];
+                        console.log(`Found ${allTransactions.length} transactions for potential export`);
+
+                        // Now request the export with the date range
+                        return fetch('/export_transactions', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                date_range: dateRange,
+                                // Include transaction count so server can validate
+                                expected_count: allTransactions.length
+                            })
+                        });
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert('Error exporting transactions: ' + data.error);
+                        } else {
+                            console.log(`Exported ${data.transaction_count || 'unknown'} transactions`);
+
+                            // Create and download CSV file
+                            const blob = new Blob([data.csv_data], { type: 'text/csv' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = data.filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+
+                            // Hide modal
+                            exportModal.style.display = 'none';
+                        }
+
+                        // Reset button
+                        exportConfirm.innerHTML = 'Export';
+                        exportConfirm.disabled = false;
+                    })
+                    .catch(err => {
+                        console.error('Error exporting transactions:', err);
+                        alert('Error exporting transactions: ' + err.message);
+                        exportConfirm.innerHTML = 'Export';
+                        exportConfirm.disabled = false;
+                    });
+            }
+
+            // Add the click handler to the export confirm button
+            exportConfirm.addEventListener('click', function () {
+                exportTransactions();
+            });
+        }
+
         // Modified transactions refresh button handler
         document.getElementById('transactions-button').addEventListener('click', function () {
             // Force refresh of accounts data
@@ -1822,9 +1868,16 @@
 
         // Initialize the category dropdown component
         function initCategoryDropdown() {
+            // If category component already exists, just reload its data and return
+            if (window.categoryComponent) {
+                window.categoryComponent.reload();
+                return;
+            }
+
             // Create a wrapper for the category input if it doesn't exist
             const newCategoryInput = document.getElementById('new-category');
 
+            // Handle the case where the input doesn't exist
             if (!newCategoryInput) {
                 console.error("Cannot find new-category input element");
                 return;
@@ -1889,6 +1942,133 @@
                 .catch(err => {
                     console.error('Error fetching accounts:', err);
                 });
+        }
+
+        // Function to initialize the monthly category date pickers
+        function setupMonthlyCategoryDatePickers() {
+            // Get the input elements
+            const startDateInput = document.getElementById('monthly-start-date');
+            const endDateInput = document.getElementById('monthly-end-date');
+            const applyButton = document.getElementById('apply-monthly-dates');
+
+            // Set default dates (last 6 months)
+            const today = new Date();
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(today.getMonth() - 6);
+
+            startDateInput.value = formatMonthYear(sixMonthsAgo);
+            endDateInput.value = formatMonthYear(today);
+
+            // Add click handlers to show month picker when inputs are clicked
+            startDateInput.addEventListener('click', function () {
+                showMonthPicker(this);
+            });
+
+            endDateInput.addEventListener('click', function () {
+                showMonthPicker(this);
+            });
+
+            // Add handler for the apply button
+            applyButton.addEventListener('click', function () {
+                updateMonthlyCategoryTotals();
+            });
+
+            // Function to update monthly category totals based on selected date range
+            function updateMonthlyCategoryTotals() {
+                const startMonthYear = startDateInput.value; // Format: MM/YYYY
+                const endMonthYear = endDateInput.value;     // Format: MM/YYYY
+
+                // Validate dates
+                if (!startMonthYear || !endMonthYear) {
+                    alert('Please select both start and end dates');
+                    return;
+                }
+
+                // Parse dates to compare them
+                const startParts = startMonthYear.split('/');
+                const endParts = endMonthYear.split('/');
+
+                if (startParts.length !== 2 || endParts.length !== 2) {
+                    alert('Invalid date format. Please use MM/YYYY format');
+                    return;
+                }
+
+                const startDate = new Date(startParts[1], parseInt(startParts[0]) - 1, 1);
+                const endDate = new Date(endParts[1], parseInt(endParts[0]) - 1, 1);
+
+                // Check if start date is after end date
+                if (startDate > endDate) {
+                    alert('Start date must be before end date');
+                    return;
+                }
+
+                // Show loading indicator
+                const monthlySection = document.getElementById('monthly-category-section');
+                const monthlyTable = document.getElementById('monthly-category-table');
+
+                // Create a loading indicator if it doesn't exist
+                let loadingIndicator = document.getElementById('monthly-loading-indicator');
+                if (!loadingIndicator) {
+                    loadingIndicator = document.createElement('div');
+                    loadingIndicator.id = 'monthly-loading-indicator';
+                    loadingIndicator.style.textAlign = 'center';
+                    loadingIndicator.style.padding = '20px';
+                    loadingIndicator.innerHTML = 'Loading monthly totals... <div class="loading" style="display: inline-block;"></div>';
+                    monthlySection.insertBefore(loadingIndicator, monthlyTable);
+                } else {
+                    loadingIndicator.style.display = 'block';
+                }
+
+                monthlyTable.style.display = 'none';
+
+                // Filter transactions based on the selected date range
+                // This would typically be a server request, but we'll use the client-side approach
+                // for simplicity in this example
+
+                // We'll reuse the existing transaction data if available
+                fetch('/get_transactions')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert('Error loading transactions: ' + data.error);
+                            return;
+                        }
+
+                        const transactions = data.transactions || [];
+
+                        // Filter transactions by date range
+                        const filteredTransactions = transactions.filter(tx => {
+                            if (!tx.raw_date) return false;
+
+                            // Convert raw_date to a Date object
+                            const txDate = new Date(tx.raw_date);
+                            if (isNaN(txDate.getTime())) return false;
+
+                            // Create date objects for comparison (just year/month)
+                            const txYearMonth = new Date(txDate.getFullYear(), txDate.getMonth(), 1);
+
+                            // Check if the transaction date is within our range
+                            return txYearMonth >= startDate && txYearMonth <= endDate;
+                        });
+
+                        // Calculate and display monthly totals using the filtered transactions
+                        const monthlyData = calculateMonthlyCategoryTotals(filteredTransactions);
+                        displayMonthlyCategoryTotals(monthlyData.monthlyTable, monthlyData.months);
+
+                        // Hide loading indicator and show table
+                        loadingIndicator.style.display = 'none';
+                        monthlyTable.style.display = 'table';
+                    })
+                    .catch(err => {
+                        console.error('Error filtering transactions:', err);
+                        alert('Error filtering transactions: ' + err.message);
+                        loadingIndicator.style.display = 'none';
+                        monthlyTable.style.display = 'table';
+                    });
+            }
+
+            // Initialize with current date range
+            updateMonthlyCategoryTotals();
         }
 
 

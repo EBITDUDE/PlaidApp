@@ -1,0 +1,110 @@
+2025-03-02 16:56:28,340 [INFO] ================================
+2025-03-02 16:56:28,342 [INFO] Starting Personal Finance App
+2025-03-02 16:56:28,342 [INFO] Environment: Production
+2025-03-02 16:56:28,343 [INFO] Token file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\logs_and_json\tokens.json
+2025-03-02 16:56:28,343 [INFO] Log file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\logs_and_json\finance_app.log
+2025-03-02 16:56:28,343 [INFO] ================================
+2025-03-02 16:56:28,343 [INFO] No access token file found - bank connection required
+2025-03-02 16:56:28,384 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-02 16:56:28,385 [INFO] [33mPress CTRL+C to quit[0m
+2025-03-02 16:56:28,403 [INFO]  * Restarting with watchdog (windowsapi)
+2025-03-02 16:56:29,516 [INFO] ================================
+2025-03-02 16:56:29,517 [INFO] Starting Personal Finance App
+2025-03-02 16:56:29,517 [INFO] Environment: Production
+2025-03-02 16:56:29,517 [INFO] Token file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\logs_and_json\tokens.json
+2025-03-02 16:56:29,517 [INFO] Log file: C:\Users\alexander.bennett\PycharmProjects\PlaidApp\logs_and_json\finance_app.log
+2025-03-02 16:56:29,518 [INFO] ================================
+2025-03-02 16:56:29,518 [INFO] No access token file found - bank connection required
+2025-03-02 16:56:29,544 [WARNING]  * Debugger is active!
+2025-03-02 16:56:29,548 [INFO]  * Debugger PIN: 109-758-015
+2025-03-02 16:56:32,262 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:32] "GET / HTTP/1.1" 200 -
+2025-03-02 16:56:32,653 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:32] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-02 16:56:32,655 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:32] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-02 16:56:32,729 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:32] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-02 16:56:32,787 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:32] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-02 16:56:32,790 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:32] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-02 16:56:32,890 [WARNING] No access token available when requesting accounts
+2025-03-02 16:56:32,890 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:32] "[31m[1mGET /get_accounts HTTP/1.1[0m" 400 -
+2025-03-02 16:56:32,906 [DEBUG] Access token check: not found
+2025-03-02 16:56:32,906 [DEBUG] Returning 11 categories
+2025-03-02 16:56:32,906 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:32] "GET /has_access_token HTTP/1.1" 200 -
+2025-03-02 16:56:32,906 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:32] "GET /get_categories HTTP/1.1" 200 -
+2025-03-02 16:56:32,957 [DEBUG] Creating link token for user ID: user-ed58cecb-75fd-4728-9edf-c8996856c54c
+2025-03-02 16:56:33,229 [INFO] Link token created successfully: link-sandb...
+2025-03-02 16:56:33,229 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:33] "GET /create_link_token HTTP/1.1" 200 -
+2025-03-02 16:56:59,415 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:59] "GET / HTTP/1.1" 200 -
+2025-03-02 16:56:59,520 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:59] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-02 16:56:59,524 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:59] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-02 16:56:59,524 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:59] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-02 16:56:59,525 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:59] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-02 16:56:59,525 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:59] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-02 16:56:59,728 [WARNING] No access token available when requesting accounts
+2025-03-02 16:56:59,728 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:59] "[31m[1mGET /get_accounts HTTP/1.1[0m" 400 -
+2025-03-02 16:56:59,734 [DEBUG] Creating link token for user ID: user-69236f9c-2ea4-4f8a-8ec8-18ee95bddd97
+2025-03-02 16:56:59,734 [DEBUG] Access token check: not found
+2025-03-02 16:56:59,734 [DEBUG] Returning 11 categories
+2025-03-02 16:56:59,736 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:59] "GET /has_access_token HTTP/1.1" 200 -
+2025-03-02 16:56:59,737 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:59] "GET /get_categories HTTP/1.1" 200 -
+2025-03-02 16:56:59,811 [INFO] Link token created successfully: link-sandb...
+2025-03-02 16:56:59,812 [INFO] 127.0.0.1 - - [02/Mar/2025 16:56:59] "GET /create_link_token HTTP/1.1" 200 -
+2025-03-02 16:57:01,869 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:01] "GET / HTTP/1.1" 200 -
+2025-03-02 16:57:02,073 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:02] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:02,081 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:02] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:02,081 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:02] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:02,083 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:02] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:02,086 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:02] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:02,245 [DEBUG] Returning 11 categories
+2025-03-02 16:57:02,245 [WARNING] No access token available when requesting accounts
+2025-03-02 16:57:02,245 [DEBUG] Access token check: not found
+2025-03-02 16:57:02,245 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:02] "GET /get_categories HTTP/1.1" 200 -
+2025-03-02 16:57:02,245 [DEBUG] Creating link token for user ID: user-528bb129-d206-461e-9770-5fa0b0bb0512
+2025-03-02 16:57:02,245 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:02] "[31m[1mGET /get_accounts HTTP/1.1[0m" 400 -
+2025-03-02 16:57:02,247 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:02] "GET /has_access_token HTTP/1.1" 200 -
+2025-03-02 16:57:02,329 [INFO] Link token created successfully: link-sandb...
+2025-03-02 16:57:02,330 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:02] "GET /create_link_token HTTP/1.1" 200 -
+2025-03-02 16:57:07,377 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:07] "GET / HTTP/1.1" 200 -
+2025-03-02 16:57:07,542 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:07] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:07,542 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:07] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:07,542 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:07] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:07,542 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:07] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:07,542 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:07] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:07,646 [DEBUG] Creating link token for user ID: user-5e014987-872b-4c0a-bd94-bb25a57268cd
+2025-03-02 16:57:07,646 [DEBUG] Access token check: not found
+2025-03-02 16:57:07,647 [WARNING] No access token available when requesting accounts
+2025-03-02 16:57:07,647 [DEBUG] Returning 11 categories
+2025-03-02 16:57:07,648 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:07] "GET /has_access_token HTTP/1.1" 200 -
+2025-03-02 16:57:07,648 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:07] "[31m[1mGET /get_accounts HTTP/1.1[0m" 400 -
+2025-03-02 16:57:07,648 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:07] "GET /get_categories HTTP/1.1" 200 -
+2025-03-02 16:57:07,730 [INFO] Link token created successfully: link-sandb...
+2025-03-02 16:57:07,732 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:07] "GET /create_link_token HTTP/1.1" 200 -
+2025-03-02 16:57:41,660 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:41] "GET / HTTP/1.1" 200 -
+2025-03-02 16:57:41,846 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:41] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:41,846 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:41] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:41,846 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:41] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:41,846 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:41] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:41,846 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:41] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-02 16:57:41,945 [WARNING] No access token available when requesting accounts
+2025-03-02 16:57:41,945 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:41] "[31m[1mGET /get_accounts HTTP/1.1[0m" 400 -
+2025-03-02 16:57:41,945 [DEBUG] Creating link token for user ID: user-06dd3b0a-f725-4b37-a9b6-99db9e47b93c
+2025-03-02 16:57:41,945 [DEBUG] Access token check: not found
+2025-03-02 16:57:41,945 [DEBUG] Returning 11 categories
+2025-03-02 16:57:41,945 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:41] "GET /has_access_token HTTP/1.1" 200 -
+2025-03-02 16:57:41,945 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:41] "GET /get_categories HTTP/1.1" 200 -
+2025-03-02 16:57:42,034 [INFO] Link token created successfully: link-sandb...
+2025-03-02 16:57:42,035 [INFO] 127.0.0.1 - - [02/Mar/2025 16:57:42] "GET /create_link_token HTTP/1.1" 200 -
+2025-03-02 16:58:09,177 [INFO] 127.0.0.1 - - [02/Mar/2025 16:58:09] "GET / HTTP/1.1" 200 -
+2025-03-02 16:58:09,382 [INFO] 127.0.0.1 - - [02/Mar/2025 16:58:09] "[36mGET /static/js/date-utils.js HTTP/1.1[0m" 304 -
+2025-03-02 16:58:09,397 [INFO] 127.0.0.1 - - [02/Mar/2025 16:58:09] "[36mGET /static/js/category-dropdown.js HTTP/1.1[0m" 304 -
+2025-03-02 16:58:09,397 [INFO] 127.0.0.1 - - [02/Mar/2025 16:58:09] "[36mGET /static/js/transaction-paginator.js HTTP/1.1[0m" 304 -
+2025-03-02 16:58:09,397 [INFO] 127.0.0.1 - - [02/Mar/2025 16:58:09] "[36mGET /static/js/calendar-component.js HTTP/1.1[0m" 304 -
+2025-03-02 16:58:09,397 [INFO] 127.0.0.1 - - [02/Mar/2025 16:58:09] "[36mGET /static/js/transaction-filter.js HTTP/1.1[0m" 304 -
+2025-03-02 16:58:09,599 [WARNING] No access token available when requesting accounts
+2025-03-02 16:58:09,600 [INFO] 127.0.0.1 - - [02/Mar/2025 16:58:09] "[31m[1mGET /get_accounts HTTP/1.1[0m" 400 -
+2025-03-02 16:58:09,603 [DEBUG] Access token check: not found
+2025-03-02 16:58:09,603 [DEBUG] Creating link token for user ID: user-e4c9fae3-4e73-47db-b157-191f35fcf768
+2025-03-02 16:58:09,603 [DEBUG] Returning 11 categories
+2025-03-02 16:58:09,604 [INFO] 127.0.0.1 - - [02/Mar/2025 16:58:09] "GET /has_access_token HTTP/1.1" 200 -
+2025-03-02 16:58:09,606 [INFO] 127.0.0.1 - - [02/Mar/2025 16:58:09] "GET /get_categories HTTP/1.1" 200 -
+2025-03-02 16:58:09,705 [INFO] Link token created successfully: link-sandb...
+2025-03-02 16:58:09,706 [INFO] 127.0.0.1 - - [02/Mar/2025 16:58:09] "GET /create_link_token HTTP/1.1" 200 -
