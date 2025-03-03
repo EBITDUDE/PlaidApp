@@ -20,7 +20,7 @@ import traceback
 import math
 
 # Set up logging
-LOG_FILE = os.path.join(os.getcwd(), 'logs_and_json', 'finance_app.log')
+LOG_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'finance_app.log')
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
 # Configure logging
@@ -45,9 +45,9 @@ def handle_exception(e):
     return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
 # File to store the access token
-TOKEN_FILE = os.path.join(os.getcwd(), 'logs_and_json', 'tokens.json')
+TOKEN_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'tokens.json')
 # File to store user-modified transactions
-TRANSACTIONS_FILE = os.path.join(os.getcwd(), 'logs_and_json', 'transactions.json')
+TRANSACTIONS_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'transactions.json')
 
 # Create the logs_and_json directory if it doesn't exist
 os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
@@ -762,7 +762,7 @@ def annual_totals_page():
 @api_error_handler
 def get_categories():
     # Load custom categories from categories.json
-    categories_file = os.path.join(os.getcwd(), 'logs_and_json', 'categories.json')
+    categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
     custom_categories = set()
     if os.path.exists(categories_file):
         try:
@@ -1419,7 +1419,7 @@ def export_transactions():
     # Format filename
     start_date_str = start_date.strftime("%Y-%m-%d")
     end_date_str = end_date.strftime("%Y-%m-%d")
-    filename = f"transactions_{start_date_str}_to_{end_date_str}.csv"
+    filename = f"txns_{start_date_str}_to_{end_date_str}.csv"
     
     # Return CSV data
     return jsonify({
@@ -1440,7 +1440,7 @@ def add_category():
         return jsonify({'error': 'Category name is required'}), 400
         
     # Load saved category preferences
-    categories_file = os.path.join(os.getcwd(), 'logs_and_json', 'categories.json')
+    categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
     
     categories = []
     if os.path.exists(categories_file):
@@ -1472,7 +1472,7 @@ def delete_category():
         return jsonify({'error': 'Category name is required'}), 400
         
     # Load saved category preferences
-    categories_file = os.path.join(os.getcwd(), 'logs_and_json', 'categories.json')
+    categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
     
     categories = []
     if os.path.exists(categories_file):

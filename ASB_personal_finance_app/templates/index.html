@@ -606,6 +606,11 @@
         document.getElementById('transaction-search').addEventListener('keyup', debounce(function () {
             if (transactionFilter) transactionFilter.applyFilters();
         }, 300));
+        // Add event listener for page size change
+        document.getElementById('page-size').addEventListener('change', function () {
+            // Reload transactions when page size changes
+            loadTransactions();
+        });
         
         // Setup compact view toggle
         const viewToggle = document.getElementById('view-toggle');
@@ -1194,8 +1199,20 @@
             `;
             txSection.style.display = 'block';
 
-            // Fetch transactions
-            fetch('/get_transactions')
+            // Get the selected page size (default to 50 if none selected)
+            const pageSizeSelect = document.getElementById('page-size');
+            let fetchSize = 50; // Default
+
+            if (pageSizeSelect && pageSizeSelect.value) {
+                if (pageSizeSelect.value === 'all') {
+                    fetchSize = 10000; // Use a large number to fetch all
+                } else {
+                    fetchSize = parseInt(pageSizeSelect.value);
+                }
+            }
+
+            // Fetch transactions with the selected page size
+            fetch(`/get_transactions?page=1&page_size=${fetchSize}`)
                 .then(response => {
                     console.log("Transaction response status:", response.status);
 
@@ -1618,16 +1635,6 @@
                             // Set text content
                             td.textContent = typeof row[month] === 'string' ? row[month] : formatCurrency(row[month]);
 
-                            // Add color coding - detect negative values by looking for parentheses or minus sign
-                            const isNegative =
-                                (typeof row[month] === 'string' && (row[month].includes('(') || row[month].includes('-'))) ||
-                                numericValue < 0;
-
-                            if (isNegative) {
-                                td.style.color = '#e74c3c'; // Red for expenses
-                            } else if (numericValue > 0) {
-                                td.style.color = '#27ae60'; // Green for income
-                            }
                         } else {
                             td.textContent = '$0.00';
                         }

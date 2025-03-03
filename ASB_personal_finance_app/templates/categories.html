@@ -246,8 +246,7 @@
                 if (data.error) {
                     alert('Error deleting category: ' + data.error);
                 } else {
-                    // Update display
-                    displayCategories(data.categories);
+                    loadCategories();
                 }
             })
             .catch(err => {

@@ -185,13 +185,6 @@
                         td.textContent = formatCurrency(0);
                     }
 
-                    // Add color coding based on value, but only for negative values
-                    const value = parseFloat((row[year] || '0').replace(/[\$,]/g, ''));
-                    if (value < 0) {
-                        // Red for negative values (expenses)
-                        td.style.color = '#e74c3c';
-                    }
-
                     tr.appendChild(td);
                 });
                 
