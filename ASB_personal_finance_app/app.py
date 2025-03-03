@@ -376,6 +376,9 @@ def get_transactions():
     """
     Get transactions with pagination and date filtering support
     """
+    # Log all incoming query parameters for debugging
+    logger.info(f"Incoming query parameters: {request.args}")
+
     # Get query parameters for filtering (defaulting to last 90 days if not specified)
     start_date_str = request.args.get('start_date')
     end_date_str = request.args.get('end_date')
@@ -567,10 +570,16 @@ def get_transactions():
     page = request.args.get('page', default=1, type=int)
     page_size = request.args.get('page_size', default=50, type=int)
     
+    # Log total transactions before pagination
+    logger.info(f"Total transactions before pagination: {len(transaction_list)}")
+    
     # Calculate total and paged results
     total_count = len(transaction_list)
     start_idx = (page - 1) * page_size
     end_idx = min(start_idx + page_size, total_count)
+    
+    # Log pagination details
+    logger.info(f"Pagination details: page={page}, page_size={page_size}, start_idx={start_idx}, end_idx={end_idx}")
     
     # Return paginated results with metadata
     return jsonify({

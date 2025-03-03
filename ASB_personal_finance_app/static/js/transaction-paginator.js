@@ -32,6 +32,19 @@ class TransactionPaginator {
 
         // Initialize pagination controls and events
         this._init();
+
+        console.log('Paginator initialized', {
+            tableId: this.options.tableId,
+            pageSize: this.pageSize,
+            defaultPageSize: this.options.defaultPageSize
+        });
+
+        console.log('TransactionPaginator initialized:', {
+            totalItems: this.totalItems,
+            pageSize: this.pageSize,
+            currentPage: this.currentPage,
+            filteredItems: this.filteredItems
+        });
     }
 
     /**
@@ -79,6 +92,14 @@ class TransactionPaginator {
      * @param {boolean} forceUpdate Force update even if nothing changed
      */
     updateVisibility(forceUpdate = false) {
+        console.log('Updating visibility', {
+            currentPage: this.currentPage,
+            pageSize: this.pageSize,
+            totalItems: this.totalItems,
+            filteredItems: this.filteredItems,
+            forceUpdate
+        });
+
         if (!this.tableElement) return;
 
         // Get tbody element
@@ -155,16 +176,26 @@ class TransactionPaginator {
      * @private
      */
     _updatePaginationControls() {
+        console.log('Updating pagination controls:', {
+            totalPages: this.getTotalPages(),
+            currentPage: this.currentPage,
+            pageSize: this.pageSize,
+            filteredItems: this.filteredItems,
+            pageSizeElementValue: this.pageSizeElement ? this.pageSizeElement.value : 'N/A'
+        });
+        
         if (!this.paginationContainer) return;
 
         const totalPages = this.getTotalPages();
+        const isShowingAll = this.pageSizeElement && this.pageSizeElement.value === 'all';
 
-        // Hide pagination if everything fits on one page or showing all
-        if (totalPages <= 1 || (this.pageSizeElement && this.pageSizeElement.value === 'all')) {
+        // Hide pagination if showing all or only one page
+        if (isShowingAll || totalPages <= 1) {
             this.paginationContainer.style.display = 'none';
             return;
         }
 
+        // Show pagination controls
         this.paginationContainer.style.display = 'block';
 
         // Create pagination UI

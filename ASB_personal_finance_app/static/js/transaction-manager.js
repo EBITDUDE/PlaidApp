@@ -40,6 +40,8 @@ function loadTransactions() {
         }
     }
 
+    console.log(`Fetching transactions with page size: ${fetchSize}`);
+
     // Fetch transactions with the selected page size
     fetch(`/get_transactions?page=1&page_size=${fetchSize}`)
         .then(response => {
@@ -53,7 +55,13 @@ function loadTransactions() {
             return response.json();
         })
         .then(data => {
-            console.log("Received transaction data:", data);
+            // Store pagination data globally for debugging
+            window.lastPaginationData = data.pagination;
+            
+            console.log("Received transaction data:", {
+                transactionCount: data.transactions.length,
+                pagination: data.pagination
+            });
 
             // Clear loading indicator
             txTable.innerHTML = '';
@@ -127,6 +135,11 @@ function loadTransactions() {
  * @param {Array} transactions - Array of transaction objects
  */
 function displayTransactions(transactions) {
+    console.log('Displaying transactions:', {
+        totalTransactions: transactions.length,
+        paginationDetails: window.lastPaginationData // We'll add this next
+    });
+
     const txTable = document.getElementById('transactions-body');
     const txSection = document.getElementById('transactions-section');
     const categoryFilter = document.getElementById('category-filter');
