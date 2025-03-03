@@ -11,6 +11,18 @@
 |   ├── transactions.json  (Stores transaction modifications)
 |   ├── categories.json  (Stores category modifications)
 |   └── finance_app.log    (Application logs)
-└── static/
-    └── js/
-        └── calendar-components.js
+├── static/
+|   └── js/
+│   │   ├── app.js                    
+│   │   ├── account-manager.js        
+│   │   ├── transaction-manager.js    
+│   │   ├── ui-utilities.js           
+│   │   ├── data-formatter.js         
+│   │   ├── categories.js             
+│   │   ├── annual-totals.js        
+│   │   ├── log-viewer.js             
+│   │   ├── calendar-component.js   
+│   │   ├── category-dropdown.js     
+│   │   ├── date-utils.js             
+│   │   ├── transaction-filter.js     
+│   │   └── transaction-paginator.js  

@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>ASB Personal Finance App</title>
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <!-- External JavaScript files -->
     <script src="/static/js/calendar-component.js"></script>
     <script src="/static/js/category-dropdown.js"></script>
     <script src="/static/js/date-utils.js"></script>
     <script src="/static/js/transaction-paginator.js"></script>
     <script src="/static/js/transaction-filter.js"></script>
+
+    <!-- New modular JavaScript files -->
+    <script src="/static/js/data-formatter.js"></script>
+    <script src="/static/js/ui-utilities.js"></script>
+    <script src="/static/js/account-manager.js"></script>
+    <script src="/static/js/transaction-manager.js"></script>
+    <script src="/static/js/app.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,6 +25,7 @@
             line-height: 1.6;
             color: #333;
         }
+
         button {
             padding: 10px;
             margin: 5px;
@@ -24,20 +35,25 @@
             background-color: #f8f8f8;
             transition: background-color 0.2s;
         }
+
         button:hover {
             background-color: #e0e0e0;
         }
+
         table {
             border-collapse: collapse;
             width: 100%;
             margin-top: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        th, td {
+
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
             position: sticky;
@@ -46,114 +62,139 @@
             /* Fix for header transparency */
             box-shadow: 0 1px 0 #ddd;
         }
+
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         tr:hover {
             background-color: #f0f0f0;
         }
+
         .editable {
             position: relative;
         }
+
         .editable:hover {
             background-color: #e6f7ff;
             cursor: pointer;
         }
+
         .editable:hover::after {
             content: "✏️";
             position: absolute;
             right: 5px;
             opacity: 0.5;
         }
+
         .container {
             margin-bottom: 40px;
             background-color: #fff;
             padding: 20px;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        h1, h2 {
+
+        h1,
+        h2 {
             color: #2c3e50;
         }
+
         .accounts-container {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             margin-top: 20px;
         }
+
         .account-card {
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 5px;
             width: 220px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s;
             background-color: #fff;
         }
+
         .account-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .account-card h3 {
             margin-top: 0;
             color: #3498db;
             border-bottom: 1px solid #eee;
             padding-bottom: 8px;
         }
-        input[type="text"], select {
+
+        input[type="text"],
+        select {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             transition: border-color 0.2s;
         }
-        input[type="text"]:focus, select:focus {
+
+        input[type="text"]:focus,
+        select:focus {
             border-color: #3498db;
             outline: none;
         }
+
         .filter-dropdown {
             display: inline-block;
         }
+
         .filter-dropdown label {
             margin-right: 5px;
         }
+
         #add-transaction-btn {
             background-color: #4CAF50;
             color: white;
             border: none;
             font-weight: bold;
         }
+
         #add-transaction-btn:hover {
             background-color: #45a049;
         }
+
         .delete-btn:hover {
             background-color: #ff3333 !important;
         }
-        
+
         /* Income text color */
         .income-amount {
             color: #357D40;
         }
-        
+
         /* View toggle styles */
         .view-toggle {
             display: flex;
             align-items: center;
             margin-right: 15px;
         }
+
         .view-toggle label {
             margin-right: 10px;
         }
+
         .toggle-switch {
             position: relative;
             display: inline-block;
             width: 60px;
             height: 26px;
         }
+
         .toggle-switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
+
         .toggle-slider {
             position: absolute;
             cursor: pointer;
@@ -165,6 +206,7 @@
             transition: .4s;
             border-radius: 26px;
         }
+
         .toggle-slider:before {
             position: absolute;
             content: "";
@@ -176,6 +218,7 @@
             transition: .4s;
             border-radius: 50%;
         }
+
         .secondary-nav-button {
             display: inline-block;
             padding: 6px 12px;
@@ -198,48 +241,57 @@
             border: 1px solid #ddd;
             padding: 10px;
             z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             border-radius: 4px;
         }
-        input:checked + .toggle-slider {
+
+        input:checked+.toggle-slider {
             background-color: #3498db;
         }
-        input:checked + .toggle-slider:before {
+
+        input:checked+.toggle-slider:before {
             transform: translateX(34px);
         }
-        
+
         /* Compact view styles */
-        .compact-view th, .compact-view td {
+        .compact-view th,
+        .compact-view td {
             padding: 5px 8px;
             font-size: 0.9em;
         }
+
         .compact-view .account-card {
             padding: 10px;
             width: 220px;
         }
+
         .compact-view .container {
             padding: 12px;
             margin-bottom: 20px;
         }
+
         .compact-view h2 {
             margin-top: 5px;
             margin-bottom: 10px;
         }
-        
+
         /* Pagination styles */
         .pagination-controls {
             margin: 15px 0;
             text-align: center;
         }
+
         .pagination-info {
             margin-bottom: 10px;
         }
+
         .pagination-buttons {
             display: flex;
             justify-content: center;
             gap: 5px;
             flex-wrap: wrap;
         }
+
         .pagination-btn {
             padding: 5px 10px;
             background-color: #f8f8f8;
@@ -247,26 +299,31 @@
             border-radius: 3px;
             cursor: pointer;
         }
+
         .pagination-btn:hover {
             background-color: #e8e8e8;
         }
+
         .pagination-btn-active {
             background-color: #3498db;
             color: white;
             border-color: #3498db;
         }
+
         .pagination-btn[disabled] {
             opacity: 0.5;
             cursor: not-allowed;
         }
+
         .pagination-ellipsis {
             padding: 5px;
         }
-        
+
         /* Date picker improvements */
         .date-picker {
             position: relative;
         }
+
         .calendar {
             position: absolute;
             top: 100%;
@@ -275,89 +332,104 @@
             background-color: white;
             border: 1px solid #ddd;
             border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             padding: 10px;
             width: 250px;
         }
+
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
+
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 2px;
         }
+
         .calendar-weekday {
             text-align: center;
             font-weight: bold;
             padding: 5px;
         }
+
         .calendar-day {
             text-align: center;
             padding: 6px;
             cursor: pointer;
             border-radius: 4px;
         }
+
         .calendar-day:hover {
             background-color: #f0f0f0;
         }
+
         .calendar-day.selected {
             background-color: #3498db;
             color: white;
         }
+
         .calendar-day.other-month {
             color: #aaa;
         }
-        
+
         /* Category dropdown improvements */
         .category-container {
             width: 100%;
         }
-        
+
         /* Table responsiveness */
         @media screen and (max-width: 768px) {
             .accounts-container {
                 justify-content: center;
             }
+
             .account-card {
                 width: 100%;
                 max-width: 300px;
             }
+
             .controls-container {
                 flex-direction: column;
                 align-items: stretch !important;
             }
+
             .filter-dropdown {
                 margin-bottom: 10px;
                 width: 100%;
             }
+
             #add-transaction-btn {
                 width: 100%;
             }
         }
-        
+
         /* Loading indicator */
         .loading {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(0,0,0,0.3);
+            border: 3px solid rgba(0, 0, 0, 0.3);
             border-radius: 50%;
             border-top-color: #3498db;
             animation: spin 1s ease-in-out infinite;
             margin-left: 10px;
         }
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <h1>ASB Personal Finance App</h1>
-    
+
     <div class="buttons-container">
         <button id="link-button">Connect a Bank Account</button>
         <button id="transactions-button" style="display:none;">Refresh Transactions</button>
@@ -369,20 +441,22 @@
         <a href="/annual_totals" class="secondary-nav-button">Annual Category Totals</a>
         <button id="export-data-btn" class="secondary-nav-button">Export Data...</button>
     </div>
-    
+
     <div id="accounts-section" class="container" style="display:none;">
         <h2>Connected Accounts</h2>
         <div id="accounts-container" class="accounts-container"></div>
     </div>
-    
+
     <div id="transactions-section" class="container" style="display:none;">
         <h2>Transactions</h2>
-        
+
         <!-- Transaction Controls -->
-        <div class="controls-container" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+        <div class="controls-container"
+            style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
             <!-- Search Box -->
-            <input type="text" id="transaction-search" placeholder="Search transactions..." style="padding: 5px; width: 250px;">
-            
+            <input type="text" id="transaction-search" placeholder="Search transactions..."
+                style="padding: 5px; width: 250px;">
+
             <!-- Filters -->
             <div class="filter-dropdown" style="margin-right: 10px;">
                 <label for="date-filter">Date Range:</label>
@@ -396,7 +470,7 @@
                     <option value="custom">Custom...</option>
                 </select>
             </div>
-            
+
             <div class="filter-dropdown" style="margin-right: 10px;">
                 <label for="category-filter">Category:</label>
                 <select id="category-filter" style="padding: 5px;">
@@ -404,7 +478,7 @@
                     <!-- Categories will be populated dynamically -->
                 </select>
             </div>
-            
+
             <div class="filter-dropdown" style="margin-right: 10px;">
                 <label for="type-filter">Type:</label>
                 <select id="type-filter" style="padding: 5px;">
@@ -425,7 +499,7 @@
                     <option value="all">All</option>
                 </select>
             </div>
-            
+
             <!-- View Toggle -->
             <div class="view-toggle">
                 <label for="view-toggle">Compact View:</label>
@@ -434,13 +508,14 @@
                     <span class="toggle-slider"></span>
                 </label>
             </div>
-            
+
             <!-- Add Transaction Button -->
-            <button id="add-transaction-btn" style="margin-left: auto; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px;">
+            <button id="add-transaction-btn"
+                style="margin-left: auto; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px;">
                 Add Transaction
             </button>
         </div>
-        
+
         <!-- Transactions Table -->
         <table id="transactions-table">
             <thead>
@@ -456,7 +531,7 @@
             </thead>
             <tbody id="transactions-body"></tbody>
         </table>
-        
+
         <!-- Update the date picker in the Add Transaction Modal -->
         <div id="add-transaction-modal"
             style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
@@ -467,12 +542,14 @@
                     <div>
                         <label for="new-date">Date:</label>
                         <div class="date-picker">
-                            <input type="text" id="new-date" placeholder="MM/DD/YYYY" required style="width: 100%; padding: 5px;">
+                            <input type="text" id="new-date" placeholder="MM/DD/YYYY" required
+                                style="width: 100%; padding: 5px;">
                         </div>
                     </div>
                     <div>
                         <label for="new-amount">Amount:</label>
-                        <input type="text" id="new-amount" placeholder="0.00" required style="width: 100%; padding: 5px;">
+                        <input type="text" id="new-amount" placeholder="0.00" required
+                            style="width: 100%; padding: 5px;">
                     </div>
                     <div>
                         <label for="new-type">Type:</label>
@@ -506,27 +583,30 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Update the Monthly Category Totals section to include date range selection -->
     <div id="monthly-category-section" class="container" style="display:none;">
         <h2>Monthly Category Totals</h2>
-        
+
         <div style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
             <div class="date-picker" style="margin-right: 10px;">
                 <label for="monthly-start-date">Start Date:</label>
-                <input type="text" id="monthly-start-date" placeholder="MM/YYYY" readonly style="padding: 5px; width: 100px;">
+                <input type="text" id="monthly-start-date" placeholder="MM/YYYY" readonly
+                    style="padding: 5px; width: 100px;">
             </div>
-            
+
             <div class="date-picker" style="margin-right: 10px;">
                 <label for="monthly-end-date">End Date:</label>
-                <input type="text" id="monthly-end-date" placeholder="MM/YYYY" readonly style="padding: 5px; width: 100px;">
+                <input type="text" id="monthly-end-date" placeholder="MM/YYYY" readonly
+                    style="padding: 5px; width: 100px;">
             </div>
-            
-            <button id="apply-monthly-dates" style="padding: 5px 10px; background-color: #3498db; color: white; border: none; cursor: pointer; border-radius: 4px;">
+
+            <button id="apply-monthly-dates"
+                style="padding: 5px 10px; background-color: #3498db; color: white; border: none; cursor: pointer; border-radius: 4px;">
                 Apply
             </button>
         </div>
-        
+
         <table id="monthly-category-table">
             <thead id="monthly-category-header">
                 <tr>
@@ -537,1557 +617,14 @@
         </table>
     </div>
 
-    <script>
-    // Global variables
-    window.accountsMap = {};
-    let currentDate = new Date();
-    let calendarDate = new Date();
-
-    // Improved Account Caching Implementation
-    let accountsCache = {
-        data: null,
-        rawData: null,
-        timestamp: 0,
-        maxAge: 60000 // Cache expires after 1 minute
-    };
-    
-    function debounce(func, wait) {
-            let timeout;
-            return function (...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), wait);
-            };
-        }
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add date filters and custom date picker code
-        setupDateFilters();
-        
-        // Add export data functionality
-        setupExportData();
-
-        // Initialize all date pickers
-        initializeAllDatePickers();
-
-        // Initialize the monthly category date pickers
-        setupMonthlyCategoryDatePickers();
-
-        fetchAndStoreAccounts();
-
-        initCategoryDropdown();
-        
-        // Check if an access token exists on page load
-        fetch('/has_access_token')
-            .then(response => response.json())
-            .then(data => {
-                if (data.has_token) {
-                    document.getElementById('transactions-button').style.display = 'block';
-                    loadAccounts();
-                    loadTransactions();
-                }
-            });
-            
-        // Set up filter change handlers
-        document.getElementById('date-filter').addEventListener('change', function () {
-            if (this.value === 'custom') {
-                // Show custom date dialog
-                showCustomDateModal();
-            } else if (transactionFilter) {
-                // Apply selected filter using the new utility
-                transactionFilter.applyFilters();
-            }
-        });
-        document.getElementById('category-filter').addEventListener('change', function () {
-            if (transactionFilter) transactionFilter.applyFilters();
-        });
-        document.getElementById('type-filter').addEventListener('change', function () {
-            if (transactionFilter) transactionFilter.applyFilters();
-        });
-        document.getElementById('transaction-search').addEventListener('keyup', debounce(function () {
-            if (transactionFilter) transactionFilter.applyFilters();
-        }, 300));
-        // Add event listener for page size change
-        document.getElementById('page-size').addEventListener('change', function () {
-            // Reload transactions when page size changes
-            loadTransactions();
-        });
-        
-        // Setup compact view toggle
-        const viewToggle = document.getElementById('view-toggle');
-        viewToggle.addEventListener('change', function() {
-            const isCompact = this.checked;
-            document.body.classList.toggle('compact-view', isCompact);
-            
-            // Store preference for next time
-            localStorage.setItem('compact-view', isCompact);
-        });
-        
-        // Load saved view preference
-        if (localStorage.getItem('compact-view') === 'true') {
-            viewToggle.checked = true;
-            document.body.classList.add('compact-view');
-        }
-        
-        // Setup calendar for date picker
-        const dateInput = document.getElementById('new-date');
-        const dateCalendar = document.getElementById('new-date-calendar');
-        const prevMonthBtn = document.getElementById('prev-month');
-        const nextMonthBtn = document.getElementById('next-month');
-        const calendarMonthYear = document.getElementById('calendar-month-year');
-        const calendarDays = document.getElementById('calendar-days');
-
-        // Add this function to set up the custom date range filter
-        function setupDateFilters() {
-            const dateFilter = document.getElementById('date-filter');
-
-            dateFilter.addEventListener('change', function () {
-                if (this.value === 'custom') {
-                    // Show custom date dialog
-                    showCustomDateModal();
-                } else {
-                    // Apply selected filter using the transactionFilter object
-                    if (transactionFilter) {
-                        transactionFilter.applyFilters();
-                    }
-                }
-            });
-
-            // Setup custom date dialog handlers
-            const customDateModal = document.getElementById('custom-date-modal');
-            const customDateStart = document.getElementById('custom-date-start');
-            const customDateEnd = document.getElementById('custom-date-end');
-            const customDateCancel = document.getElementById('custom-date-cancel');
-            const customDateApply = document.getElementById('custom-date-apply');
-
-            // Set default dates (current month)
-            const today = new Date();
-            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            customDateStart.value = formatDate(firstDayOfMonth);
-            customDateEnd.value = formatDate(today);
-
-            // Initialize date pickers for custom date range
-            const startDatePicker = new CalendarPicker({
-                inputSelector: '#custom-date-start',
-                format: 'MM/DD/YYYY'
-            });
-
-            const endDatePicker = new CalendarPicker({
-                inputSelector: '#custom-date-end',
-                format: 'MM/DD/YYYY'
-            });
-
-            // Cancel button
-            customDateCancel.addEventListener('click', function () {
-                customDateModal.style.display = 'none';
-                // Reset date filter to previous selection
-                dateFilter.value = dateFilter.getAttribute('data-previous') || 'all';
-            });
-
-            // Apply button modified to update the dropdown text
-            customDateApply.addEventListener('click', function () {
-                if (!customDateStart.value || !customDateEnd.value) {
-                    alert('Please select both start and end dates');
-                    return;
-                }
-
-                // Store custom date range
-                localStorage.setItem('custom-date-start', customDateStart.value);
-                localStorage.setItem('custom-date-end', customDateEnd.value);
-
-                // Update date filter dropdown to show the selected range
-                const dateFilter = document.getElementById('date-filter');
-
-                // Create a new option for this specific date range
-                let customRangeOption = dateFilter.querySelector('option[value="custom"]');
-                if (!customRangeOption) {
-                    customRangeOption = document.createElement('option');
-                    customRangeOption.value = 'custom';
-                    dateFilter.appendChild(customRangeOption);
-                }
-
-                // Update the text to show the selected range
-                customRangeOption.textContent = `${customDateStart.value.replace(/\/\d{4}$/, (match) => '/' + match.slice(-2))} - ${customDateEnd.value.replace(/\/\d{4}$/, (match) => '/' + match.slice(-2))}`;
-
-                // Select the custom option
-                dateFilter.value = 'custom';
-
-                // Close modal and apply filter
-                customDateModal.style.display = 'none';
-                if (transactionFilter) transactionFilter.applyFilters();
-            });
-        }
-
-        // Function to show custom date modal
-        function showCustomDateModal() {
-            const customDateModal = document.getElementById('custom-date-modal');
-            const dateFilter = document.getElementById('date-filter');
-            
-            // Store previous selection
-            dateFilter.setAttribute('data-previous', dateFilter.value);
-            
-            // Load saved custom dates if available
-            const savedStart = localStorage.getItem('custom-date-start');
-            const savedEnd = localStorage.getItem('custom-date-end');
-            
-            if (savedStart) {
-                document.getElementById('custom-date-start').value = savedStart;
-            }
-            
-            if (savedEnd) {
-                document.getElementById('custom-date-end').value = savedEnd;
-            }
-            
-            // Show modal
-            customDateModal.style.display = 'block';
-        }
-
-        // Helper function to show month picker
-        function showMonthPicker(inputElement) {
-            // Create month picker if it doesn't exist
-            let pickerElement = document.querySelector(`.month-picker[data-for="${inputElement.id}"]`);
-            
-            if (!pickerElement) {
-                pickerElement = document.createElement('div');
-                pickerElement.className = 'month-picker';
-                pickerElement.setAttribute('data-for', inputElement.id);
-                pickerElement.style.display = 'block';
-                pickerElement.style.position = 'absolute';
-                pickerElement.style.backgroundColor = 'white';
-                pickerElement.style.border = '1px solid #ddd';
-                pickerElement.style.borderRadius = '4px';
-                pickerElement.style.padding = '10px';
-                pickerElement.style.zIndex = '1000';
-                pickerElement.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
-                pickerElement.style.width = '200px';
-                
-                // Create header
-                const headerDiv = document.createElement('div');
-                headerDiv.style.display = 'flex';
-                headerDiv.style.justifyContent = 'space-between';
-                headerDiv.style.marginBottom = '10px';
-                
-                const prevYearBtn = document.createElement('button');
-                prevYearBtn.type = 'button';
-                prevYearBtn.textContent = '<<';
-                prevYearBtn.style.padding = '2px 5px';
-                
-                const yearSpan = document.createElement('span');
-                yearSpan.style.fontWeight = 'bold';
-                
-                const nextYearBtn = document.createElement('button');
-                nextYearBtn.type = 'button';
-                nextYearBtn.textContent = '>>';
-                nextYearBtn.style.padding = '2px 5px';
-                
-                headerDiv.appendChild(prevYearBtn);
-                headerDiv.appendChild(yearSpan);
-                headerDiv.appendChild(nextYearBtn);
-                
-                // Create month grid
-                const monthsDiv = document.createElement('div');
-                monthsDiv.style.display = 'grid';
-                monthsDiv.style.gridTemplateColumns = 'repeat(3, 1fr)';
-                monthsDiv.style.gap = '5px';
-                
-                // Append elements
-                pickerElement.appendChild(headerDiv);
-                pickerElement.appendChild(monthsDiv);
-                
-                // Add to document
-                inputElement.parentNode.appendChild(pickerElement);
-                
-                // Initialize current year
-                let currentYear = new Date().getFullYear();
-                
-                // Parse input value if present
-                if (inputElement.value) {
-                    const parts = inputElement.value.split('/');
-                    if (parts.length === 2) {
-                        currentYear = parseInt(parts[1]);
-                    }
-                }
-                
-                // Update month picker function
-                function updateMonthPicker() {
-                    yearSpan.textContent = currentYear;
-                    monthsDiv.innerHTML = '';
-                    
-                    const months = [
-                        'Jan', 'Feb', 'Mar', 
-                        'Apr', 'May', 'Jun', 
-                        'Jul', 'Aug', 'Sep', 
-                        'Oct', 'Nov', 'Dec'
-                    ];
-                    
-                    months.forEach((month, index) => {
-                        const monthBtn = document.createElement('button');
-                        monthBtn.type = 'button';
-                        monthBtn.textContent = month;
-                        monthBtn.style.padding = '5px';
-                        monthBtn.style.border = '1px solid #ddd';
-                        monthBtn.style.borderRadius = '3px';
-                        monthBtn.style.cursor = 'pointer';
-                        monthBtn.style.backgroundColor = '#f8f8f8';
-                        
-                        monthBtn.addEventListener('click', function() {
-                            const monthNum = (index + 1).toString().padStart(2, '0');
-                            inputElement.value = `${monthNum}/${currentYear}`;
-                            pickerElement.style.display = 'none';
-                        });
-                        
-                        monthsDiv.appendChild(monthBtn);
-                    });
-                }
-                
-                // Initialize
-                updateMonthPicker();
-                
-                // Previous year button
-                prevYearBtn.addEventListener('click', function() {
-                    currentYear--;
-                    updateMonthPicker();
-                });
-                
-                // Next year button
-                nextYearBtn.addEventListener('click', function() {
-                    currentYear++;
-                    updateMonthPicker();
-                });
-                
-                // Close if clicked outside
-                document.addEventListener('click', function(e) {
-                    if (!pickerElement.contains(e.target) && e.target !== inputElement) {
-                        pickerElement.style.display = 'none';
-                    }
-                });
-            } else {
-                // Toggle visibility
-                pickerElement.style.display = pickerElement.style.display === 'none' ? 'block' : 'none';
-            }
-        }
-
-        // Pre-fill date with today's date
-        const today = new Date();
-        const formattedToday = `${(today.getMonth()+1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
-        dateInput.value = formattedToday;
-        
-        // Setup add transaction modal
-        const addTransactionBtn = document.getElementById('add-transaction-btn');
-        const addTransactionModal = document.getElementById('add-transaction-modal');
-        const cancelAddTransaction = document.getElementById('cancel-add-transaction');
-        const addTransactionForm = document.getElementById('add-transaction-form');
-        
-        // Show modal
-        addTransactionBtn.addEventListener('click', function () {
-            // Just set the display once
-            document.getElementById('add-transaction-modal').style.display = 'block';
-
-            // Apply our fixes - updateCalendar will be called inside fixDatePicker
-            updateAccountDropdown();
-            initCategoryDropdown();
-        });
-        
-        // Hide modal
-        cancelAddTransaction.addEventListener('click', function() {
-            addTransactionModal.style.display = 'none';
-        });
-        
-        // Close modal if clicked outside
-        window.addEventListener('click', function(event) {
-            if (event.target === addTransactionModal) {
-                addTransactionModal.style.display = 'none';
-            }
-        });
-        
-        // ADD this new form submission handler instead:
-        document.getElementById('add-transaction-form').addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            // Get form values
-            const newDate = document.getElementById('new-date').value;
-            const newAmount = document.getElementById('new-amount').value;
-            const newType = document.getElementById('new-type').value;
-            const newMerchant = document.getElementById('new-merchant').value;
-            const newAccount = document.getElementById('new-account').value;
-
-            // Get category value from our component
-            let newCategory = '';
-            if (window.categoryComponent && typeof window.categoryComponent.getValue === 'function') {
-                newCategory = window.categoryComponent.getValue();
-            } else {
-                // Fallback to the original input if component doesn't exist
-                const categoryInput = document.getElementById('new-category');
-                newCategory = categoryInput ? categoryInput.value : '';
-            }
-
-            // Validate inputs
-            if (!newDate || !newAmount || !newCategory || !newMerchant) {
-                alert('Please fill in all required fields');
-                return;
-            }
-
-            // Determine if it's a debit based on the type
-            const isDebit = newType === 'expense';
-
-            // Create transaction object
-            const transaction = {
-                date: newDate,
-                amount: newAmount,
-                is_debit: isDebit,
-                category: newCategory,
-                merchant: newMerchant,
-                account_id: newAccount
-            };
-
-            // Send to server
-            fetch('/add_transaction', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(transaction)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Server error: ' + response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Transaction added:', data);
-
-                    // Reset form
-                    document.getElementById('new-amount').value = '';
-                    document.getElementById('new-merchant').value = '';
-
-                    // Reset category safely
-                    if (window.categoryComponent && typeof window.categoryComponent.setValue === 'function') {
-                        window.categoryComponent.setValue('');
-                    }
-
-                    // Hide modal
-                    document.getElementById('add-transaction-modal').style.display = 'none';
-
-                    // Refresh transactions
-                    loadTransactions();
-                })
-                .catch(err => {
-                    console.error('Error adding transaction:', err);
-                    alert('Error adding transaction: ' + err.message);
-                });
-        });
-        
-        // Set up Plaid Link
-        fetch('/create_link_token')
-            .then(response => {
-                if (!response.ok) {
-                    // Log the full error response
-                    return response.json().then(errorData => {
-                        console.error('Server error details:', errorData);
-                        throw new Error(errorData.details || 'Failed to create link token');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Robust error checking
-                if (!data.link_token) {
-                    console.error('No link token in response', data);
-                    throw new Error('No link token received from server');
-                }
-
-                const handler = Plaid.create({
-                    token: data.link_token,
-                    onSuccess: (public_token, metadata) => {
-                        fetch('/exchange_public_token', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ public_token: public_token })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('Access Token:', data.access_token);
-                            alert('Bank account connected!');
-                            document.getElementById('transactions-button').style.display = 'block';
-                            loadAccounts();
-                            loadTransactions();
-                        });
-                    },
-                    onExit: (err, metadata) => {
-                        console.log('User exited:', err);
-                    }
-                });
-
-            });
-
-        // Optimized function to load accounts data
-        function loadAccounts(forceRefresh = false) {
-            return fetchAndStoreAccounts(forceRefresh)
-                .then(accountsMap => {
-                    const accountsContainer = document.getElementById('accounts-container');
-
-                    // Check if we have the accounts data from server response
-                    const accountsData = accountsCache.rawData?.accounts;
-                    if (!accountsData || accountsData.length === 0) {
-                        return fetch('/get_accounts')
-                            .then(response => response.json())
-                            .then(data => {
-                                accountsCache.rawData = data;
-                                displayAccounts(data);
-                            });
-                    } else {
-                        // Use cached data
-                        displayAccounts(accountsCache.rawData);
-                        return Promise.resolve();
-                    }
-                });
-        }
-
-        document.getElementById('link-button').addEventListener('click', function () {
-            console.log('Bank connection initiated');
-
-            // Add loading state to button
-            const originalButtonText = this.textContent;
-            this.innerHTML = '<span style="display: flex; align-items: center;">Connecting... <span class="loading" style="margin-left: 8px;"></span></span>';
-            this.disabled = true;
-
-            // Fetch link token
-            fetch('/create_link_token')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.link_token) {
-                        throw new Error('No link token in response');
-                    }
-
-                    // Initialize Plaid Link
-                    const handler = Plaid.create({
-                        token: data.link_token,
-                        onSuccess: (public_token, metadata) => {
-                            console.log('Link success - public token received');
-
-                            // Exchange public token
-                            fetch('/exchange_public_token', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ public_token: public_token })
-                            })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        throw new Error('Token exchange failed');
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    console.log('Access token received');
-
-                                    // Add or show Refresh Transactions button
-                                    const buttonsContainer = document.querySelector('.buttons-container');
-                                    let refreshButton = document.getElementById('transactions-button');
-
-                                    if (!refreshButton) {
-                                        refreshButton = document.createElement('button');
-                                        refreshButton.id = 'transactions-button';
-                                        refreshButton.textContent = 'Refresh Transactions';
-                                        refreshButton.addEventListener('click', function () {
-                                            loadAccounts(true)
-                                                .then(() => loadTransactions());
-                                        });
-                                        buttonsContainer.appendChild(refreshButton);
-                                    }
-
-                                    refreshButton.style.display = 'block';
-
-                                    // Load accounts and transactions
-                                    loadAccounts().then(() => {
-                                        loadTransactions();
-                                    });
-
-                                    // Show success message
-                                    alert('Bank account connected successfully!');
-                                })
-                                .catch(err => {
-                                    console.error('Token exchange error:', err);
-                                    alert('Error connecting bank: ' + err.message);
-                                })
-                                .finally(() => {
-                                    // Reset button
-                                    this.innerHTML = originalButtonText;
-                                    this.disabled = false;
-                                });
-                        },
-                        onExit: (err, metadata) => {
-                            console.log('Link exit:', err ? 'error' : 'normal');
-
-                            // Reset button
-                            this.innerHTML = originalButtonText;
-                            this.disabled = false;
-
-                            if (err) {
-                                console.error('Link error:', err);
-                                alert('Error connecting to bank: ' + (err.display_message || err.error_message || err.message || 'Unknown error'));
-                            }
-                        }
-                    });
-
-                    // Open Plaid Link
-                    handler.open();
-                })
-                .catch(err => {
-                    console.error('Error initializing Plaid Link:', err);
-                    alert('Error connecting to bank: ' + err.message);
-
-                    // Reset button
-                    this.innerHTML = originalButtonText;
-                    this.disabled = false;
-                });
-        });
-        
-        // Helper function to display accounts
-        function displayAccounts(data) {
-            const accountsContainer = document.getElementById('accounts-container');
-            const accountsSection = document.getElementById('accounts-section');
-
-            // If no data or error, hide the accounts section
-            if (!data || data.error || !data.accounts || data.accounts.length === 0) {
-                accountsSection.style.display = 'none';
-                return;
-            }
-
-            // Show the accounts section and display the accounts
-            accountsSection.style.display = 'block';
-            accountsContainer.innerHTML = '';
-
-            data.accounts.forEach(account => {
-                const accountCard = document.createElement('div');
-                accountCard.className = 'account-card';
-
-                const availableBalance = account.balance.available !== null ?
-                    `${formatCurrency(account.balance.available)}` : 'N/A';
-
-                accountCard.innerHTML = `
-            <h3>${account.name}</h3>
-            <p>Type: ${account.type}${account.subtype ? ' - ' + account.subtype : ''}</p>
-            <p>Current Balance: ${formatCurrency(account.balance.current)}</p>
-            <p>Available Balance: ${availableBalance}</p>
-        `;
-
-                accountsContainer.appendChild(accountCard);
-            });
-        }
-        
-        function loadTransactions() {
-            console.log("Loading transactions...");
-
-            // Add a loading indicator
-            const txTable = document.getElementById('transactions-body');
-            const txSection = document.getElementById('transactions-section');
-
-            // Clear previous content and show loading
-            txTable.innerHTML = `
-                <tr>
-                    <td colspan="7" style="text-align: center; padding: 20px;">
-                        <div class="loading" style="display: inline-block; width: 30px; height: 30px; 
-                            border: 3px solid rgba(0,0,0,0.3); border-radius: 50%; 
-                            border-top-color: #3498db; animation: spin 1s ease-in-out infinite;">
-                            Loading...
-                        </div>
-                    </td>
-                </tr>
-            `;
-            txSection.style.display = 'block';
-
-            // Get the selected page size (default to 50 if none selected)
-            const pageSizeSelect = document.getElementById('page-size');
-            let fetchSize = 50; // Default
-
-            if (pageSizeSelect && pageSizeSelect.value) {
-                if (pageSizeSelect.value === 'all') {
-                    fetchSize = 10000; // Use a large number to fetch all
-                } else {
-                    fetchSize = parseInt(pageSizeSelect.value);
-                }
-            }
-
-            // Fetch transactions with the selected page size
-            fetch(`/get_transactions?page=1&page_size=${fetchSize}`)
-                .then(response => {
-                    console.log("Transaction response status:", response.status);
-
-                    // Check for HTTP errors
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("Received transaction data:", data);
-
-                    // Clear loading indicator
-                    txTable.innerHTML = '';
-
-                    // Handle different potential response scenarios
-                    if (data.error) {
-                        console.error("Server-side transaction error:", data.error);
-
-                        // Show error message in the table
-                        const errorRow = document.createElement('tr');
-                        errorRow.innerHTML = `
-                            <td colspan="7" style="text-align: center; color: red; padding: 20px;">
-                                Error loading transactions: ${data.error}
-                            </td>
-                        `;
-                        txTable.appendChild(errorRow);
-                        return;
-                    }
-
-                    // Verify transactions exist
-                    const transactions = data.transactions || [];
-                    if (transactions.length === 0) {
-                        console.warn("No transactions found");
-
-                        const emptyRow = document.createElement('tr');
-                        emptyRow.innerHTML = `
-                            <td colspan="7" style="text-align: center; color: #666; padding: 20px;">
-                                No transactions available. Connect a bank account or add manual transactions.
-                            </td>
-                        `;
-                        txTable.appendChild(emptyRow);
-                        return;
-                    }
-
-                    // Trigger accounts loading before displaying transactions
-                    fetchAndStoreAccounts()
-                        .then(() => {
-                            // Display transactions
-                            displayTransactions(transactions);
-
-                            // Calculate and display monthly totals
-                            const monthlyData = calculateMonthlyCategoryTotals(transactions);
-                            displayMonthlyCategoryTotals(monthlyData.monthlyTable, monthlyData.months);
-
-                            // Initialize pagination and filters
-                            setupPaginationAndFilters();
-                        })
-                        .catch(err => {
-                            console.error("Error loading accounts:", err);
-                        });
-                })
-                .catch(err => {
-                    console.error("Transaction fetch error:", err);
-
-                    // Show error in table
-                    const errorRow = document.createElement('tr');
-                    errorRow.innerHTML = `
-                        <td colspan="7" style="text-align: center; color: red; padding: 20px;">
-                            Error fetching transactions: ${err.message}
-                            <br>
-                            <small>Check console for more details</small>
-                        </td>
-                    `;
-                    txTable.appendChild(errorRow);
-                });
-        }
-        
-        // Helper function to format transaction amount display
-        function formatAmount(tx) {
-            const isIncome = !tx.is_debit;
-            const amountPrefix = isIncome ? '+' : '';
-            const amountDisplay = `${amountPrefix}${formatCurrency(tx.amount)}`;
-            return amountDisplay;
-        }
-        
-        // Modified function to display transactions with proper account names
-        function displayTransactions(transactions) {
-            const txTable = document.getElementById('transactions-body');
-            const txSection = document.getElementById('transactions-section');
-            const categoryFilter = document.getElementById('category-filter');
-
-            if (transactions.length > 0) {
-                txSection.style.display = 'block';
-
-                // Populate the category filter dropdown (existing code)
-                const categories = [...new Set(transactions.map(tx => tx.category))].sort();
-                categoryFilter.innerHTML = '<option value="all">All Categories</option>';
-                categories.forEach(category => {
-                    const option = document.createElement('option');
-                    option.value = category;
-                    option.textContent = category;
-                    categoryFilter.appendChild(option);
-                });
-
-                // First, ensure we have the account map
-                fetchAndStoreAccounts().then(accountsMap => {
-                    // Populate account dropdown for new transactions
-                    const accounts = [...new Set(transactions
-                        .filter(tx => tx.account_id)
-                        .map(tx => tx.account_id))];
-                    const accountDropdown = document.getElementById('new-account');
-                    accountDropdown.innerHTML = '<option value="">No Account</option>';
-
-                    accounts.forEach(accountId => {
-                        const option = document.createElement('option');
-                        option.value = accountId;
-
-                        // Use our account map to get the proper account name
-                        const accountName = accountsMap[accountId] ||
-                            transactions.find(tx => tx.account_id === accountId)?.account_name ||
-                            `Account ${accountId.substring(0, 8)}...`;
-
-                        option.textContent = accountName;
-                        accountDropdown.appendChild(option);
-                    });
-
-                    // Clear and populate the transaction table
-                    txTable.innerHTML = '';
-                    transactions.forEach((tx, index) => {
-                        const row = document.createElement('tr');
-                        row.setAttribute('data-id', tx.id);
-                        row.setAttribute('data-category', tx.category);
-                        row.setAttribute('data-date', tx.date); // Make sure this is in MM/DD/YYYY format
-                        row.setAttribute('data-type', tx.is_debit ? 'expense' : 'income');
-
-                        // Format amount - always positive, with +/- sign depending on type
-                        const isIncome = !tx.is_debit;
-                        const amountPrefix = isIncome ? '+' : '';
-                        const amountDisplay = `${amountPrefix}${formatCurrency(tx.amount)}`;
-                        const amountClass = isIncome ? 'income-amount' : '';
-
-                        // Display the correct transaction type
-                        const typeDisplay = isIncome ? 'Income' : 'Expense';
-
-                        // Get the proper account name from our map or fallback options
-                        let accountDisplay;
-                        if (tx.account_id) {
-                            accountDisplay = accountsMap[tx.account_id] ||
-                                tx.account_name ||
-                                `Account ${tx.account_id.substring(0, 8)}...`;
-                        } else {
-                            accountDisplay = 'No Account';
-                        }
-
-                        row.innerHTML = `
-                            <td class="editable" data-field="date">${tx.date}</td>
-                            <td class="editable ${amountClass}" data-field="amount" data-is-debit="${tx.is_debit}">${amountDisplay}</td>
-                            <td>${typeDisplay}</td>
-                            <td class="editable" data-field="category">${tx.category}</td>
-                            <td class="editable" data-field="merchant">${tx.merchant}</td>
-                            <td>${accountDisplay}</td>
-                            <td>
-                                <button class="delete-btn" style="background-color: #ff4d4d; color: white; border: none; padding: 2px 5px; cursor: pointer; border-radius: 3px;">Delete</button>
-                            </td>
-                        `;
-
-                        txTable.appendChild(row);
-
-                        // Add type editing capability (existing code)
-                        const typeCell = row.querySelector('td:nth-child(3)');
-                        typeCell.classList.add('editable');
-                        typeCell.setAttribute('data-field', 'type');
-
-                        // Rest of your existing code for adding event listeners
-                        // ...
-                    });
-
-                    // Add event listeners for editable cells (existing code)
-                    document.querySelectorAll('.editable').forEach(cell => {
-                        // Your existing code for handling editable cells
-                        // ...
-                    });
-
-                    // Add delete button functionality (existing code)
-                    document.querySelectorAll('.delete-btn').forEach(button => {
-                        // Your existing code for delete buttons
-                        // ...
-                    });
-
-                    // Apply filters using the transaction filter utility
-                    if (transactionFilter) {
-                        transactionFilter.applyFilters();
-                    } else {
-                        // If the transaction filter hasn't been initialized yet, set up pagination and filters
-                        setupPaginationAndFilters();
-                    }
-                });
-            }
-        }
-
-        // Fetch and store account information with caching
-        function fetchAndStoreAccounts(forceRefresh = false) {
-            // Check if we have cached data that isn't expired
-            const now = Date.now();
-            if (!forceRefresh && accountsCache.data && (now - accountsCache.timestamp < accountsCache.maxAge)) {
-                console.log("Using cached account data");
-                return Promise.resolve(accountsCache.data);
-            }
-
-            // First check if we have an access token before making the request
-            return fetch('/has_access_token')
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.has_token) {
-                        console.log("No access token available, skipping account fetch");
-                        // Return empty account map if no token exists
-                        return {};
-                    }
-
-                    console.log("Access token found, fetching fresh account data");
-                    return fetch('/get_accounts')
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Failed to fetch accounts');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.error) {
-                                console.error('Error loading accounts:', data.error);
-                                return {};
-                            }
-
-                            // Create a mapping of account IDs to account names
-                            const accountsMap = {};
-                            if (data.accounts && Array.isArray(data.accounts)) {
-                                data.accounts.forEach(account => {
-                                    if (account.id) {
-                                        accountsMap[account.id] = account.name || `Account ${account.id.substring(0, 8)}...`;
-                                    }
-                                });
-                            }
-
-                            // Update cache
-                            accountsCache.data = accountsMap;
-                            accountsCache.rawData = data;
-                            accountsCache.timestamp = now;
-
-                            // Store in global variable for compatibility with existing code
-                            window.accountsMap = accountsMap;
-                            return accountsMap;
-                        });
-                })
-                .catch(err => {
-                    console.error('Error fetching accounts:', err);
-                    return {};
-                });
-        }
-
-        /**
-         * Processes transaction data and calculates monthly category totals
-         * @param {Array} transactions - List of transaction objects
-         * @returns {Object} Object containing monthly totals and month list
-         */
-        function calculateMonthlyCategoryTotals(transactions) {
-            // Initialize structures
-            const monthlyTotals = {};
-            const categories = new Set();
-
-            // Process each transaction
-            transactions.forEach(tx => {
-                // Skip transactions without dates
-                if (!tx.raw_date) return;
-
-                try {
-                    // Extract month-year
-                    let monthYear;
-
-                    if (typeof tx.raw_date === 'string') {
-                        // Parse date string in format YYYY-MM-DD
-                        const match = tx.raw_date.match(/^(\d{4})-(\d{2})/);
-                        if (match) {
-                            monthYear = `${match[1]}-${match[2]}`; // YYYY-MM format
-                        } else {
-                            console.warn(`Couldn't parse date: ${tx.raw_date}`);
-                            return;
-                        }
-                    } else {
-                        // Assume it's a Date object
-                        const date = new Date(tx.raw_date);
-                        if (isNaN(date.getTime())) {
-                            console.warn(`Invalid date: ${tx.raw_date}`);
-                            return;
-                        }
-
-                        const year = date.getFullYear();
-                        const month = String(date.getMonth() + 1).padStart(2, '0');
-                        monthYear = `${year}-${month}`;
-                    }
-
-                    // Add category to our set
-                    categories.add(tx.category);
-
-                    // Initialize month if needed
-                    if (!monthlyTotals[monthYear]) {
-                        monthlyTotals[monthYear] = {};
-                    }
-
-                    // Initialize category for this month if needed
-                    if (!monthlyTotals[monthYear][tx.category]) {
-                        monthlyTotals[monthYear][tx.category] = 0;
-                    }
-
-                    // Add amount (negative for expenses, positive for income)
-                    const amount = tx.is_debit ? -tx.amount : tx.amount;
-                    monthlyTotals[monthYear][tx.category] += amount;
-                } catch (err) {
-                    console.error('Error processing transaction for monthly totals:', err);
-                }
-            });
-
-            // Convert to array format for display
-            const months = Object.keys(monthlyTotals).sort();
-            const sortedCategories = Array.from(categories).sort();
-
-            const monthlyTable = sortedCategories.map(category => {
-                const row = { category };
-
-                months.forEach(monthKey => {
-                    // Format month for display (e.g., "Jan 2023")
-                    const [year, month] = monthKey.split('-');
-                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                    const monthDisplay = `${monthNames[parseInt(month) - 1]} ${year}`;
-
-                    // Get amount (default to 0)
-                    const amount = monthlyTotals[monthKey][category] || 0;
-
-                    // Format as currency string
-                    row[monthDisplay] = formatCurrency(Math.abs(amount));
-                });
-
-                return row;
-            });
-
-            // Convert month keys to display format
-            const displayMonths = months.map(monthKey => {
-                const [year, month] = monthKey.split('-');
-                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                return `${monthNames[parseInt(month) - 1]} ${year}`;
-            });
-
-            return {
-                monthlyTable,
-                months: displayMonths
-            };
-        }
-
-        /**
-         * Renders monthly category totals in the UI
-         * @param {Array} categoryTotals - Processed category totals data
-         * @param {Array} months - List of months to display
-         */
-        function displayMonthlyCategoryTotals(categoryTotals, months) {
-            const tableHeader = document.getElementById('monthly-category-header').querySelector('tr');
-            const tableBody = document.getElementById('monthly-category-body');
-            const tableSection = document.getElementById('monthly-category-section');
-
-            if (!tableHeader || !tableBody || !tableSection) {
-                console.error('Monthly category table elements not found');
-                return;
-            }
-
-            if (categoryTotals.length > 0) {
-                tableSection.style.display = 'block';
-
-                // Clear existing headers except the first one (Category)
-                while (tableHeader.children.length > 1) {
-                    tableHeader.removeChild(tableHeader.lastChild);
-                }
-
-                // Add month headers
-                months.forEach(month => {
-                    const th = document.createElement('th');
-                    th.textContent = month;
-                    th.style.position = 'sticky'; // Helpful for wide tables
-                    th.style.top = '0';
-                    tableHeader.appendChild(th);
-                });
-
-                // Add category rows
-                tableBody.innerHTML = '';
-
-                categoryTotals.forEach(row => {
-                    const tr = document.createElement('tr');
-
-                    // Add category name
-                    const categoryCell = document.createElement('td');
-                    categoryCell.textContent = row.category;
-                    categoryCell.style.position = 'sticky'; // Optional: make category sticky as well
-                    categoryCell.style.left = '0';
-                    tr.appendChild(categoryCell);
-
-                    // Add amounts for each month
-                    months.forEach(month => {
-                        const td = document.createElement('td');
-
-                        if (row[month]) {
-                            // Parse amount string to get numeric value for color coding
-                            let numericValue = 0;
-
-                            if (typeof row[month] === 'string' && row[month].startsWith('$')) {
-                                // Parse currency string
-                                numericValue = parseFloat(row[month].replace(/[$,]/g, '')) || 0;
-                            } else {
-                                numericValue = parseFloat(row[month]) || 0;
-                            }
-
-                            // Set text content
-                            td.textContent = typeof row[month] === 'string' ? row[month] : formatCurrency(row[month]);
-
-                        } else {
-                            td.textContent = '$0.00';
-                        }
-
-                        tr.appendChild(td);
-                    });
-
-                    tableBody.appendChild(tr);
-                });
-            }
-        }
-        
-        // Helper function to get month number from name
-        function getMonthNumber(monthName) {
-            const months = {
-                'Jan': 1, 'Feb': 2, 'Mar': 3, 
-                'Apr': 4, 'May': 5, 'Jun': 6, 
-                'Jul': 7, 'Aug': 8, 'Sep': 9, 
-                'Oct': 10, 'Nov': 11, 'Dec': 12
-            };
-            return months[monthName] || 1;
-        }
-
-        // Helper function to format date as MM/DD/YYYY
-        function formatDate(date) {
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            const year = date.getFullYear();
-            return `${month}/${day}/${year}`;
-        }
-
-        // Helper function to format date as MM/YYYY
-        function formatMonthYear(date) {
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-            return `${month}/${year}`;
-        }
-
-        function formatCurrency(amount) {
-            // Format as $#,##0.00
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(amount);
-        }
-        
-        // Initialize the paginator
-        let paginator;
-        let transactionFilter;
-
-        // Setup pagination and filtering
-        function setupPaginationAndFilters() {
-            // Create paginator instance
-            paginator = new TransactionPaginator({
-                tableId: 'transactions-table',
-                pageSizeId: 'page-size',
-                defaultPageSize: 50,
-                onPageChange: (info) => {
-                    console.log(`Showing page ${info.currentPage} of ${info.totalPages} (${info.visibleItems} items)`);
-                }
-            });
-
-            // Create transaction filter
-            transactionFilter = new TransactionFilter({
-                tableId: 'transactions-table',
-                filters: {
-                    search: 'transaction-search',
-                    date: 'date-filter',
-                    category: 'category-filter',
-                    type: 'type-filter'
-                },
-                onFilterChange: (info) => {
-                    console.log(`Showing ${info.visibleRows} of ${info.totalRows} transactions`);
-
-                    // Reset to first page when filters change
-                    if (paginator) {
-                        paginator.goToPage(1);
-                    }
-                },
-                paginator: paginator // Connect filter to paginator
-            });
-
-            // Apply initial filters
-            transactionFilter.applyFilters();
-        }
-
-        // Function to set up export data functionality
-        function setupExportData() {
-            const exportButton = document.getElementById('export-data-btn');
-            const exportModal = document.getElementById('export-data-modal');
-            const exportCancel = document.getElementById('export-cancel');
-            const exportConfirm = document.getElementById('export-confirm');
-
-            // Show export modal when button is clicked
-            exportButton.addEventListener('click', function () {
-                exportModal.style.display = 'block';
-            });
-
-            // Hide modal when cancel is clicked
-            exportCancel.addEventListener('click', function () {
-                exportModal.style.display = 'none';
-            });
-
-            // Close modal if clicked outside
-            window.addEventListener('click', function (event) {
-                if (event.target === exportModal) {
-                    exportModal.style.display = 'none';
-                }
-            });
-
-            // Function to export transactions that includes all transactions
-            function exportTransactions() {
-                const dateRange = document.getElementById('export-date-range').value;
-
-                // Show loading state
-                exportConfirm.innerHTML = 'Exporting... <div class="loading" style="width: 12px; height: 12px; margin-left: 5px;"></div>';
-                exportConfirm.disabled = true;
-
-                // First, fetch all transactions to ensure we have everything
-                fetch('/get_transactions')
-                    .then(response => response.json())
-                    .then(transactionData => {
-                        if (transactionData.error) {
-                            throw new Error('Error fetching transactions: ' + transactionData.error);
-                        }
-
-                        const allTransactions = transactionData.transactions || [];
-                        console.log(`Found ${allTransactions.length} transactions for potential export`);
-
-                        // Now request the export with the date range
-                        return fetch('/export_transactions', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                date_range: dateRange,
-                                // Include transaction count so server can validate
-                                expected_count: allTransactions.length
-                            })
-                        });
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            alert('Error exporting transactions: ' + data.error);
-                        } else {
-                            console.log(`Exported ${data.transaction_count || 'unknown'} transactions`);
-
-                            // Create and download CSV file
-                            const blob = new Blob([data.csv_data], { type: 'text/csv' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = data.filename;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(url);
-
-                            // Hide modal
-                            exportModal.style.display = 'none';
-                        }
-
-                        // Reset button
-                        exportConfirm.innerHTML = 'Export';
-                        exportConfirm.disabled = false;
-                    })
-                    .catch(err => {
-                        console.error('Error exporting transactions:', err);
-                        alert('Error exporting transactions: ' + err.message);
-                        exportConfirm.innerHTML = 'Export';
-                        exportConfirm.disabled = false;
-                    });
-            }
-
-            // Add the click handler to the export confirm button
-            exportConfirm.addEventListener('click', function () {
-                exportTransactions();
-            });
-        }
-
-        // Modified transactions refresh button handler
-        document.getElementById('transactions-button').addEventListener('click', function () {
-            // Force refresh of accounts data
-            loadAccounts(true).then(() => {
-                loadTransactions();
-            });
-        });
-
-        // Helper function to update transaction category
-        function updateTransactionCategory(txId, newCategory, cell, originalContent) {
-            fetch('/update_transaction', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: txId,
-                    category: newCategory
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Transaction category updated:', data);
-
-                    // Update cell with new value
-                    cell.textContent = newCategory;
-
-                    // Update category in row dataset
-                    cell.closest('tr').setAttribute('data-category', newCategory);
-
-                    // Refresh transactions to update category totals
-                    loadTransactions();
-                })
-                .catch(err => {
-                    console.error('Error updating category:', err);
-                    alert('Error updating category: ' + err.message);
-                    // Restore original content on error
-                    cell.innerHTML = originalContent || newCategory;
-                });
-        }
-        
-        // Load all existing categories function
-        function loadAllCategories() {
-            return fetch('/get_categories')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Error loading categories:', data.error);
-                        return [];
-                    }
-                    return data.categories || [];
-                })
-                .catch(err => {
-                    console.error('Error loading categories:', err);
-                    return [];
-                });
-        }
-
-        // Initialize the category dropdown component
-        function initCategoryDropdown() {
-            // If category component already exists, just reload its data and return
-            if (window.categoryComponent) {
-                window.categoryComponent.reload();
-                return;
-            }
-
-            // Create a wrapper for the category input if it doesn't exist
-            const newCategoryInput = document.getElementById('new-category');
-
-            // Handle the case where the input doesn't exist
-            if (!newCategoryInput) {
-                console.error("Cannot find new-category input element");
-                return;
-            }
-
-            // Create a wrapper div to replace the input
-            const wrapper = document.createElement('div');
-            wrapper.id = 'new-category-wrapper';
-            wrapper.style.width = '100%';
-
-            // Replace the input with our wrapper
-            newCategoryInput.parentNode.replaceChild(wrapper, newCategoryInput);
-
-            // Initialize the category component
-            const categoryComponent = createCategoryDropdown({
-                containerId: 'new-category-wrapper',
-                inputName: 'category',
-                required: true
-            });
-
-            // Store the component in a global variable for access from other functions
-            window.categoryComponent = categoryComponent;
-        }
-        
-        // Simplify add-transaction-btn handler
-        document.getElementById('add-transaction-btn').addEventListener('click', function () {
-            document.getElementById('add-transaction-modal').style.display = 'block';
-            updateAccountDropdown();
-            // Reset category dropdown value instead of recreating
-            if (window.categoryComponent) {
-                window.categoryComponent.setValue('');
-            }
-        });
-
-        // 2. Fix the account dropdown in new transaction form
-        function updateAccountDropdown() {
-            // Fetch accounts from the server
-            fetch('/get_accounts')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Error loading accounts:', data.error);
-                        return;
-                    }
-
-                    const accounts = data.accounts || [];
-                    const accountDropdown = document.getElementById('new-account');
-
-                    // Clear current options except the first one
-                    while (accountDropdown.options.length > 1) {
-                        accountDropdown.remove(1);
-                    }
-
-                    // Add account options
-                    accounts.forEach(account => {
-                        const option = document.createElement('option');
-                        option.value = account.id;
-                        option.textContent = `${account.name} - ${formatCurrency(account.balance.current)}`;
-                        accountDropdown.appendChild(option);
-                    });
-                })
-                .catch(err => {
-                    console.error('Error fetching accounts:', err);
-                });
-        }
-
-        // Function to initialize the monthly category date pickers
-        function setupMonthlyCategoryDatePickers() {
-            // Get the input elements
-            const startDateInput = document.getElementById('monthly-start-date');
-            const endDateInput = document.getElementById('monthly-end-date');
-            const applyButton = document.getElementById('apply-monthly-dates');
-
-            // Set default dates (last 6 months)
-            const today = new Date();
-            const sixMonthsAgo = new Date();
-            sixMonthsAgo.setMonth(today.getMonth() - 6);
-
-            startDateInput.value = formatMonthYear(sixMonthsAgo);
-            endDateInput.value = formatMonthYear(today);
-
-            // Add click handlers to show month picker when inputs are clicked
-            startDateInput.addEventListener('click', function () {
-                showMonthPicker(this);
-            });
-
-            endDateInput.addEventListener('click', function () {
-                showMonthPicker(this);
-            });
-
-            // Add handler for the apply button
-            applyButton.addEventListener('click', function () {
-                updateMonthlyCategoryTotals();
-            });
-
-            // Function to update monthly category totals based on selected date range
-            function updateMonthlyCategoryTotals() {
-                const startMonthYear = startDateInput.value; // Format: MM/YYYY
-                const endMonthYear = endDateInput.value;     // Format: MM/YYYY
-
-                // Validate dates
-                if (!startMonthYear || !endMonthYear) {
-                    alert('Please select both start and end dates');
-                    return;
-                }
-
-                // Parse dates to compare them
-                const startParts = startMonthYear.split('/');
-                const endParts = endMonthYear.split('/');
-
-                if (startParts.length !== 2 || endParts.length !== 2) {
-                    alert('Invalid date format. Please use MM/YYYY format');
-                    return;
-                }
-
-                const startDate = new Date(startParts[1], parseInt(startParts[0]) - 1, 1);
-                const endDate = new Date(endParts[1], parseInt(endParts[0]) - 1, 1);
-
-                // Check if start date is after end date
-                if (startDate > endDate) {
-                    alert('Start date must be before end date');
-                    return;
-                }
-
-                // Show loading indicator
-                const monthlySection = document.getElementById('monthly-category-section');
-                const monthlyTable = document.getElementById('monthly-category-table');
-
-                // Create a loading indicator if it doesn't exist
-                let loadingIndicator = document.getElementById('monthly-loading-indicator');
-                if (!loadingIndicator) {
-                    loadingIndicator = document.createElement('div');
-                    loadingIndicator.id = 'monthly-loading-indicator';
-                    loadingIndicator.style.textAlign = 'center';
-                    loadingIndicator.style.padding = '20px';
-                    loadingIndicator.innerHTML = 'Loading monthly totals... <div class="loading" style="display: inline-block;"></div>';
-                    monthlySection.insertBefore(loadingIndicator, monthlyTable);
-                } else {
-                    loadingIndicator.style.display = 'block';
-                }
-
-                monthlyTable.style.display = 'none';
-
-                // Filter transactions based on the selected date range
-                // This would typically be a server request, but we'll use the client-side approach
-                // for simplicity in this example
-
-                // We'll reuse the existing transaction data if available
-                fetch('/get_transactions')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            alert('Error loading transactions: ' + data.error);
-                            return;
-                        }
-
-                        const transactions = data.transactions || [];
-
-                        // Filter transactions by date range
-                        const filteredTransactions = transactions.filter(tx => {
-                            if (!tx.raw_date) return false;
-
-                            // Convert raw_date to a Date object
-                            const txDate = new Date(tx.raw_date);
-                            if (isNaN(txDate.getTime())) return false;
-
-                            // Create date objects for comparison (just year/month)
-                            const txYearMonth = new Date(txDate.getFullYear(), txDate.getMonth(), 1);
-
-                            // Check if the transaction date is within our range
-                            return txYearMonth >= startDate && txYearMonth <= endDate;
-                        });
-
-                        // Calculate and display monthly totals using the filtered transactions
-                        const monthlyData = calculateMonthlyCategoryTotals(filteredTransactions);
-                        displayMonthlyCategoryTotals(monthlyData.monthlyTable, monthlyData.months);
-
-                        // Hide loading indicator and show table
-                        loadingIndicator.style.display = 'none';
-                        monthlyTable.style.display = 'table';
-                    })
-                    .catch(err => {
-                        console.error('Error filtering transactions:', err);
-                        alert('Error filtering transactions: ' + err.message);
-                        loadingIndicator.style.display = 'none';
-                        monthlyTable.style.display = 'table';
-                    });
-            }
-
-            // Initialize with current date range
-            updateMonthlyCategoryTotals();
-        }
-
-
-    });
-    </script>
-    
     <!-- Custom Date Range Modal -->
-    <div id="custom-date-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
-        <div style="background-color: white; margin: 10% auto; padding: 20px; width: 400px; border-radius: 5px; max-width: 90%;">
+    <div id="custom-date-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+        <div
+            style="background-color: white; margin: 10% auto; padding: 20px; width: 400px; border-radius: 5px; max-width: 90%;">
             <h3>Custom date</h3>
             <p>Please select the date range you would like to view</p>
-            
+
             <div style="margin-top: 15px;">
                 <label for="custom-date-start">Date range</label>
                 <div style="display: flex; gap: 10px; margin-top: 5px; align-items: center;">
@@ -2102,22 +639,27 @@
                     </div>
                 </div>
             </div>
-            
+
             <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                <button type="button" id="custom-date-cancel" style="margin-right: 10px; padding: 8px 15px; border: 1px solid #ddd; background-color: #f8f8f8; border-radius: 4px; cursor: pointer;">Cancel</button>
-                <button type="button" id="custom-date-apply" style="padding: 8px 15px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Apply</button>
+                <button type="button" id="custom-date-cancel"
+                    style="margin-right: 10px; padding: 8px 15px; border: 1px solid #ddd; background-color: #f8f8f8; border-radius: 4px; cursor: pointer;">Cancel</button>
+                <button type="button" id="custom-date-apply"
+                    style="padding: 8px 15px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Apply</button>
             </div>
         </div>
     </div>
 
     <!-- Export Data Modal -->
-    <div id="export-data-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
-        <div style="background-color: white; margin: 10% auto; padding: 20px; width: 400px; border-radius: 5px; max-width: 90%;">
+    <div id="export-data-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+        <div
+            style="background-color: white; margin: 10% auto; padding: 20px; width: 400px; border-radius: 5px; max-width: 90%;">
             <h3>Export Transactions</h3>
             <p>Select a date range for exporting transactions:</p>
-            
+
             <div style="margin-top: 15px;">
-                <select id="export-date-range" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <select id="export-date-range"
+                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                     <option value="30">Last 30 Days</option>
                     <option value="60">Last 60 Days</option>
                     <option value="90">Last 90 Days</option>
@@ -2126,12 +668,15 @@
                     <option value="all">All History</option>
                 </select>
             </div>
-            
+
             <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                <button type="button" id="export-cancel" style="margin-right: 10px; padding: 8px 15px; border: 1px solid #ddd; background-color: #f8f8f8; border-radius: 4px; cursor: pointer;">Cancel</button>
-                <button type="button" id="export-confirm" style="padding: 8px 15px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Export</button>
+                <button type="button" id="export-cancel"
+                    style="margin-right: 10px; padding: 8px 15px; border: 1px solid #ddd; background-color: #f8f8f8; border-radius: 4px; cursor: pointer;">Cancel</button>
+                <button type="button" id="export-confirm"
+                    style="padding: 8px 15px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Export</button>
             </div>
         </div>
     </div>
 </body>
+
 </html>

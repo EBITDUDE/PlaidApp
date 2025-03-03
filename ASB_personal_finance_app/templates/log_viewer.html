@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Finance App Log Viewer</title>
     <style>
@@ -8,9 +9,11 @@
             margin: 20px;
             background-color: #f5f5f5;
         }
+
         h1 {
             color: #333;
         }
+
         .log-container {
             background-color: #fff;
             border: 1px solid #ddd;
@@ -18,30 +21,37 @@
             padding: 20px;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .log-entry {
             margin-bottom: 5px;
             padding: 5px;
             border-bottom: 1px solid #f0f0f0;
         }
+
         .error {
             color: #e74c3c;
             background-color: #ffeaea;
         }
+
         .warning {
             color: #f39c12;
             background-color: #fff8e6;
         }
+
         .info {
             color: #3498db;
         }
+
         .debug {
             color: #95a5a6;
         }
+
         .controls {
             margin-bottom: 20px;
         }
+
         button {
             padding: 8px 15px;
             margin-right: 10px;
@@ -51,25 +61,31 @@
             color: white;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #2980b9;
         }
+
         input[type="text"] {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             width: 300px;
         }
+
         select {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
     </style>
+    <!-- Include our JavaScript file -->
+    <script src="/static/js/log-viewer.js"></script>
 </head>
+
 <body>
     <h1>Finance App Log Viewer</h1>
-    
+
     <div class="controls">
         <button id="refresh-btn">Refresh Logs</button>
         <a href="/"><button type="button">Back to App</button></a>
@@ -82,92 +98,10 @@
         </select>
         <input type="text" id="search-logs" placeholder="Search logs...">
     </div>
-    
+
     <div class="log-container" id="log-container">
         <div id="log-content"></div>
     </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load logs when page loads
-            loadLogs();
-            
-            // Set up refresh button
-            document.getElementById('refresh-btn').addEventListener('click', loadLogs);
-            
-            // Set up filter and search
-            const levelFilter = document.getElementById('level-filter');
-            const searchInput = document.getElementById('search-logs');
-            
-            levelFilter.addEventListener('change', filterLogs);
-            searchInput.addEventListener('keyup', filterLogs);
-            
-            function loadLogs() {
-                fetch('/api/logs')
-                    .then(response => response.json())
-                    .then(data => {
-                        displayLogs(data.logs);
-                    })
-                    .catch(err => {
-                        console.error('Error loading logs:', err);
-                        document.getElementById('log-content').innerHTML = 
-                            `<div class="log-entry error">Error loading logs: ${err.message}</div>`;
-                    });
-            }
-            
-            function displayLogs(logs) {
-                const logContent = document.getElementById('log-content');
-                logContent.innerHTML = '';
-                
-                if (logs.length === 0) {
-                    logContent.innerHTML = '<div class="log-entry">No logs found.</div>';
-                    return;
-                }
-                
-                logs.forEach(log => {
-                    const logEntry = document.createElement('div');
-                    logEntry.className = `log-entry ${log.level.toLowerCase()}`;
-                    logEntry.setAttribute('data-level', log.level);
-                    logEntry.textContent = log.message;
-                    logContent.appendChild(logEntry);
-                });
-                
-                // Apply initial filter
-                filterLogs();
-            }
-            
-            function filterLogs() {
-                const selectedLevel = levelFilter.value;
-                const searchTerm = searchInput.value.toLowerCase();
-                const logEntries = document.querySelectorAll('.log-entry');
-                
-                logEntries.forEach(entry => {
-                    let showByLevel = true;
-                    let showBySearch = true;
-                    
-                    // Level filtering
-                    if (selectedLevel !== 'all') {
-                        const entryLevel = entry.getAttribute('data-level');
-                        
-                        // Define level hierarchy
-                        const levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR'];
-                        const selectedLevelIndex = levels.indexOf(selectedLevel);
-                        const entryLevelIndex = levels.indexOf(entryLevel);
-                        
-                        // Show only if entry level is >= selected level in severity
-                        showByLevel = entryLevelIndex >= selectedLevelIndex;
-                    }
-                    
-                    // Search filtering
-                    if (searchTerm) {
-                        showBySearch = entry.textContent.toLowerCase().includes(searchTerm);
-                    }
-                    
-                    // Apply both filters
-                    entry.style.display = (showByLevel && showBySearch) ? '' : 'none';
-                });
-            }
-        });
-    </script>
 </body>
+
 </html>
