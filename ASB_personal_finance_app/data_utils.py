@@ -36,6 +36,37 @@ class Cache:
         self.data = None
         self.timestamp = 0
 
+class KeyedCache(Cache):
+    """
+    Cache with multiple key support
+    """
+    def __init__(self, expiration_seconds=300):
+        super().__init__(expiration_seconds)
+        self.data = {}  # Dictionary instead of single value
+    
+    def get(self, key):
+        """Get cached data for key if not expired"""
+        cache_data = super().get()
+        if not cache_data or not isinstance(cache_data, dict):
+            return None
+        return cache_data.get(key)
+    
+    def set(self, key, value):
+        """Set data for key in cache"""
+        cache_data = super().get() or {}
+        if not isinstance(cache_data, dict):
+            cache_data = {}
+        cache_data[key] = value
+        super().set(cache_data)
+        return value
+    
+    def delete(self, key):
+        """Remove a key from cache"""
+        cache_data = super().get()
+        if cache_data and isinstance(cache_data, dict) and key in cache_data:
+            del cache_data[key]
+            super().set(cache_data)
+
 # Initialize caches
 _access_token_cache = Cache(expiration_seconds=3600)  # 1 hour
 _saved_transactions_cache = Cache(expiration_seconds=600)  # 10 minutes

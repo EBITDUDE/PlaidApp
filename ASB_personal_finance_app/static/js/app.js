@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Set up the navigation and UI components
     setupEventListeners();
 
+    setupTransactionEventHandlers()
+
     // Initialize UI components
     initializeUIComponents();
 

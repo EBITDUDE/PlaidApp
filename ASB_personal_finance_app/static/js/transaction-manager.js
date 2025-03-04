@@ -5,6 +5,187 @@
  */
 
 /**
+ * Sets up event delegation for transaction edit and delete actions
+ */
+let isEventListenerAttached = false;
+
+function setupTransactionEventHandlers() {
+    if (isEventListenerAttached) return; // Skip if already attached
+    const txTable = document.getElementById('transactions-body');
+    txTable.addEventListener('click', function (event) {
+        const target = event.target;
+        if (target.classList.contains('editable')) {
+            handleEditableCell(target);
+        } else if (target.classList.contains('delete-btn')) {
+            handleDeleteButton(target);
+        }
+    });
+    isEventListenerAttached = true; // Mark as attached
+}
+
+/**
+ * Handler for editable cell clicks
+ */
+function handleEditableCell(cell) {
+    const field = cell.getAttribute('data-field');
+    const row = cell.closest('tr');
+    const txId = row.getAttribute('data-id');
+    const currentValue = cell.textContent.trim();
+
+    // Don't allow editing if already in edit mode
+    if (cell.querySelector('input, select')) return;
+
+    // Store original content to restore if edit is cancelled
+    const originalContent = cell.innerHTML;
+
+    // Create edit interface based on field type
+    let editHtml = '';
+
+    if (field === 'date') {
+        editHtml = `<input type="text" class="edit-input" value="${currentValue}" placeholder="MM/DD/YYYY">`;
+    } else if (field === 'amount') {
+        // Strip currency formatting
+        let numValue = currentValue.replace(/[^0-9.-]+/g, '');
+        if (numValue.startsWith('+')) numValue = numValue.substring(1);
+        editHtml = `<input type="text" class="edit-input" value="${numValue}" placeholder="0.00">`;
+    } else if (field === 'category') {
+        // We'll load categories from the server
+        editHtml = `<select class="edit-input"><option value="${currentValue}">${currentValue}</option></select>`;
+
+        // Fetch categories and add to dropdown
+        fetch('/get_categories')
+            .then(response => response.json())
+            .then(data => {
+                const select = cell.querySelector('select');
+                select.innerHTML = '';
+
+                data.categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    option.selected = category === currentValue;
+                    select.appendChild(option);
+                });
+            });
+    } else if (field === 'merchant') {
+        editHtml = `<input type="text" class="edit-input" value="${currentValue}">`;
+    } else if (field === 'type') {
+        const isDebit = row.querySelector('[data-field="amount"]').getAttribute('data-is-debit') === 'true';
+        editHtml = `
+            <select class="edit-input">
+                <option value="expense" ${isDebit ? 'selected' : ''}>Expense</option>
+                <option value="income" ${!isDebit ? 'selected' : ''}>Income</option>
+            </select>
+        `;
+    }
+
+    // Set the cell content to the edit interface
+    cell.innerHTML = editHtml;
+    const input = cell.querySelector('.edit-input');
+    input.focus();
+
+    // Handler for save on Enter or blur
+    const saveEdit = () => {
+        let newValue = input.value.trim();
+
+        // For select elements, get the selected option
+        if (input.tagName === 'SELECT') {
+            newValue = input.options[input.selectedIndex].value;
+        }
+
+        // Don't save if empty
+        if (!newValue) {
+            cell.innerHTML = originalContent;
+            return;
+        }
+
+        // Process based on field type
+        if (field === 'category') {
+            updateTransactionCategory(txId, newValue, cell, originalContent);
+        } else if (field === 'date') {
+            // Validate date format
+            if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(newValue)) {
+                alert('Please use MM/DD/YYYY format');
+                cell.innerHTML = originalContent;
+                return;
+            }
+
+            updateTransactionField(txId, 'date', newValue, cell, originalContent);
+        } else if (field === 'amount') {
+            // Validate amount
+            if (isNaN(parseFloat(newValue))) {
+                alert('Please enter a valid number');
+                cell.innerHTML = originalContent;
+                return;
+            }
+
+            const isDebit = row.querySelector('[data-field="amount"]').getAttribute('data-is-debit') === 'true';
+            updateTransactionField(txId, 'amount', newValue, cell, originalContent, isDebit);
+        } else if (field === 'merchant') {
+            updateTransactionField(txId, 'merchant', newValue, cell, originalContent);
+        } else if (field === 'type') {
+            const isDebit = newValue === 'expense';
+            const amountCell = row.querySelector('[data-field="amount"]');
+            const amountStr = amountCell.textContent.replace(/[^0-9.-]+/g, '');
+
+            updateTransactionField(txId, 'is_debit', isDebit, cell, originalContent, null, () => {
+                // Update the UI to reflect type change
+                cell.textContent = isDebit ? 'Expense' : 'Income';
+
+                // Update amount display and data-is-debit attribute
+                amountCell.setAttribute('data-is-debit', isDebit);
+                amountCell.classList.toggle('income-amount', !isDebit);
+
+                const amount = parseFloat(amountStr);
+                amountCell.textContent = isDebit ? `$${amount.toFixed(2)}` : `+$${amount.toFixed(2)}`;
+            });
+        }
+    };
+
+    // Event handlers
+    input.addEventListener('blur', saveEdit);
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveEdit();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cell.innerHTML = originalContent;
+        }
+    });
+}
+
+/**
+ * Handler for delete button clicks
+ */
+function handleDeleteButton(button) {
+    const row = button.closest('tr');
+    const txId = row.getAttribute('data-id');
+
+    if (confirm('Are you sure you want to delete this transaction?')) {
+        fetch('/delete_transaction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: txId })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Transaction deleted:', data);
+
+                // Remove row from table
+                row.style.display = 'none';
+
+                // Refresh transactions to update totals
+                loadTransactions();
+            })
+            .catch(err => {
+                console.error('Error deleting transaction:', err);
+                alert('Error deleting transaction: ' + err.message);
+            });
+    }
+}
+
+/**
  * Loads transactions from the server
  */
 function loadTransactions() {
@@ -137,7 +318,7 @@ function loadTransactions() {
 function displayTransactions(transactions) {
     console.log('Displaying transactions:', {
         totalTransactions: transactions.length,
-        paginationDetails: window.lastPaginationData // We'll add this next
+        paginationDetails: window.lastPaginationData
     });
 
     const txTable = document.getElementById('transactions-body');
@@ -150,37 +331,22 @@ function displayTransactions(transactions) {
         // Populate the category filter dropdown
         const categories = [...new Set(transactions.map(tx => tx.category))].sort();
         categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+
+        // Use a document fragment for batch DOM updates
+        const categoryFragment = document.createDocumentFragment();
         categories.forEach(category => {
             const option = document.createElement('option');
             option.value = category;
             option.textContent = category;
-            categoryFilter.appendChild(option);
+            categoryFragment.appendChild(option);
         });
+        categoryFilter.appendChild(categoryFragment);
 
-        // First, ensure we have the account map
+        // Fetch accounts before showing transactions
         fetchAndStoreAccounts().then(accountsMap => {
-            // Populate account dropdown for new transactions
-            const accounts = [...new Set(transactions
-                .filter(tx => tx.account_id)
-                .map(tx => tx.account_id))];
-            const accountDropdown = document.getElementById('new-account');
-            accountDropdown.innerHTML = '<option value="">No Account</option>';
+            // Create a document fragment for transaction rows
+            const fragment = document.createDocumentFragment();
 
-            accounts.forEach(accountId => {
-                const option = document.createElement('option');
-                option.value = accountId;
-
-                // Use our account map to get the proper account name
-                const accountName = accountsMap[accountId] ||
-                    transactions.find(tx => tx.account_id === accountId)?.account_name ||
-                    `Account ${accountId.substring(0, 8)}...`;
-
-                option.textContent = accountName;
-                accountDropdown.appendChild(option);
-            });
-
-            // Clear and populate the transaction table
-            txTable.innerHTML = '';
             transactions.forEach((tx, index) => {
                 const row = document.createElement('tr');
                 row.setAttribute('data-id', tx.id);
@@ -195,7 +361,7 @@ function displayTransactions(transactions) {
                 // Display the correct transaction type
                 const typeDisplay = !tx.is_debit ? 'Income' : 'Expense';
 
-                // Get the proper account name from our map or fallback options
+                // Get the proper account name
                 let accountDisplay;
                 if (tx.account_id) {
                     accountDisplay = accountsMap[tx.account_id] ||
@@ -217,199 +383,33 @@ function displayTransactions(transactions) {
                     </td>
                 `;
 
-                txTable.appendChild(row);
-
-                // Add type editing capability
-                const typeCell = row.querySelector('td:nth-child(3)');
-                typeCell.classList.add('editable');
-                typeCell.setAttribute('data-field', 'type');
+                // Add to fragment
+                fragment.appendChild(row);
             });
 
-            // Add event listeners for editable cells
-            setupTransactionEditHandlers();
+            // Clear previous content
+            txTable.innerHTML = '';
 
-            // Add delete button functionality
-            setupTransactionDeleteHandlers();
+            // Add all rows at once
+            txTable.appendChild(fragment);
 
-            // Apply filters using the transaction filter utility
+            // Apply filters
             if (transactionFilter) {
                 transactionFilter.applyFilters();
             } else {
-                // If the transaction filter hasn't been initialized yet, set up pagination and filters
                 setupPaginationAndFilters();
             }
         });
+    } else {
+        // Handle empty case
+        txTable.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; color: #666; padding: 20px;">
+                    No transactions available. Connect a bank account or add manual transactions.
+                </td>
+            </tr>
+        `;
     }
-}
-
-/**
- * Sets up handlers for editable transaction cells
- */
-function setupTransactionEditHandlers() {
-    document.querySelectorAll('.editable').forEach(cell => {
-        cell.addEventListener('click', function () {
-            const field = this.getAttribute('data-field');
-            const row = this.closest('tr');
-            const txId = row.getAttribute('data-id');
-            const currentValue = this.textContent.trim();
-
-            // Don't allow editing if already in edit mode
-            if (this.querySelector('input, select')) return;
-
-            // Store original content to restore if edit is cancelled
-            const originalContent = this.innerHTML;
-
-            // Create edit interface based on field type
-            let editHtml = '';
-
-            if (field === 'date') {
-                editHtml = `<input type="text" class="edit-input" value="${currentValue}" placeholder="MM/DD/YYYY">`;
-            } else if (field === 'amount') {
-                // Strip currency formatting
-                let numValue = currentValue.replace(/[^0-9.-]+/g, '');
-                if (numValue.startsWith('+')) numValue = numValue.substring(1);
-                editHtml = `<input type="text" class="edit-input" value="${numValue}" placeholder="0.00">`;
-            } else if (field === 'category') {
-                // We'll load categories from the server
-                editHtml = `<select class="edit-input"><option value="${currentValue}">${currentValue}</option></select>`;
-
-                // Fetch categories and add to dropdown
-                fetch('/get_categories')
-                    .then(response => response.json())
-                    .then(data => {
-                        const select = this.querySelector('select');
-                        select.innerHTML = '';
-
-                        data.categories.forEach(category => {
-                            const option = document.createElement('option');
-                            option.value = category;
-                            option.textContent = category;
-                            option.selected = category === currentValue;
-                            select.appendChild(option);
-                        });
-                    });
-            } else if (field === 'merchant') {
-                editHtml = `<input type="text" class="edit-input" value="${currentValue}">`;
-            } else if (field === 'type') {
-                const isDebit = row.querySelector('[data-field="amount"]').getAttribute('data-is-debit') === 'true';
-                editHtml = `
-                    <select class="edit-input">
-                        <option value="expense" ${isDebit ? 'selected' : ''}>Expense</option>
-                        <option value="income" ${!isDebit ? 'selected' : ''}>Income</option>
-                    </select>
-                `;
-            }
-
-            // Set the cell content to the edit interface
-            this.innerHTML = editHtml;
-            const input = this.querySelector('.edit-input');
-            input.focus();
-
-            // Handler for save on Enter or blur
-            const saveEdit = () => {
-                let newValue = input.value.trim();
-
-                // For select elements, get the selected option
-                if (input.tagName === 'SELECT') {
-                    newValue = input.options[input.selectedIndex].value;
-                }
-
-                // Don't save if empty
-                if (!newValue) {
-                    this.innerHTML = originalContent;
-                    return;
-                }
-
-                // Process based on field type
-                if (field === 'category') {
-                    updateTransactionCategory(txId, newValue, this, originalContent);
-                } else if (field === 'date') {
-                    // Validate date format
-                    if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(newValue)) {
-                        alert('Please use MM/DD/YYYY format');
-                        this.innerHTML = originalContent;
-                        return;
-                    }
-
-                    updateTransactionField(txId, 'date', newValue, this, originalContent);
-                } else if (field === 'amount') {
-                    // Validate amount
-                    if (isNaN(parseFloat(newValue))) {
-                        alert('Please enter a valid number');
-                        this.innerHTML = originalContent;
-                        return;
-                    }
-
-                    const isDebit = row.querySelector('[data-field="amount"]').getAttribute('data-is-debit') === 'true';
-                    updateTransactionField(txId, 'amount', newValue, this, originalContent, isDebit);
-                } else if (field === 'merchant') {
-                    updateTransactionField(txId, 'merchant', newValue, this, originalContent);
-                } else if (field === 'type') {
-                    const isDebit = newValue === 'expense';
-                    const amountCell = row.querySelector('[data-field="amount"]');
-                    const amountStr = amountCell.textContent.replace(/[^0-9.-]+/g, '');
-
-                    updateTransactionField(txId, 'is_debit', isDebit, this, originalContent, null, () => {
-                        // Update the UI to reflect type change
-                        this.textContent = isDebit ? 'Expense' : 'Income';
-
-                        // Update amount display and data-is-debit attribute
-                        amountCell.setAttribute('data-is-debit', isDebit);
-                        amountCell.classList.toggle('income-amount', !isDebit);
-
-                        const amount = parseFloat(amountStr);
-                        amountCell.textContent = isDebit ? `$${amount.toFixed(2)}` : `+$${amount.toFixed(2)}`;
-                    });
-                }
-            };
-
-            // Event handlers
-            input.addEventListener('blur', saveEdit);
-            input.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    saveEdit();
-                } else if (e.key === 'Escape') {
-                    e.preventDefault();
-                    cell.innerHTML = originalContent;
-                }
-            });
-        });
-    });
-}
-
-/**
- * Sets up handlers for transaction delete buttons
- */
-function setupTransactionDeleteHandlers() {
-    document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const row = this.closest('tr');
-            const txId = row.getAttribute('data-id');
-
-            if (confirm('Are you sure you want to delete this transaction?')) {
-                fetch('/delete_transaction', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: txId })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Transaction deleted:', data);
-
-                        // Remove row from table
-                        row.style.display = 'none';
-
-                        // Refresh transactions to update totals
-                        loadTransactions();
-                    })
-                    .catch(err => {
-                        console.error('Error deleting transaction:', err);
-                        alert('Error deleting transaction: ' + err.message);
-                    });
-            }
-        });
-    });
 }
 
 /**
@@ -523,11 +523,12 @@ function updateTransactionField(txId, field, value, cell, originalContent, isDeb
  * @returns {Object} Object containing monthly totals and month list
  */
 function calculateMonthlyCategoryTotals(transactions) {
-    // Initialize structures
+    // Initialize structures using objects instead of repeatedly searching arrays
     const monthlyTotals = {};
     const categories = new Set();
+    const months = new Set();
 
-    // Process each transaction
+    // Process each transaction - Single pass through all transactions
     transactions.forEach(tx => {
         // Skip transactions without dates
         if (!tx.raw_date) return;
@@ -535,33 +536,38 @@ function calculateMonthlyCategoryTotals(transactions) {
         try {
             // Extract month-year
             let monthYear;
+            let txDate;
 
             if (typeof tx.raw_date === 'string') {
                 // Parse date string in format YYYY-MM-DD
                 const match = tx.raw_date.match(/^(\d{4})-(\d{2})/);
                 if (match) {
                     monthYear = `${match[1]}-${match[2]}`; // YYYY-MM format
+                    txDate = new Date(tx.raw_date);
                 } else {
                     console.warn(`Couldn't parse date: ${tx.raw_date}`);
                     return;
                 }
             } else {
                 // Assume it's a Date object
-                const date = new Date(tx.raw_date);
-                if (isNaN(date.getTime())) {
+                txDate = new Date(tx.raw_date);
+                if (isNaN(txDate.getTime())) {
                     console.warn(`Invalid date: ${tx.raw_date}`);
                     return;
                 }
 
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = txDate.getFullYear();
+                const month = String(txDate.getMonth() + 1).padStart(2, '0');
                 monthYear = `${year}-${month}`;
             }
+
+            // Add month to our set of months
+            months.add(monthYear);
 
             // Add category to our set
             categories.add(tx.category);
 
-            // Initialize month if needed
+            // Initialize month if needed - use object instead of array for O(1) lookup
             if (!monthlyTotals[monthYear]) {
                 monthlyTotals[monthYear] = {};
             }
@@ -579,21 +585,21 @@ function calculateMonthlyCategoryTotals(transactions) {
         }
     });
 
-    // Convert to array format for display
-    const months = Object.keys(monthlyTotals).sort();
+    // Convert to array format for display - Use sorted months and categories for consistency
+    const sortedMonths = Array.from(months).sort();
     const sortedCategories = Array.from(categories).sort();
 
     const monthlyTable = sortedCategories.map(category => {
         const row = { category };
 
-        months.forEach(monthKey => {
+        sortedMonths.forEach(monthKey => {
             // Format month for display (e.g., "Jan 2023")
             const [year, month] = monthKey.split('-');
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             const monthDisplay = `${monthNames[parseInt(month) - 1]} ${year}`;
 
             // Get amount (default to 0)
-            const amount = monthlyTotals[monthKey][category] || 0;
+            const amount = monthlyTotals[monthKey]?.[category] || 0;
 
             // Format as currency string
             row[monthDisplay] = formatCurrency(Math.abs(amount));
@@ -603,7 +609,7 @@ function calculateMonthlyCategoryTotals(transactions) {
     });
 
     // Convert month keys to display format
-    const displayMonths = months.map(monthKey => {
+    const displayMonths = sortedMonths.map(monthKey => {
         const [year, month] = monthKey.split('-');
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         return `${monthNames[parseInt(month) - 1]} ${year}`;

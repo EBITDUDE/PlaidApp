@@ -1,5 +1,5 @@
 from flask import jsonify, request, render_template
-from app import app  # Import app from app.py
+from flask import current_app as app
 from plaid_utils import create_link_token, exchange_public_token, get_accounts, get_transactions
 from data_utils import load_access_token, save_access_token, load_saved_transactions, save_transactions, parse_date
 from functools import wraps
