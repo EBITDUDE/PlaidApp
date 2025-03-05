@@ -687,6 +687,11 @@ def categories_page():
 def annual_totals_page():
     return render_template('annual_totals.html')
 
+# New route for monthly totals page
+@app.route('/monthly_totals')
+def monthly_totals_page():
+    return render_template('monthly_totals.html')
+
 # Route to get all categories
 @app.route('/get_categories', methods=['GET'])
 @api_error_handler

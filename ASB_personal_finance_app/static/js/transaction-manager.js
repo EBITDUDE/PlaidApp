@@ -209,21 +209,16 @@ function loadTransactions() {
     `;
     txSection.style.display = 'block';
 
-    // Get the selected page size (default to 50 if none selected)
+    // Get the selected page size (for display purposes only)
     const pageSizeSelect = document.getElementById('page-size');
-    let fetchSize = 50; // Default
 
-    if (pageSizeSelect && pageSizeSelect.value) {
-        if (pageSizeSelect.value === 'all') {
-            fetchSize = 10000; // Use a large number to fetch all
-        } else {
-            fetchSize = parseInt(pageSizeSelect.value);
-        }
-    }
+    // Always fetch ALL transactions for client-side pagination
+    // Use a large number like 10000 to ensure we get everything
+    const fetchSize = 10000;
 
-    console.log(`Fetching transactions with page size: ${fetchSize}`);
+    console.log(`Fetching all transactions (up to ${fetchSize}) for client-side pagination`);
 
-    // Fetch transactions with the selected page size
+    // Fetch transactions with a large page size to get everything at once
     fetch(`/get_transactions?page=1&page_size=${fetchSize}`)
         .then(response => {
             console.log("Transaction response status:", response.status);
@@ -238,7 +233,7 @@ function loadTransactions() {
         .then(data => {
             // Store pagination data globally for debugging
             window.lastPaginationData = data.pagination;
-            
+
             console.log("Received transaction data:", {
                 transactionCount: data.transactions.length,
                 pagination: data.pagination
@@ -282,10 +277,6 @@ function loadTransactions() {
                 .then(() => {
                     // Display transactions
                     displayTransactions(transactions);
-
-                    // Calculate and display monthly totals
-                    const monthlyData = calculateMonthlyCategoryTotals(transactions);
-                    displayMonthlyCategoryTotals(monthlyData.monthlyTable, monthlyData.months);
 
                     // Initialize pagination and filters
                     setupPaginationAndFilters();
@@ -520,13 +511,59 @@ function updateTransactionField(txId, field, value, cell, originalContent, isDeb
  * Processes transaction data and calculates monthly category totals
  * 
  * @param {Array} transactions - List of transaction objects
+ * @param {Date} startDate - Start date of the range to include
+ * @param {Date} endDate - End date of the range to include
  * @returns {Object} Object containing monthly totals and month list
  */
-function calculateMonthlyCategoryTotals(transactions) {
+function calculateMonthlyCategoryTotals(transactions, startDate, endDate) {
     // Initialize structures using objects instead of repeatedly searching arrays
     const monthlyTotals = {};
-    const categories = new Set();
+    const allCategories = new Set();
     const months = new Set();
+
+    // First, collect all categories from all transactions (not just filtered ones)
+    // This ensures we display all categories even if they have no transactions in the selected range
+    transactions.forEach(tx => {
+        if (tx.category) {
+            allCategories.add(tx.category);
+        }
+    });
+
+    // If we don't have any categories yet, check if we can fetch from category filter
+    if (allCategories.size === 0) {
+        const categoryFilter = document.getElementById('category-filter');
+        if (categoryFilter) {
+            Array.from(categoryFilter.options).forEach(option => {
+                if (option.value !== 'all') {
+                    allCategories.add(option.value);
+                }
+            });
+        }
+    }
+
+    // Generate all months in the date range
+    const start = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+    const end = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+
+    // Add each month in the range to the months set
+    let current = new Date(start);
+    while (current <= end) {
+        const year = current.getFullYear();
+        const month = String(current.getMonth() + 1).padStart(2, '0');
+        const monthKey = `${year}-${month}`;
+        months.add(monthKey);
+
+        // Initialize each month in the totals object
+        monthlyTotals[monthKey] = {};
+
+        // Pre-initialize zero amounts for all categories in this month
+        allCategories.forEach(category => {
+            monthlyTotals[monthKey][category] = 0;
+        });
+
+        // Move to next month
+        current.setMonth(current.getMonth() + 1);
+    }
 
     // Process each transaction - Single pass through all transactions
     transactions.forEach(tx => {
@@ -561,21 +598,11 @@ function calculateMonthlyCategoryTotals(transactions) {
                 monthYear = `${year}-${month}`;
             }
 
-            // Add month to our set of months
-            months.add(monthYear);
+            // Skip if month is not in our range
+            if (!months.has(monthYear)) return;
 
-            // Add category to our set
-            categories.add(tx.category);
-
-            // Initialize month if needed - use object instead of array for O(1) lookup
-            if (!monthlyTotals[monthYear]) {
-                monthlyTotals[monthYear] = {};
-            }
-
-            // Initialize category for this month if needed
-            if (!monthlyTotals[monthYear][tx.category]) {
-                monthlyTotals[monthYear][tx.category] = 0;
-            }
+            // Skip if no category
+            if (!tx.category) return;
 
             // Add amount (negative for expenses, positive for income)
             const amount = tx.is_debit ? -tx.amount : tx.amount;
@@ -587,7 +614,7 @@ function calculateMonthlyCategoryTotals(transactions) {
 
     // Convert to array format for display - Use sorted months and categories for consistency
     const sortedMonths = Array.from(months).sort();
-    const sortedCategories = Array.from(categories).sort();
+    const sortedCategories = Array.from(allCategories).sort();
 
     const monthlyTable = sortedCategories.map(category => {
         const row = { category };
@@ -601,8 +628,8 @@ function calculateMonthlyCategoryTotals(transactions) {
             // Get amount (default to 0)
             const amount = monthlyTotals[monthKey]?.[category] || 0;
 
-            // Format as currency string
-            row[monthDisplay] = formatCurrency(Math.abs(amount));
+            // Display dash for zero amounts, otherwise format as currency
+            row[monthDisplay] = amount === 0 ? "–" : formatCurrency(Math.abs(amount));
         });
 
         return row;

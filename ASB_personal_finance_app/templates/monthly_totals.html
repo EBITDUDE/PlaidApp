@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Annual Category Totals - My Finance App</title>
+    <title>Monthly Category Totals - My Finance App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -86,35 +86,70 @@
                 transform: rotate(360deg);
             }
         }
+
+        .date-picker {
+            margin-right: 10px;
+        }
+
+        .date-picker input {
+            padding: 5px;
+            width: 100px;
+        }
+
+        .date-controls {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
     </style>
-    <!-- Include our JavaScript file -->
-    <script src="/static/js/annual-totals.js"></script>
+    <!-- Include calendar component for date pickers -->
+    <script src="/static/js/calendar-component.js"></script>
+    <!-- Include our new JavaScript file -->
+    <script src="/static/js/monthly-totals.js"></script>
 </head>
 
 <body>
-    <h1>Annual Category Totals</h1>
+    <h1>Monthly Category Totals</h1>
 
     <div class="nav-buttons">
         <a href="/" class="nav-button">Back to Dashboard</a>
         <a href="/categories" class="nav-button">Manage Categories</a>
-        <a href="/monthly_totals" class="nav-button">Monthly Category Totals</a>
+        <a href="/annual_totals" class="nav-button">Annual Category Totals</a>
         <button id="refresh-button" class="nav-button">Refresh Data</button>
     </div>
 
     <div class="container">
-        <h2>Annual Category Totals</h2>
+        <h2>Monthly Category Totals</h2>
 
-        <div id="loading-indicator">
-            Loading annual data... <div class="loading"></div>
+        <div class="date-controls">
+            <div class="date-picker">
+                <label for="monthly-start-date">Start Date:</label>
+                <input type="text" id="monthly-start-date" placeholder="MM/YYYY" readonly>
+            </div>
+
+            <div class="date-picker">
+                <label for="monthly-end-date">End Date:</label>
+                <input type="text" id="monthly-end-date" placeholder="MM/YYYY" readonly>
+            </div>
+
+            <button id="apply-monthly-dates" class="nav-button">
+                Apply
+            </button>
         </div>
 
-        <table id="annual-table" style="display: none;">
-            <thead id="annual-header">
+        <div id="loading-indicator">
+            Loading monthly data... <div class="loading"></div>
+        </div>
+
+        <table id="monthly-table" style="display: none;">
+            <thead id="monthly-header">
                 <tr>
                     <th>Category</th>
                 </tr>
             </thead>
-            <tbody id="annual-body"></tbody>
+            <tbody id="monthly-body"></tbody>
         </table>
     </div>
 </body>

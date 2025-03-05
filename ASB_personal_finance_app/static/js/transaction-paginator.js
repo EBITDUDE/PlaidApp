@@ -56,12 +56,24 @@ class TransactionPaginator {
         if (this.pageSizeElement) {
             this.pageSizeElement.addEventListener('change', () => {
                 const newSize = this.pageSizeElement.value;
+                const previousSize = this.pageSize;
+
+                console.log(`Page size changing from ${previousSize} to ${newSize}`);
+
                 if (newSize === 'all') {
                     this.showAllPages();
                 } else {
+                    // Update page size
                     this.pageSize = parseInt(newSize);
-                    this.currentPage = 1; // Reset to first page when size changes
-                    this.updateVisibility();
+
+                    // Reset to first page when size changes
+                    this.currentPage = 1;
+
+                    // Force update visibility with new page size
+                    this.updateVisibility(true);
+
+                    // Log the results
+                    console.log(`Updated page size: ${this.pageSize}, Total pages: ${this.getTotalPages()}`);
                 }
             });
         }
@@ -115,8 +127,10 @@ class TransactionPaginator {
         // Handle "all" page size
         if (this.pageSizeElement && this.pageSizeElement.value === 'all') {
             this.rows.forEach(row => {
-                if (!row.getAttribute('data-filtered')) {
+                if (row.getAttribute('data-filtered') !== 'true') {
                     row.style.display = '';
+                } else {
+                    row.style.display = 'none';
                 }
             });
             this._updatePaginationControls();
@@ -181,16 +195,18 @@ class TransactionPaginator {
             currentPage: this.currentPage,
             pageSize: this.pageSize,
             filteredItems: this.filteredItems,
-            pageSizeElementValue: this.pageSizeElement ? this.pageSizeElement.value : 'N/A'
+            pageSizeElementValue: this.pageSizeElement ? this.pageSizeElement.value : 'N/A',
+            totalItems: this.totalItems
         });
-        
+
         if (!this.paginationContainer) return;
 
         const totalPages = this.getTotalPages();
         const isShowingAll = this.pageSizeElement && this.pageSizeElement.value === 'all';
 
-        // Hide pagination if showing all or only one page
-        if (isShowingAll || totalPages <= 1) {
+        // Hide pagination ONLY if showing all OR there are zero or one pages of actual content
+        // This fix ensures we show pagination if we have more than one page
+        if (isShowingAll || (totalPages <= 1 && this.filteredItems <= this.pageSize)) {
             this.paginationContainer.style.display = 'none';
             return;
         }
@@ -200,21 +216,21 @@ class TransactionPaginator {
 
         // Create pagination UI
         let html = `
-            <div class="pagination-info">
-                Showing ${Math.min(this.filteredItems, this.pageSize)} of ${this.filteredItems} items
-                (Page ${this.currentPage} of ${totalPages})
-            </div>
-            <div class="pagination-buttons">
-        `;
+        <div class="pagination-info">
+            Showing ${Math.min(this.filteredItems, this.pageSize)} of ${this.filteredItems} items
+            (Page ${this.currentPage} of ${totalPages})
+        </div>
+        <div class="pagination-buttons">
+    `;
 
         // Previous button
         html += `
-            <button class="pagination-btn" 
-                ${this.currentPage === 1 ? 'disabled' : ''} 
-                data-page="prev">
-                &laquo; Prev
-            </button>
-        `;
+        <button class="pagination-btn" 
+            ${this.currentPage === 1 ? 'disabled' : ''} 
+            data-page="prev">
+            &laquo; Prev
+        </button>
+    `;
 
         // Determine which page buttons to show
         const maxButtons = 5;
@@ -237,11 +253,11 @@ class TransactionPaginator {
         // Page buttons
         for (let i = startPage; i <= endPage; i++) {
             html += `
-                <button class="pagination-btn ${i === this.currentPage ? 'pagination-btn-active' : ''}" 
-                    data-page="${i}">
-                    ${i}
-                </button>
-            `;
+            <button class="pagination-btn ${i === this.currentPage ? 'pagination-btn-active' : ''}" 
+                data-page="${i}">
+                ${i}
+            </button>
+        `;
         }
 
         // Last page button (if not in range)
@@ -254,12 +270,12 @@ class TransactionPaginator {
 
         // Next button
         html += `
-            <button class="pagination-btn" 
-                ${this.currentPage === totalPages ? 'disabled' : ''} 
-                data-page="next">
-                Next &raquo;
-            </button>
-        `;
+        <button class="pagination-btn" 
+            ${this.currentPage === totalPages ? 'disabled' : ''} 
+            data-page="next">
+            Next &raquo;
+        </button>
+    `;
 
         html += '</div>';
 
@@ -288,7 +304,17 @@ class TransactionPaginator {
      * @returns {number} Total pages
      */
     getTotalPages() {
-        if (this.pageSize <= 0 || this.filteredItems <= 0) return 1;
+        if (this.pageSize <= 0) return 1;
+
+        // If showing all items, return 1 page
+        if (this.pageSizeElement && this.pageSizeElement.value === 'all') {
+            return 1;
+        }
+
+        // If no items to show, return 1 page
+        if (this.filteredItems <= 0) return 1;
+
+        // Otherwise calculate based on items and page size
         return Math.ceil(this.filteredItems / this.pageSize);
     }
 

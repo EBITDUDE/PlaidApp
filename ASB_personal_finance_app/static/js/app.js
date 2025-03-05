@@ -127,10 +127,15 @@ function setupFilterEventListeners() {
         }, 300)
     );
 
-    // Add event listener for page size change
+    // UPDATED: Change this to use updateVisibility instead of reloading transactions
     document.getElementById('page-size').addEventListener('change', function () {
-        // Reload transactions when page size changes
-        loadTransactions();
+        // If we have the paginator initialized, update its page size
+        if (paginator) {
+            const newSize = this.value === 'all' ? 10000 : parseInt(this.value);
+            paginator.pageSize = newSize;
+            paginator.currentPage = 1; // Reset to first page when size changes
+            paginator.updateVisibility(true);
+        }
     });
 }
 

@@ -87,19 +87,21 @@ function displayAnnualTotals(categoryTotals, years) {
         years.forEach(year => {
             const td = document.createElement('td');
 
-            // Format currency value properly
+            // Check for zero value
+            let value = 0;
+
             if (row[year]) {
                 if (typeof row[year] === 'string' && row[year].startsWith('$')) {
                     // If it's already a string with $ sign, parse it first
-                    const value = parseFloat(row[year].replace(/[\$,]/g, ''));
-                    td.textContent = formatCurrency(value);
+                    value = parseFloat(row[year].replace(/[\$,]/g, ''));
                 } else {
-                    // Otherwise format it directly
-                    td.textContent = formatCurrency(row[year]);
+                    // Otherwise use the value directly
+                    value = parseFloat(row[year]);
                 }
-            } else {
-                td.textContent = formatCurrency(0);
             }
+
+            // Display dash for zero, otherwise format as currency
+            td.textContent = (value === 0) ? "–" : formatCurrency(value);
 
             tr.appendChild(td);
         });

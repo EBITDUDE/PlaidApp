@@ -438,6 +438,7 @@
     <!-- Navigation buttons after main buttons -->
     <div class="secondary-buttons-container" style="margin-top: 10px;">
         <a href="/categories" class="secondary-nav-button">Manage Categories</a>
+        <a href="/monthly_totals" class="secondary-nav-button">Monthly Category Totals</a>
         <a href="/annual_totals" class="secondary-nav-button">Annual Category Totals</a>
         <button id="export-data-btn" class="secondary-nav-button">Export Data...</button>
     </div>
@@ -582,39 +583,6 @@
                 </form>
             </div>
         </div>
-    </div>
-
-    <!-- Update the Monthly Category Totals section to include date range selection -->
-    <div id="monthly-category-section" class="container" style="display:none;">
-        <h2>Monthly Category Totals</h2>
-
-        <div style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-            <div class="date-picker" style="margin-right: 10px;">
-                <label for="monthly-start-date">Start Date:</label>
-                <input type="text" id="monthly-start-date" placeholder="MM/YYYY" readonly
-                    style="padding: 5px; width: 100px;">
-            </div>
-
-            <div class="date-picker" style="margin-right: 10px;">
-                <label for="monthly-end-date">End Date:</label>
-                <input type="text" id="monthly-end-date" placeholder="MM/YYYY" readonly
-                    style="padding: 5px; width: 100px;">
-            </div>
-
-            <button id="apply-monthly-dates"
-                style="padding: 5px 10px; background-color: #3498db; color: white; border: none; cursor: pointer; border-radius: 4px;">
-                Apply
-            </button>
-        </div>
-
-        <table id="monthly-category-table">
-            <thead id="monthly-category-header">
-                <tr>
-                    <th>Category</th>
-                </tr>
-            </thead>
-            <tbody id="monthly-category-body"></tbody>
-        </table>
     </div>
 
     <!-- Custom Date Range Modal -->

@@ -486,8 +486,10 @@ function updateMonthlyCategoryTotals() {
                 return txYearMonth >= startDate && txYearMonth <= endDate;
             });
 
-            // Calculate and display monthly totals using the filtered transactions
-            const monthlyData = calculateMonthlyCategoryTotals(filteredTransactions);
+            // Calculate and display monthly totals
+            // We pass ALL transactions to ensure we collect all categories,
+            // but also pass date range to only show months within that range
+            const monthlyData = calculateMonthlyCategoryTotals(transactions, startDate, endDate);
             displayMonthlyCategoryTotals(monthlyData.monthlyTable, monthlyData.months);
 
             // Hide loading indicator and show table
