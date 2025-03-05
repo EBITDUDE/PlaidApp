@@ -9,6 +9,7 @@
 │  │   ├── index.html         (Corrected main page)
 │  │   ├── log_viewer.html    (Log viewer page)
 │  │   ├── categories.html
+│  │   ├── monthly_totals.html
 │  │   └── annual_totals.html
 │  ├── logs_and_json/           (Created automatically)
 │  │   ├── tokens.json        (Stores access tokens)
@@ -29,4 +30,5 @@
 │  │   │   ├── category-dropdown.js     
 │  │   │   ├── date-utils.js             
 │  │   │   ├── transaction-filter.js     
-│  │   │   └── transaction-paginator.js  
+│  │   │   ├── transaction-paginator.js  
+│  │   │   └── monthly-totals.js  

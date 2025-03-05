@@ -81,6 +81,33 @@
             margin-left: 10px;
         }
 
+        .date-controls {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-picker {
+            margin-right: 10px;
+        }
+
+        .date-picker input {
+            padding: 5px;
+            width: 80px;
+        }
+
+        .year-picker {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
         @keyframes spin {
             to {
                 transform: rotate(360deg);
@@ -103,11 +130,27 @@
 
     <div class="container">
         <h2>Annual Category Totals</h2>
+    
+    <div class="date-controls">
+        <div class="date-picker">
+            <label for="annual-start-year">Start Year:</label>
+            <input type="text" id="annual-start-year" placeholder="YYYY" readonly style="width: 80px;">
+        </div>
 
+        <div class="date-picker">
+            <label for="annual-end-year">End Year:</label>
+            <input type="text" id="annual-end-year" placeholder="YYYY" readonly style="width: 80px;">
+        </div>
+
+        <button id="apply-annual-years" class="nav-button">
+            Apply
+        </button>
+    </div>
+    
         <div id="loading-indicator">
             Loading annual data... <div class="loading"></div>
         </div>
-
+    
         <table id="annual-table" style="display: none;">
             <thead id="annual-header">
                 <tr>

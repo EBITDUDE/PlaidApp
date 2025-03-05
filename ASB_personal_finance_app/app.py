@@ -843,13 +843,25 @@ def get_annual_totals():
     """
     Generate annual category totals with improved efficiency
     """
-    # Get optional year filter
-    year_filter = request.args.get('year')
-    if year_filter:
+    # Get year range filters
+    start_year_filter = request.args.get('start_year')
+    end_year_filter = request.args.get('end_year')
+    
+    start_year = None
+    end_year = None
+    
+    # Parse year filters if provided
+    if start_year_filter:
         try:
-            year_filter = int(year_filter)
+            start_year = int(start_year_filter)
         except ValueError:
-            return jsonify({'error': 'Year must be a valid number'}), 400
+            return jsonify({'error': 'Start year must be a valid number'}), 400
+            
+    if end_year_filter:
+        try:
+            end_year = int(end_year_filter)
+        except ValueError:
+            return jsonify({'error': 'End year must be a valid number'}), 400
     
     # Load all transactions
     transactions = []
@@ -897,6 +909,10 @@ def get_annual_totals():
             all_years = set()
             all_categories = set()
             
+            # Current date for LTM calculations
+            current_date = datetime.datetime.now().date()
+            current_year = current_date.year
+            
             # Process transactions more efficiently
             for tx in plaid_txs:
                 tx_id = getattr(tx, 'transaction_id', None)
@@ -929,8 +945,10 @@ def get_annual_totals():
                 # Extract year for filtering
                 year = tx_date.year
                 
-                # Apply year filter if specified
-                if year_filter and year != year_filter:
+                # Apply year range filter if specified
+                if start_year and year < start_year:
+                    continue
+                if end_year and year > end_year:
                     continue
                 
                 # Add year to our set
@@ -946,17 +964,24 @@ def get_annual_totals():
                 # Add category to our set
                 all_categories.add(category)
             
-            # Add current year for LTM calculations if not already present
-            current_year = datetime.datetime.now().year
-            all_years.add(current_year)
-            all_years.add('LTM')  # Special "year" for Last Twelve Months
-            
+            # Add LTM if the end year includes the current year
+            include_ltm = (not end_year or end_year >= current_year)
+            if include_ltm:
+                all_years.add('LTM')  # Special "year" for Last Twelve Months
+
+            # Normalize all years to integers except for 'LTM'
+            normalized_years = {'LTM'} if 'LTM' in all_years else set()
+            for year in all_years:
+                if year != 'LTM':
+                    if isinstance(year, str) and year.isdigit():
+                        normalized_years.add(int(year))
+                    elif isinstance(year, int):
+                        normalized_years.add(year)
+
             # Pre-allocate the totals dictionary for all year-category combinations
-            # This avoids having to check for existence in the inner loop
-            annual_totals = {year: {category: 0 for category in all_categories} for year in all_years}
+            annual_totals = {year: {category: 0 for category in all_categories} for year in normalized_years}
             
             # Second pass: calculate the totals with the optimized structure
-            current_date = datetime.datetime.now().date()
             ltm_start_date = datetime.datetime(current_date.year - 1, current_date.month, 1).date()
             
             for tx in plaid_txs:
@@ -988,8 +1013,10 @@ def get_annual_totals():
                 # Extract year for filtering and calculations
                 year = tx_date.year
                 
-                # Apply year filter if specified
-                if year_filter and year != year_filter:
+                # Apply year range filter if specified
+                if start_year and year < start_year:
+                    continue
+                if end_year and year > end_year:
                     continue
                 
                 # Get category (use modified if available)
@@ -1020,8 +1047,8 @@ def get_annual_totals():
                 # Add to year totals
                 annual_totals[year][category] += signed_amount
                 
-                # Add to LTM if applicable
-                if tx_date >= ltm_start_date and tx_date < current_date:
+                # Add to LTM if applicable and LTM is included
+                if include_ltm and tx_date >= ltm_start_date and tx_date < current_date:
                     annual_totals['LTM'][category] += signed_amount
             
         except Exception as e:
@@ -1046,8 +1073,10 @@ def get_annual_totals():
                 # Extract year
                 year = tx_date.year
                 
-                # Apply year filter if specified
-                if year_filter and year != year_filter:
+                # Apply year range filter if specified
+                if start_year and year < start_year:
+                    continue
+                if end_year and year > end_year:
                     continue
                 
                 # Get category
@@ -1059,20 +1088,25 @@ def get_annual_totals():
                 signed_amount = -amount if is_debit else amount
                 
                 # Ensure the category exists in the annual totals
-                if category not in annual_totals[year]:
+                if category not in annual_totals.get(year, {}):
+                    if year not in annual_totals:
+                        annual_totals[year] = {}
                     annual_totals[year][category] = 0
                 
                 # Add to year totals
                 annual_totals[year][category] += signed_amount
                 
-                # Add to LTM if applicable
-                current_date = datetime.datetime.now().date()
-                ltm_start_date = datetime.datetime(current_date.year - 1, current_date.month, 1).date()
-                
-                if tx_date >= ltm_start_date and tx_date < current_date:
-                    if category not in annual_totals['LTM']:
-                        annual_totals['LTM'][category] = 0
-                    annual_totals['LTM'][category] += signed_amount
+                # Add to LTM if applicable and LTM is included
+                if include_ltm:
+                    current_date = datetime.datetime.now().date()
+                    ltm_start_date = datetime.datetime(current_date.year - 1, current_date.month, 1).date()
+                    
+                    if tx_date >= ltm_start_date and tx_date < current_date:
+                        if 'LTM' not in annual_totals:
+                            annual_totals['LTM'] = {}
+                        if category not in annual_totals['LTM']:
+                            annual_totals['LTM'][category] = 0
+                        annual_totals['LTM'][category] += signed_amount
                 
             except Exception as e:
                 logger.error(f"Error processing manual transaction {tx_id}: {str(e)}")
@@ -1085,9 +1119,22 @@ def get_annual_totals():
             'years': []
         })
     
-    # Convert to a format suitable for the frontend table
-    years = sorted([y for y in annual_totals.keys() if y != 'LTM'], key=lambda x: str(x))
-    if 'LTM' in annual_totals:
+    # Filter years based on year range and sort them
+    numeric_years = []
+    for year in annual_totals.keys():
+        if year == 'LTM':
+            continue
+        if isinstance(year, (int, str)) and str(year).isdigit():
+            year_int = int(year)
+            if (not start_year or year_int >= start_year) and (not end_year or year_int <= end_year):
+                numeric_years.append(year_int)
+
+    # Sort the filtered years
+    numeric_years.sort()
+    years = [str(y) for y in numeric_years]
+
+    # Add LTM at the end if included
+    if include_ltm and 'LTM' in annual_totals:
         years.append('LTM')
     
     # Get unique categories across all years
@@ -1103,14 +1150,26 @@ def get_annual_totals():
         
         for year in years:
             year_str = str(year)
-            amount = annual_totals[year].get(category, 0)
+            # Try to get amount with both string and integer versions of the year
+            amount = 0
+            if year_str == 'LTM':
+                amount = annual_totals.get('LTM', {}).get(category, 0)
+            else:
+                # First try with year as integer
+                year_int = int(year_str) if year_str.isdigit() else 0
+                amount = annual_totals.get(year_int, {}).get(category, 0)
+                
+                # If amount is 0, try with year as string
+                if amount == 0:
+                    amount = annual_totals.get(year_str, {}).get(category, 0)
+            
             row[year_str] = f"${abs(amount):.2f}"
             
         annual_table.append(row)
     
     return jsonify({
         'annual_category_totals': annual_table,
-        'years': [str(y) for y in years]
+        'years': years
     })
     
 # Route to export transactions as CSV with improved error handling and debugging
