@@ -442,7 +442,7 @@ function handleAddTransactionSubmit(event) {
 /**
  * Sets up pagination and filtering for transactions
  */
-function setupPaginationAndFilters() {
+function setupPaginationAndFiltersAndApply() {
     // Create paginator instance
     paginator = new TransactionPaginator({
         tableId: 'transactions-table',
@@ -476,12 +476,8 @@ function setupPaginationAndFilters() {
     // Make transactionFilter globally available
     window.transactionFilter = transactionFilter;
 
-    setTimeout(() => {
-        try {
-            console.log("Applying filters after delay");
-            transactionFilter.applyFilters();
-        } catch (e) {
-            console.error("Error applying filters after delay:", e);
-        }
-    }, 100);
+    // Apply filters immediately
+    transactionFilter.applyFilters();
+
+    // No setTimeout here - the caller will apply filters when needed
 }

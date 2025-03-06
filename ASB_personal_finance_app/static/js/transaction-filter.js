@@ -330,6 +330,18 @@ class TransactionFilter {
      * Restores filter state from sessionStorage
      */
     restoreFilters() {
+        // Check if this is a new browsing session (rather than just a page refresh)
+        const isNewSession = !sessionStorage.getItem('financeAppSessionActive');
+
+        // Mark this session as active
+        sessionStorage.setItem('financeAppSessionActive', 'true');
+
+        // If it's a new session, use default filters
+        if (isNewSession) {
+            // Just don't restore filters - leave defaults
+            return;
+        }
+        
         const saved = sessionStorage.getItem('transactionFilters');
         if (saved) {
             const filterState = JSON.parse(saved);
@@ -363,7 +375,7 @@ class TransactionFilter {
     }
 
     /**
-     * Resets all filters to default and applies them
+     * Resets all filters to their default state
      */
     clearAllFilters() {
         if (this.filterElements.search) {
@@ -380,93 +392,23 @@ class TransactionFilter {
         }
         this.customDateStart = null;
         this.customDateEnd = null;
+
+        // Remove filter settings but keep session marker
         sessionStorage.removeItem('transactionFilters');
+
         this.applyFilters();
     }
-
-    /**
-     * Reset all filters to their default state
-     */
-    resetFilters() {
-        // Reset search input
-        if (this.filterElements.search) {
-            this.filterElements.search.value = '';
-        }
-
-        // Reset date filter
-        if (this.filterElements.date) {
-            this.filterElements.date.value = 'all';
-        }
-
-        // Reset category filter
-        if (this.filterElements.category) {
-            this.filterElements.category.value = 'all';
-        }
-
-        // Reset type filter
-        if (this.filterElements.type) {
-            this.filterElements.type.value = 'all';
-        }
-
-        // Clear custom date range
-        this.customDateStart = null;
-        this.customDateEnd = null;
-
-        // Apply the reset filters
-        this.applyFilters();
-    }
+    
 
     /**
      * Parse a date string in various formats
+     * Uses the shared utility function from date-utils.js
      * @param {string} dateStr Date string to parse
      * @returns {Date|null} Parsed date object or null if invalid
      * @private
      */
     _parseDate(dateStr) {
-        if (!dateStr) return null;
-
-        try {
-            // Try MM/DD/YYYY format
-            if (dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
-                const [month, day, year] = dateStr.split('/').map(Number);
-                return new Date(year, month - 1, day);
-            }
-
-            // Try YYYY-MM-DD format
-            if (dateStr.match(/^\d{4}-\d{1,2}-\d{1,2}$/)) {
-                const [year, month, day] = dateStr.split('-').map(Number);
-                return new Date(year, month - 1, day);
-            }
-
-            // Use native Date parsing as fallback
-            const date = new Date(dateStr);
-            if (!isNaN(date.getTime())) {
-                return date;
-            }
-        } catch (e) {
-            console.warn(`Failed to parse date: ${dateStr}`, e);
-        }
-
-        return null;
+        // Import from shared utility
+        return parseDate(dateStr);
     }
 }
-
-// Usage example:
-//
-// // Create the filter
-// const transactionFilter = new TransactionFilter({
-//     tableId: 'transactions-table',
-//     filters: {
-//         search: 'transaction-search',
-//         date: 'date-filter',
-//         category: 'category-filter',
-//         type: 'type-filter'
-//     },
-//     onFilterChange: (info) => {
-//         console.log(`Showing ${info.visibleRows} of ${info.totalRows} transactions`);
-//     },
-//     paginator: paginator // Optional integration with the TransactionPaginator
-// });
-//
-// // Initialize filters
-// transactionFilter.applyFilters();

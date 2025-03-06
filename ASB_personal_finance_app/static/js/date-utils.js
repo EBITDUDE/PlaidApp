@@ -57,31 +57,44 @@ function initializeAllDatePickers() {
 
 /**
  * Helper function to parse dates in different formats
- * @param {string} dateStr - Date string to parse
- * @returns {Date} JavaScript Date object
+ * @param {string|Date} dateStr - Date string or Date object to parse
+ * @returns {Date|null} JavaScript Date object or null if parsing fails
+ * @description
+ * Supports the following formats:
+ * - JavaScript Date objects (returned as-is)
+ * - MM/DD/YYYY (e.g., 01/31/2023)
+ * - YYYY-MM-DD (e.g., 2023-01-31)
+ * - Native JavaScript Date parsing as fallback
  */
 function parseDate(dateStr) {
-    // Try different formats
-    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        // ISO format: YYYY-MM-DD
-        const [year, month, day] = dateStr.split('-').map(Number);
-        return new Date(year, month - 1, day);
-    } else if (dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-        // US format: MM/DD/YYYY
-        const [month, day, year] = dateStr.split('/').map(Number);
-        return new Date(year, month - 1, day);
-    } else if (dateStr.match(/^\d{2}\/\d{4}$/)) {
-        // Month/Year format: MM/YYYY
-        const [month, year] = dateStr.split('/').map(Number);
-        return new Date(year, month - 1, 1);
-    } else {
-        // Try as-is (browser's built-in parsing)
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) {
-            throw new Error(`Unsupported date format: ${dateStr}`);
+    if (!dateStr) return null;
+
+    try {
+        // Handle date objects
+        if (dateStr instanceof Date) return dateStr;
+
+        // Try MM/DD/YYYY format
+        if (dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+            const [month, day, year] = dateStr.split('/').map(Number);
+            return new Date(year, month - 1, day);
         }
-        return date;
+
+        // Try YYYY-MM-DD format
+        if (dateStr.match(/^\d{4}-\d{1,2}-\d{1,2}$/)) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+
+        // Use native Date parsing as fallback
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+            return date;
+        }
+    } catch (e) {
+        console.warn(`Failed to parse date: ${dateStr}`, e);
     }
+
+    return null;
 }
 
 /**

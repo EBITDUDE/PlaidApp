@@ -45,6 +45,9 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
+// Make the function available globally
+window.formatCurrency = formatCurrency;
+
 /**
  * Helper function to get month number from name
  * 
