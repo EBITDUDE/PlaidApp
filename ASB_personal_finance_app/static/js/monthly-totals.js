@@ -444,21 +444,6 @@ function displayMonthlyTotals(monthlyTable, months) {
 }
 
 /**
- * Format a number as currency (USD)
- * 
- * @param {number} amount - Amount to format
- * @returns {string} Formatted currency string
- */
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(amount);
-}
-
-/**
  * Format a date as MM/YYYY for month selection
  * 
  * @param {Date} date - Date to format

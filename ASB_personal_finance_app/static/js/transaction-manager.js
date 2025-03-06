@@ -219,7 +219,6 @@ function loadTransactions() {
     const pageSizeSelect = document.getElementById('page-size');
 
     // Always fetch ALL transactions for client-side pagination
-    // Use a large number like 10000 to ensure we get everything
     const fetchSize = 10000;
 
     console.log(`Fetching all transactions (up to ${fetchSize}) for client-side pagination`);
@@ -278,18 +277,11 @@ function loadTransactions() {
                 return;
             }
 
-            // Trigger accounts loading before displaying transactions
-            fetchAndStoreAccounts()
-                .then(() => {
-                    // Display transactions
-                    displayTransactions(transactions);
-
-                    // Initialize pagination and filters
-                    setupPaginationAndFilters();
-                })
-                .catch(err => {
-                    console.error("Error loading accounts:", err);
-                });
+            // Display transactions with a callback to set up and apply filters after DOM is updated
+            displayTransactions(transactions, () => {
+                // Setup pagination and filters in one step
+                setupPaginationAndFiltersAndApply();
+            });
         })
         .catch(err => {
             console.error("Transaction fetch error:", err);
@@ -311,8 +303,9 @@ function loadTransactions() {
  * Displays transactions in the transaction table
  * 
  * @param {Array} transactions - Array of transaction objects
+ * @param {Function} callback - Optional callback to run after transactions are displayed
  */
-function displayTransactions(transactions) {
+function displayTransactions(transactions, callback) {
     console.log('Displaying transactions:', {
         totalTransactions: transactions.length,
         paginationDetails: window.lastPaginationData
@@ -388,6 +381,11 @@ function displayTransactions(transactions) {
 
             // Add all rows at once
             txTable.appendChild(fragment);
+
+            // Call the callback if provided
+            if (typeof callback === 'function') {
+                callback();
+            }
         });
     } else {
         // Handle empty case
@@ -398,6 +396,11 @@ function displayTransactions(transactions) {
                 </td>
             </tr>
         `;
+
+        // Call the callback even in the empty case
+        if (typeof callback === 'function') {
+            callback();
+        }
     }
 }
 
