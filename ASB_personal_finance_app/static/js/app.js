@@ -369,14 +369,14 @@ function handleAddTransactionSubmit(event) {
     const newMerchant = document.getElementById('new-merchant').value;
     const newAccount = document.getElementById('new-account').value;
 
-    // Get category value from our component
+    // Get category and subcategory values from our component
     let newCategory = '';
+    let newSubcategory = '';
+
     if (window.categoryComponent && typeof window.categoryComponent.getValue === 'function') {
-        newCategory = window.categoryComponent.getValue();
-    } else {
-        // Fallback to the original input if component doesn't exist
-        const categoryInput = document.getElementById('new-category');
-        newCategory = categoryInput ? categoryInput.value : '';
+        const categoryData = window.categoryComponent.getValue();
+        newCategory = categoryData.category;
+        newSubcategory = categoryData.subcategory;
     }
 
     // Validate inputs
@@ -399,6 +399,7 @@ function handleAddTransactionSubmit(event) {
         amount: newAmount,
         is_debit: isDebit,
         category: newCategory,
+        subcategory: newSubcategory,
         merchant: newMerchant,
         account_id: newAccount
     };
@@ -424,7 +425,10 @@ function handleAddTransactionSubmit(event) {
 
             // Reset category safely
             if (window.categoryComponent && typeof window.categoryComponent.setValue === 'function') {
-                window.categoryComponent.setValue('');
+                window.categoryComponent.setValue({
+                    category: '',
+                    subcategory: ''
+                });
             }
 
             // Hide modal

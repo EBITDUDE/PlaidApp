@@ -12,7 +12,8 @@
         }
 
         h1,
-        h2 {
+        h2,
+        h3 {
             color: #2c3e50;
         }
 
@@ -22,6 +23,38 @@
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .categories-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .category-list {
+            flex: 1;
+            border-right: 1px solid #eee;
+            padding-right: 20px;
+        }
+
+        .subcategory-panel {
+            flex: 2;
+            padding-left: 10px;
+        }
+
+        .category-item {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .category-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .category-item.active {
+            background-color: #e0f0ff;
+            border-left: 3px solid #3498db;
         }
 
         table {
@@ -104,6 +137,14 @@
         .delete-btn:hover {
             background-color: #c0392b;
         }
+
+        .no-subcategories {
+            padding: 20px;
+            text-align: center;
+            color: #777;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
     </style>
     <!-- Include our JavaScript file -->
     <script src="/static/js/categories.js"></script>
@@ -125,17 +166,25 @@
             <button id="add-category-btn">Add Category</button>
         </div>
 
-        <h2>Existing Categories</h2>
-        <div id="loading-indicator">Loading categories...</div>
-        <table id="categories-table" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Category Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="categories-body"></tbody>
-        </table>
+        <div class="categories-container">
+            <!-- Left panel: Categories list -->
+            <div class="category-list">
+                <h3>Categories</h3>
+                <div id="categories-list"></div>
+            </div>
+
+            <!-- Right panel: Subcategories -->
+            <div class="subcategory-panel">
+                <div id="subcategory-header">
+                    <h3>Select a category to manage subcategories</h3>
+                </div>
+                <div id="subcategory-content">
+                    <div class="no-subcategories">
+                        Please select a category from the left panel.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 

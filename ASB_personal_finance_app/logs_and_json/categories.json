@@ -1,1 +1,42 @@
-["Transfer"]
+[
+    {
+        "name": "ASB",
+        "subcategories": []
+    },
+    {
+        "name": "Food and Drink",
+        "subcategories": [
+            "Restaurant",
+            "Groceries",
+            "Coffee Shop"
+        ]
+    },
+    {
+        "name": "Payment",
+        "subcategories": []
+    },
+    {
+        "name": "Recreation",
+        "subcategories": []
+    },
+    {
+        "name": "Shops",
+        "subcategories": []
+    },
+    {
+        "name": "Test",
+        "subcategories": []
+    },
+    {
+        "name": "TestCat",
+        "subcategories": []
+    },
+    {
+        "name": "Transfer",
+        "subcategories": []
+    },
+    {
+        "name": "Travel",
+        "subcategories": []
+    }
+]

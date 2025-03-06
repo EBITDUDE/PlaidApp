@@ -330,27 +330,20 @@ function initCategoryDropdown() {
         return;
     }
 
-    // Create a wrapper for the category input if it doesn't exist
-    const newCategoryInput = document.getElementById('new-category');
+    // Use the new container for category dropdown
+    const categoryContainer = document.getElementById('new-category-container');
 
-    // Handle the case where the input doesn't exist
-    if (!newCategoryInput) {
-        console.error("Cannot find new-category input element");
+    // Handle the case where the container doesn't exist
+    if (!categoryContainer) {
+        console.error("Cannot find new-category-container element");
         return;
     }
 
-    // Create a wrapper div to replace the input
-    const wrapper = document.createElement('div');
-    wrapper.id = 'new-category-wrapper';
-    wrapper.style.width = '100%';
-
-    // Replace the input with our wrapper
-    newCategoryInput.parentNode.replaceChild(wrapper, newCategoryInput);
-
     // Initialize the category component
     const categoryComponent = createCategoryDropdown({
-        containerId: 'new-category-wrapper',
+        containerId: 'new-category-container',
         inputName: 'category',
+        subcategoryInputName: 'subcategory',
         required: true
     });
 

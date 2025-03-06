@@ -529,6 +529,9 @@ def update_transaction():
     if 'category' in tx_data:
         saved_transactions[tx_id]['category'] = tx_data.get('category')
     
+    if 'subcategory' in tx_data:
+        saved_transactions[tx_id]['subcategory'] = tx_data.get('subcategory')
+    
     if 'merchant' in tx_data:
         saved_transactions[tx_id]['merchant'] = tx_data.get('merchant')
     
@@ -619,6 +622,7 @@ def add_transaction():
         'amount': abs(amount),
         'is_debit': is_debit,
         'category': category,
+        'subcategory': tx_data.get('subcategory', ''),  # Add subcategory support
         'merchant': merchant,
         'account_id': tx_data.get('account_id', ''),
         'manual': True
@@ -636,6 +640,7 @@ def add_transaction():
             'amount': abs(amount),
             'is_debit': is_debit,
             'category': category,
+            'subcategory': tx_data.get('subcategory', ''),
             'merchant': merchant
         }
     })
@@ -698,56 +703,58 @@ def monthly_totals_page():
 def get_categories():
     # Load custom categories from categories.json
     categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
-    custom_categories = set()
+    categories = []
+    
     if os.path.exists(categories_file):
         try:
             with open(categories_file, 'r') as f:
-                custom_categories = set(json.load(f))
+                categories = json.load(f)
+                
+            # Check if migration is needed (old format)
+            if categories and isinstance(categories, list) and all(isinstance(c, str) for c in categories):
+                # Migrate old format to new format
+                new_categories = []
+                for category in categories:
+                    new_categories.append({
+                        "name": category,
+                        "subcategories": []
+                    })
+                categories = new_categories
+                
+                # Save migrated format
+                with open(categories_file, 'w') as f:
+                    json.dump(categories, f)
         except Exception as e:
             logger.error(f"Error reading categories file: {str(e)}")
     
-    # Always extract categories from transactions
-    transaction_categories = set()
-    saved_transactions = load_saved_transactions()
-    for tx_data in saved_transactions.values():
-        if 'category' in tx_data and not tx_data.get('deleted', False):
-            transaction_categories.add(tx_data['category'])
-    
-    # Fetch from Plaid if available
-    access_token = load_access_token()
-    if access_token:
-        try:
-            start_date = datetime.datetime.strptime("2015-01-01", "%Y-%m-%d").date()
-            end_date = datetime.datetime.now().date()
-            transactions_request = TransactionsGetRequest(
-                access_token=access_token,
-                start_date=start_date,
-                end_date=end_date
-            )
-            response = client.transactions_get(transactions_request)
-            for tx in response['transactions']:
-                if tx.get('category'):
-                    transaction_categories.add(tx['category'][0])
-        except Exception as e:
-            logger.error(f"Error fetching categories from Plaid: {str(e)}")
-    
-    # Combine all categories
-    all_categories = transaction_categories.union(custom_categories)
-    
-    # Add default categories if still empty
-    if not all_categories:
+    # Always include some default categories if none exist
+    if not categories:
         default_categories = [
-            "Food and Drink", "Transportation", "Housing", "Entertainment",
-            "Shopping", "Medical", "Travel", "Education", "Income",
-            "Utilities", "Subscriptions"
+            {"name": "Food and Drink", "subcategories": ["Restaurant", "Groceries", "Coffee Shop"]},
+            {"name": "Transportation", "subcategories": ["Gas", "Public Transit", "Parking"]},
+            {"name": "Housing", "subcategories": ["Rent", "Mortgage", "Utilities"]},
+            {"name": "Entertainment", "subcategories": ["Movies", "Games", "Music"]},
+            {"name": "Shopping", "subcategories": ["Clothing", "Electronics", "Home"]},
+            {"name": "Medical", "subcategories": ["Doctor", "Pharmacy", "Insurance"]},
+            {"name": "Travel", "subcategories": ["Flights", "Hotels", "Car Rental"]},
+            {"name": "Education", "subcategories": ["Tuition", "Books", "Courses"]},
+            {"name": "Income", "subcategories": ["Salary", "Bonus", "Interest"]},
+            {"name": "Utilities", "subcategories": ["Electric", "Water", "Gas", "Internet"]},
+            {"name": "Subscriptions", "subcategories": ["Streaming", "Software", "Memberships"]}
         ]
-        all_categories.update(default_categories)
+        categories = default_categories
+        
+        # Save default categories
+        with open(categories_file, 'w') as f:
+            json.dump(categories, f)
     
-    # Return sorted list
-    category_list = sorted(list(all_categories))
-    logger.debug(f"Returning {len(category_list)} categories")
-
-    return jsonify({'categories': category_list})
+    # Extract just category names for backward compatibility
+    category_names = [category["name"] for category in categories]
+    
+    return jsonify({
+        'categories': categories,
+        'category_names': category_names  # For backward compatibility
+    })
     
 # Helper function to parse dates in various formats
 def parse_date(date_str):
@@ -1442,12 +1449,14 @@ def add_category():
             categories = json.load(f)
     
     # Check if category already exists
-    if new_category in categories:
+    if any(c["name"] == new_category for c in categories):
         return jsonify({'message': 'Category already exists', 'categories': categories})
     
     # Add new category
-    categories.append(new_category)
-    categories.sort()
+    categories.append({
+        "name": new_category,
+        "subcategories": []
+    })
     
     # Save categories
     with open(categories_file, 'w') as f:
@@ -1456,14 +1465,15 @@ def add_category():
     return jsonify({'message': 'Category added successfully', 'categories': categories})
 
 # Route to delete a category
-@app.route('/delete_category', methods=['POST'])
+@app.route('/delete_subcategory', methods=['POST'])
 @api_error_handler
-def delete_category():
+def delete_subcategory():
     data = request.json
     category = data.get('category')
+    subcategory = data.get('subcategory')
     
-    if not category:
-        return jsonify({'error': 'Category name is required'}), 400
+    if not category or not subcategory:
+        return jsonify({'error': 'Category and subcategory names are required'}), 400
         
     # Load saved category preferences
     categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
@@ -1473,23 +1483,73 @@ def delete_category():
         with open(categories_file, 'r') as f:
             categories = json.load(f)
     
-    # Check if category exists
-    if category not in categories:
+    # Find the category
+    category_index = next((i for i, c in enumerate(categories) if c["name"] == category), None)
+    if category_index is None:
         return jsonify({'error': 'Category not found'}), 404
     
-    # Remove category
-    categories.remove(category)
+    # Check if subcategory exists
+    if subcategory not in categories[category_index]["subcategories"]:
+        return jsonify({'error': 'Subcategory not found'}), 404
+    
+    # Remove subcategory
+    categories[category_index]["subcategories"].remove(subcategory)
     
     # Save categories
     with open(categories_file, 'w') as f:
         json.dump(categories, f)
         
-    return jsonify({'message': 'Category deleted successfully', 'categories': categories})
+    return jsonify({
+        'message': 'Subcategory deleted successfully', 
+        'categories': categories,
+        'category': categories[category_index]
+    })
     
 # Route to view logs
 @app.route('/logs')
 def view_logs():
     return render_template('log_viewer.html')
+
+@app.route('/add_subcategory', methods=['POST'])
+@api_error_handler
+def add_subcategory():
+    data = request.json
+    category = data.get('category')
+    subcategory = data.get('subcategory')
+    
+    if not category or not subcategory:
+        return jsonify({'error': 'Category and subcategory names are required'}), 400
+        
+    # Load saved category preferences
+    categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
+    
+    categories = []
+    if os.path.exists(categories_file):
+        with open(categories_file, 'r') as f:
+            categories = json.load(f)
+    
+    # Find the category
+    category_index = next((i for i, c in enumerate(categories) if c["name"] == category), None)
+    if category_index is None:
+        return jsonify({'error': 'Category not found'}), 404
+    
+    # Check if subcategory already exists
+    if subcategory in categories[category_index]["subcategories"]:
+        return jsonify({'message': 'Subcategory already exists', 'categories': categories})
+    
+    # Add subcategory
+    categories[category_index]["subcategories"].append(subcategory)
+    categories[category_index]["subcategories"].sort()  # Keep alphabetical order
+    
+    # Save categories
+    with open(categories_file, 'w') as f:
+        json.dump(categories, f)
+        
+    return jsonify({
+        'message': 'Subcategory added successfully', 
+        'categories': categories,
+        'category': categories[category_index]
+    })
 
 # API endpoint to get logs
 @app.route('/api/logs')

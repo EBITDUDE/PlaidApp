@@ -1,8 +1,9 @@
 /**
  * categories.js - Category management functionality for ASB Personal Finance App
- * 
- * This file contains the JavaScript code for the category management page.
  */
+
+let currentCategories = [];
+let selectedCategory = null;
 
 /**
  * Initialize the category management page when DOM is loaded
@@ -26,66 +27,202 @@ document.addEventListener('DOMContentLoaded', function () {
  * Load categories from the server and display them
  */
 function loadCategories() {
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const categoriesTable = document.getElementById('categories-table');
-
     fetch('/get_categories')
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                loadingIndicator.textContent = 'Error loading categories: ' + data.error;
+                console.error('Error loading categories:', data.error);
+                alert('Error loading categories: ' + data.error);
             } else {
-                loadingIndicator.style.display = 'none';
-                categoriesTable.style.display = 'table';
+                currentCategories = data.categories || [];
+                displayCategories(currentCategories);
 
-                const categories = data.categories;
-                displayCategories(categories);
+                // If we had a previously selected category, try to reselect it
+                if (selectedCategory) {
+                    const category = currentCategories.find(c => c.name === selectedCategory.name);
+                    if (category) {
+                        selectCategory(category);
+                    } else {
+                        selectedCategory = null;
+                        displaySubcategories(null);
+                    }
+                }
             }
         })
         .catch(err => {
-            loadingIndicator.textContent = 'Error loading categories: ' + err.message;
             console.error('Error loading categories:', err);
+            alert('Error loading categories: ' + err.message);
         });
 }
 
 /**
- * Display categories in the table
+ * Display categories in the left panel
  * 
- * @param {Array} categories - Array of category names
+ * @param {Array} categories - Array of category objects
  */
 function displayCategories(categories) {
-    const tbody = document.getElementById('categories-body');
-    tbody.innerHTML = '';
+    const categoriesList = document.getElementById('categories-list');
+    categoriesList.innerHTML = '';
 
     if (categories.length === 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="2">No categories found. Add your first category above.</td>';
-        tbody.appendChild(row);
+        categoriesList.innerHTML = '<div class="no-categories">No categories found. Add your first category above.</div>';
         return;
     }
 
     categories.forEach(category => {
-        const row = document.createElement('tr');
+        const categoryItem = document.createElement('div');
+        categoryItem.className = 'category-item';
+        if (selectedCategory && category.name === selectedCategory.name) {
+            categoryItem.className += ' active';
+        }
 
-        row.innerHTML = `
-            <td>${category}</td>
-            <td>
-                <button class="delete-btn" data-category="${category}">Delete</button>
-            </td>
+        categoryItem.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>${category.name}</span>
+                <button class="delete-btn" data-category="${category.name}">✕</button>
+            </div>
+            <div style="font-size: 0.8em; color: #777;">
+                ${category.subcategories.length} subcategories
+            </div>
         `;
 
-        tbody.appendChild(row);
+        categoryItem.addEventListener('click', function (e) {
+            // Don't trigger if the delete button was clicked
+            if (e.target.classList.contains('delete-btn')) {
+                return;
+            }
+
+            // Remove active class from all categories
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Add active class to this category
+            categoryItem.classList.add('active');
+
+            // Set selected category and display subcategories
+            selectCategory(category);
+        });
+
+        categoriesList.appendChild(categoryItem);
     });
 
     // Add delete button handlers
     document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();  // Prevent triggering the category click
             const category = this.getAttribute('data-category');
-            if (confirm(`Are you sure you want to delete the category "${category}"?`)) {
+            if (confirm(`Are you sure you want to delete the category "${category}" and all its subcategories?`)) {
                 deleteCategory(category);
             }
         });
     });
+}
+
+/**
+ * Select a category and display its subcategories
+ * 
+ * @param {Object} category - The category object to select
+ */
+function selectCategory(category) {
+    selectedCategory = category;
+    displaySubcategories(category);
+}
+
+/**
+ * Display subcategories for the selected category
+ * 
+ * @param {Object} category - The selected category object
+ */
+function displaySubcategories(category) {
+    const headerDiv = document.getElementById('subcategory-header');
+    const contentDiv = document.getElementById('subcategory-content');
+
+    if (!category) {
+        headerDiv.innerHTML = '<h3>Select a category to manage subcategories</h3>';
+        contentDiv.innerHTML = `
+            <div class="no-subcategories">
+                Please select a category from the left panel.
+            </div>
+        `;
+        return;
+    }
+
+    // Update header with category name
+    headerDiv.innerHTML = `
+        <h3>Subcategories for "${category.name}"</h3>
+        <div class="add-form" style="margin-top: 10px;">
+            <input type="text" id="new-subcategory" placeholder="Enter subcategory name">
+            <button id="add-subcategory-btn">Add Subcategory</button>
+        </div>
+    `;
+
+    // Show subcategories list or empty message
+    if (category.subcategories.length === 0) {
+        contentDiv.innerHTML = `
+            <div class="no-subcategories">
+                No subcategories found for "${category.name}". Add your first subcategory above.
+            </div>
+        `;
+    } else {
+        contentDiv.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subcategory Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="subcategories-body"></tbody>
+            </table>
+        `;
+
+        const tbody = document.getElementById('subcategories-body');
+
+        category.subcategories.forEach(subcategory => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${subcategory}</td>
+                <td>
+                    <button class="delete-subcategory-btn delete-btn" 
+                            data-category="${category.name}" 
+                            data-subcategory="${subcategory}">Delete</button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        // Add delete button handlers for subcategories
+        document.querySelectorAll('.delete-subcategory-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const catName = this.getAttribute('data-category');
+                const subName = this.getAttribute('data-subcategory');
+                if (confirm(`Are you sure you want to delete the subcategory "${subName}"?`)) {
+                    deleteSubcategory(catName, subName);
+                }
+            });
+        });
+    }
+
+    // Add handler for the add subcategory button
+    const addSubcategoryBtn = document.getElementById('add-subcategory-btn');
+    if (addSubcategoryBtn) {
+        addSubcategoryBtn.addEventListener('click', function () {
+            addSubcategory(category.name);
+        });
+    }
+
+    // Add subcategory on Enter key
+    const subcategoryInput = document.getElementById('new-subcategory');
+    if (subcategoryInput) {
+        subcategoryInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                addSubcategory(category.name);
+            }
+        });
+    }
 }
 
 /**
@@ -106,12 +243,7 @@ function addCategory() {
     }
 
     // Client-side check for existing categories
-    const existingCategories = document.querySelectorAll('#categories-body tr td:first-child');
-    const categoryExists = Array.from(existingCategories).some(
-        categoryCell => categoryCell.textContent.toLowerCase() === newCategory.toLowerCase()
-    );
-
-    if (categoryExists) {
+    if (currentCategories.some(c => c.name.toLowerCase() === newCategory.toLowerCase())) {
         alert('Category already exists');
         categoryInput.focus();
         return;
@@ -126,10 +258,6 @@ function addCategory() {
         .then(data => {
             if (data.error) {
                 alert('Error adding category: ' + data.error);
-            } else if (data.message && data.message === 'Category already exists') {
-                // Handle server-side duplicate check
-                alert('Category already exists');
-                categoryInput.focus();
             } else {
                 categoryInput.value = '';
                 loadCategories(); // Refresh the full list
@@ -157,11 +285,118 @@ function deleteCategory(category) {
             if (data.error) {
                 alert('Error deleting category: ' + data.error);
             } else {
+                // Clear selection if we deleted the selected category
+                if (selectedCategory && selectedCategory.name === category) {
+                    selectedCategory = null;
+                    displaySubcategories(null);
+                }
                 loadCategories();
             }
         })
         .catch(err => {
             console.error('Error deleting category:', err);
             alert('Error deleting category: ' + err.message);
+        });
+}
+
+/**
+ * Add a new subcategory to the selected category
+ * 
+ * @param {string} categoryName - Name of the category to add the subcategory to
+ */
+function addSubcategory(categoryName) {
+    const subcategoryInput = document.getElementById('new-subcategory');
+    const newSubcategory = subcategoryInput.value.trim();
+
+    if (!newSubcategory) {
+        alert('Please enter a subcategory name');
+        return;
+    }
+
+    if (newSubcategory.length > 50) {
+        alert('Subcategory name must be 50 characters or less');
+        return;
+    }
+
+    // Find the category
+    const category = currentCategories.find(c => c.name === categoryName);
+    if (!category) {
+        alert('Category not found');
+        return;
+    }
+
+    // Client-side check for existing subcategories
+    if (category.subcategories.some(s => s.toLowerCase() === newSubcategory.toLowerCase())) {
+        alert('Subcategory already exists');
+        subcategoryInput.focus();
+        return;
+    }
+
+    fetch('/add_subcategory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            category: categoryName,
+            subcategory: newSubcategory
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error adding subcategory: ' + data.error);
+            } else {
+                subcategoryInput.value = '';
+
+                // Update local data and UI without a full reload
+                const categoryIndex = currentCategories.findIndex(c => c.name === categoryName);
+                if (categoryIndex >= 0) {
+                    currentCategories[categoryIndex] = data.category;
+                    displayCategories(currentCategories);
+                    selectCategory(currentCategories[categoryIndex]);
+                } else {
+                    loadCategories(); // Fallback to full reload
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error adding subcategory:', err);
+            alert('Error adding subcategory: ' + err.message);
+        });
+}
+
+/**
+ * Delete a subcategory
+ * 
+ * @param {string} categoryName - Name of the category containing the subcategory
+ * @param {string} subcategoryName - Name of the subcategory to delete
+ */
+function deleteSubcategory(categoryName, subcategoryName) {
+    fetch('/delete_subcategory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            category: categoryName,
+            subcategory: subcategoryName
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error deleting subcategory: ' + data.error);
+            } else {
+                // Update local data and UI without a full reload
+                const categoryIndex = currentCategories.findIndex(c => c.name === categoryName);
+                if (categoryIndex >= 0) {
+                    currentCategories[categoryIndex] = data.category;
+                    displayCategories(currentCategories);
+                    selectCategory(currentCategories[categoryIndex]);
+                } else {
+                    loadCategories(); // Fallback to full reload
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error deleting subcategory:', err);
+            alert('Error deleting subcategory: ' + err.message);
         });
 }

@@ -49,24 +49,87 @@ function handleEditableCell(cell) {
         if (numValue.startsWith('+')) numValue = numValue.substring(1);
         editHtml = `<input type="text" class="edit-input" value="${numValue}" placeholder="0.00">`;
     } else if (field === 'category') {
-        // We'll load categories from the server
-        editHtml = `<select class="edit-input"><option value="${currentValue}">${currentValue}</option></select>`;
+        // Extract category and subcategory
+        let category = currentValue;
+        let subcategory = cell.getAttribute('data-subcategory') || '';
 
-        // Fetch categories and add to dropdown
-        fetch('/get_categories')
-            .then(response => response.json())
-            .then(data => {
-                const select = cell.querySelector('select');
-                select.innerHTML = '';
+        // If display includes subcategory, parse it out
+        if (currentValue.includes(' › ')) {
+            const parts = currentValue.split(' › ');
+            category = parts[0];
+            subcategory = parts[1];
+        }
 
-                data.categories.forEach(category => {
-                    const option = document.createElement('option');
-                    option.value = category;
-                    option.textContent = category;
-                    option.selected = category === currentValue;
-                    select.appendChild(option);
-                });
-            });
+        // Create container for the category editor
+        editHtml = `<div id="tx-category-editor"></div>`;
+
+        // Set the cell content to the edit interface
+        cell.innerHTML = editHtml;
+
+        // Create the category dropdown
+        const categoryEditor = createCategoryDropdown({
+            containerId: 'tx-category-editor',
+            inputName: 'tx-category',
+            subcategoryInputName: 'tx-subcategory',
+            required: false
+        });
+
+        // Set the initial value
+        categoryEditor.setValue({
+            category: category,
+            subcategory: subcategory
+        });
+
+        // Create a save button
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Save';
+        saveBtn.className = 'save-btn';
+        saveBtn.style.marginTop = '5px';
+        saveBtn.style.padding = '2px 5px';
+        saveBtn.style.backgroundColor = '#4CAF50';
+        saveBtn.style.color = 'white';
+        saveBtn.style.border = 'none';
+        saveBtn.style.borderRadius = '3px';
+        saveBtn.style.cursor = 'pointer';
+
+        // Create a cancel button
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.className = 'cancel-btn';
+        cancelBtn.style.marginTop = '5px';
+        cancelBtn.style.marginLeft = '5px';
+        cancelBtn.style.padding = '2px 5px';
+        cancelBtn.style.backgroundColor = '#f8f8f8';
+        cancelBtn.style.border = '1px solid #ddd';
+        cancelBtn.style.borderRadius = '3px';
+        cancelBtn.style.cursor = 'pointer';
+
+        // Add buttons to the cell
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.display = 'flex';
+        buttonContainer.appendChild(saveBtn);
+        buttonContainer.appendChild(cancelBtn);
+        cell.appendChild(buttonContainer);
+
+        // Save button handler
+        saveBtn.addEventListener('click', function () {
+            const value = categoryEditor.getValue();
+            if (!value.category) {
+                alert('Please select a category');
+                return;
+            }
+
+            // Update transaction with new category and subcategory
+            updateTransactionCategory(txId, value.category, value.subcategory, cell, originalContent);
+        });
+
+        // Cancel button handler
+        cancelBtn.addEventListener('click', function () {
+            cell.innerHTML = originalContent;
+        });
+
+        // Don't proceed with the rest of the function
+        return;
     } else if (field === 'merchant') {
         editHtml = `<input type="text" class="edit-input" value="${currentValue}">`;
     } else if (field === 'type') {
@@ -79,80 +142,80 @@ function handleEditableCell(cell) {
         `;
     }
 
-    // Set the cell content to the edit interface
-    cell.innerHTML = editHtml;
-    const input = cell.querySelector('.edit-input');
-    input.focus();
+    // Set the cell content to the edit interface (for non-category fields)
+    if (editHtml) {
+        cell.innerHTML = editHtml;
+        const input = cell.querySelector('.edit-input');
+        input.focus();
 
-    // Handler for save on Enter or blur
-    const saveEdit = () => {
-        let newValue = input.value.trim();
+        // Handler for save on Enter or blur
+        const saveEdit = () => {
+            let newValue = input.value.trim();
 
-        // For select elements, get the selected option
-        if (input.tagName === 'SELECT') {
-            newValue = input.options[input.selectedIndex].value;
-        }
+            // For select elements, get the selected option
+            if (input.tagName === 'SELECT') {
+                newValue = input.options[input.selectedIndex].value;
+            }
 
-        // Don't save if empty
-        if (!newValue) {
-            cell.innerHTML = originalContent;
-            return;
-        }
-
-        // Process based on field type
-        if (field === 'category') {
-            updateTransactionCategory(txId, newValue, cell, originalContent);
-        } else if (field === 'date') {
-            // Validate date format
-            if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(newValue)) {
-                alert('Please use MM/DD/YYYY format');
+            // Don't save if empty
+            if (!newValue) {
                 cell.innerHTML = originalContent;
                 return;
             }
 
-            updateTransactionField(txId, 'date', newValue, cell, originalContent);
-        } else if (field === 'amount') {
-            // Validate amount
-            if (isNaN(parseFloat(newValue))) {
-                alert('Please enter a valid number');
-                cell.innerHTML = originalContent;
-                return;
+            // Process based on field type
+            if (field === 'date') {
+                // Validate date format
+                if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(newValue)) {
+                    alert('Please use MM/DD/YYYY format');
+                    cell.innerHTML = originalContent;
+                    return;
+                }
+
+                updateTransactionField(txId, 'date', newValue, cell, originalContent);
+            } else if (field === 'amount') {
+                // Validate amount
+                if (isNaN(parseFloat(newValue))) {
+                    alert('Please enter a valid number');
+                    cell.innerHTML = originalContent;
+                    return;
+                }
+
+                const isDebit = row.querySelector('[data-field="amount"]').getAttribute('data-is-debit') === 'true';
+                updateTransactionField(txId, 'amount', newValue, cell, originalContent, isDebit);
+            } else if (field === 'merchant') {
+                updateTransactionField(txId, 'merchant', newValue, cell, originalContent);
+            } else if (field === 'type') {
+                const isDebit = newValue === 'expense';
+                const amountCell = row.querySelector('[data-field="amount"]');
+                const amountStr = amountCell.textContent.replace(/[^0-9.-]+/g, '');
+
+                updateTransactionField(txId, 'is_debit', isDebit, cell, originalContent, null, () => {
+                    // Update the UI to reflect type change
+                    cell.textContent = isDebit ? 'Expense' : 'Income';
+
+                    // Update amount display and data-is-debit attribute
+                    amountCell.setAttribute('data-is-debit', isDebit);
+                    amountCell.classList.toggle('income-amount', !isDebit);
+
+                    const amount = parseFloat(amountStr);
+                    amountCell.textContent = isDebit ? `$${amount.toFixed(2)}` : `+$${amount.toFixed(2)}`;
+                });
             }
+        };
 
-            const isDebit = row.querySelector('[data-field="amount"]').getAttribute('data-is-debit') === 'true';
-            updateTransactionField(txId, 'amount', newValue, cell, originalContent, isDebit);
-        } else if (field === 'merchant') {
-            updateTransactionField(txId, 'merchant', newValue, cell, originalContent);
-        } else if (field === 'type') {
-            const isDebit = newValue === 'expense';
-            const amountCell = row.querySelector('[data-field="amount"]');
-            const amountStr = amountCell.textContent.replace(/[^0-9.-]+/g, '');
-
-            updateTransactionField(txId, 'is_debit', isDebit, cell, originalContent, null, () => {
-                // Update the UI to reflect type change
-                cell.textContent = isDebit ? 'Expense' : 'Income';
-
-                // Update amount display and data-is-debit attribute
-                amountCell.setAttribute('data-is-debit', isDebit);
-                amountCell.classList.toggle('income-amount', !isDebit);
-
-                const amount = parseFloat(amountStr);
-                amountCell.textContent = isDebit ? `$${amount.toFixed(2)}` : `+$${amount.toFixed(2)}`;
-            });
-        }
-    };
-
-    // Event handlers
-    input.addEventListener('blur', saveEdit);
-    input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            saveEdit();
-        } else if (e.key === 'Escape') {
-            e.preventDefault();
-            cell.innerHTML = originalContent;
-        }
-    });
+        // Event handlers for non-category fields
+        input.addEventListener('blur', saveEdit);
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveEdit();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cell.innerHTML = originalContent;
+            }
+        });
+    }
 }
 
 /**
@@ -344,6 +407,7 @@ function displayTransactions(transactions, callback) {
                 const row = document.createElement('tr');
                 row.setAttribute('data-id', tx.id);
                 row.setAttribute('data-category', tx.category);
+                row.setAttribute('data-subcategory', tx.subcategory || '');
                 row.setAttribute('data-date', tx.date);
                 row.setAttribute('data-type', tx.is_debit ? 'expense' : 'income');
 
@@ -364,11 +428,16 @@ function displayTransactions(transactions, callback) {
                     accountDisplay = 'No Account';
                 }
 
+                // Format category with subcategory
+                const categoryDisplay = tx.subcategory ?
+                    `${tx.category} › ${tx.subcategory}` :
+                    tx.category;
+
                 row.innerHTML = `
                     <td class="editable" data-field="date">${tx.date}</td>
                     <td class="editable ${amountClass}" data-field="amount" data-is-debit="${tx.is_debit}">${amountDisplay}</td>
                     <td>${typeDisplay}</td>
-                    <td class="editable" data-field="category">${tx.category}</td>
+                    <td class="editable" data-field="category" data-subcategory="${tx.subcategory || ''}">${categoryDisplay}</td>
                     <td class="editable" data-field="merchant">${tx.merchant}</td>
                     <td>${accountDisplay}</td>
                     <td>
@@ -416,24 +485,31 @@ function displayTransactions(transactions, callback) {
  * @param {HTMLElement} cell - The cell element being edited
  * @param {string} originalContent - Original HTML content to restore on error
  */
-function updateTransactionCategory(txId, newCategory, cell, originalContent) {
+function updateTransactionCategory(txId, newCategory, newSubcategory, cell, originalContent) {
     fetch('/update_transaction', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             id: txId,
-            category: newCategory
+            category: newCategory,
+            subcategory: newSubcategory
         })
     })
         .then(response => response.json())
         .then(data => {
             console.log('Transaction category updated:', data);
 
-            // Update cell with new value
-            cell.textContent = newCategory;
+            // Update cell with new category and subcategory
+            const displayValue = newSubcategory ?
+                `${newCategory} › ${newSubcategory}` :
+                newCategory;
 
-            // Update category in row dataset
+            cell.textContent = displayValue;
+
+            // Update data attributes
+            cell.setAttribute('data-subcategory', newSubcategory || '');
             cell.closest('tr').setAttribute('data-category', newCategory);
+            cell.closest('tr').setAttribute('data-subcategory', newSubcategory || '');
 
             // Refresh transactions to update category totals
             loadTransactions();
