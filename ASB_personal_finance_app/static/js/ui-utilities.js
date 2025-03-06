@@ -82,18 +82,6 @@ function showCustomDateModal() {
     // Store previous selection
     dateFilter.setAttribute('data-previous', dateFilter.value);
 
-    // Load saved custom dates if available
-    const savedStart = localStorage.getItem('custom-date-start');
-    const savedEnd = localStorage.getItem('custom-date-end');
-
-    if (savedStart) {
-        document.getElementById('custom-date-start').value = savedStart;
-    }
-
-    if (savedEnd) {
-        document.getElementById('custom-date-end').value = savedEnd;
-    }
-
     // Show modal
     customDateModal.style.display = 'block';
 }
