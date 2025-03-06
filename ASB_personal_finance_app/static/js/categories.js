@@ -100,6 +100,11 @@ function addCategory() {
         return;
     }
 
+    if (newCategory.length > 50) {
+        alert('Category name must be 50 characters or less');
+        return;
+    }
+
     // Client-side check for existing categories
     const existingCategories = document.querySelectorAll('#categories-body tr td:first-child');
     const categoryExists = Array.from(existingCategories).some(

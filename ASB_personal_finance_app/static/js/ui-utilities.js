@@ -41,9 +41,11 @@ function setupDateFilters() {
                 return;
             }
 
-            // Store custom date range
-            localStorage.setItem('custom-date-start', customDateStart.value);
-            localStorage.setItem('custom-date-end', customDateEnd.value);
+            // Update transactionFilter if available
+            if (window.transactionFilter) {
+                window.transactionFilter.customDateStart = customDateStart.value;
+                window.transactionFilter.customDateEnd = customDateEnd.value;
+            }
 
             // Create a new option for this specific date range
             let customRangeOption = dateFilter.querySelector('option[value="custom"]');
@@ -61,7 +63,9 @@ function setupDateFilters() {
 
             // Close modal and apply filter
             customDateModal.style.display = 'none';
-            if (transactionFilter) transactionFilter.applyFilters();
+            if (transactionFilter) {
+                transactionFilter.applyFilters(); // This will also save the filters
+            }
         });
     }
 }

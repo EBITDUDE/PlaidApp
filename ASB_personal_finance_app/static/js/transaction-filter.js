@@ -42,6 +42,9 @@ class TransactionFilter {
         // Initialize filter events
         this._initFilterEvents();
 
+        // Restore saved filters
+        this.restoreFilters();
+
         // Custom date range variables
         this.customDateStart = null;
         this.customDateEnd = null;
@@ -134,8 +137,6 @@ class TransactionFilter {
                 // Store the date range
                 this.customDateStart = startInput.value;
                 this.customDateEnd = endInput.value;
-                localStorage.setItem('custom-date-start', this.customDateStart);
-                localStorage.setItem('custom-date-end', this.customDateEnd);
 
                 // Update date filter dropdown label
                 if (this.filterElements.date) {
@@ -214,13 +215,9 @@ class TransactionFilter {
         } else if (dateFilter === 'ytd') {
             startDate = new Date(current.getFullYear(), 0, 1);
         } else if (dateFilter === 'custom') {
-            // Load custom date range
-            const customStart = this.customDateStart || localStorage.getItem('custom-date-start');
-            const customEnd = this.customDateEnd || localStorage.getItem('custom-date-end');
-
-            if (customStart && customEnd) {
-                startDate = this._parseDate(customStart);
-                endDate = this._parseDate(customEnd);
+            if (this.customDateStart && this.customDateEnd) {
+                startDate = this._parseDate(this.customDateStart);
+                endDate = this._parseDate(this.customDateEnd);
             }
         }
 
@@ -309,7 +306,82 @@ class TransactionFilter {
             });
         }
 
+        this.saveFilters();
+
         return visibleCount;
+    }
+
+    /**
+     * Saves the current filter state to sessionStorage
+     */
+    saveFilters() {
+        const filterState = {
+            search: this.filterElements.search ? this.filterElements.search.value : '',
+            date: this.filterElements.date ? this.filterElements.date.value : 'all',
+            category: this.filterElements.category ? this.filterElements.category.value : 'all',
+            type: this.filterElements.type ? this.filterElements.type.value : 'all',
+            customDateStart: this.customDateStart || '',
+            customDateEnd: this.customDateEnd || ''
+        };
+        sessionStorage.setItem('transactionFilters', JSON.stringify(filterState));
+    }
+
+    /**
+     * Restores filter state from sessionStorage
+     */
+    restoreFilters() {
+        const saved = sessionStorage.getItem('transactionFilters');
+        if (saved) {
+            const filterState = JSON.parse(saved);
+
+            if (this.filterElements.search && filterState.search !== undefined) {
+                this.filterElements.search.value = filterState.search;
+            }
+            if (this.filterElements.date && filterState.date !== undefined) {
+                this.filterElements.date.value = filterState.date;
+                if (filterState.date === 'custom' && filterState.customDateStart && filterState.customDateEnd) {
+                    let customOption = Array.from(this.filterElements.date.options).find(opt => opt.value === 'custom');
+                    if (!customOption) {
+                        customOption = document.createElement('option');
+                        customOption.value = 'custom';
+                        this.filterElements.date.appendChild(customOption);
+                    }
+                    const startText = filterState.customDateStart.replace(/\/\d{4}$/, match => '/' + match.slice(-2));
+                    const endText = filterState.customDateEnd.replace(/\/\d{4}$/, match => '/' + match.slice(-2));
+                    customOption.textContent = `${startText} - ${endText}`;
+                }
+            }
+            if (this.filterElements.category && filterState.category !== undefined) {
+                this.filterElements.category.value = filterState.category;
+            }
+            if (this.filterElements.type && filterState.type !== undefined) {
+                this.filterElements.type.value = filterState.type;
+            }
+            this.customDateStart = filterState.customDateStart || null;
+            this.customDateEnd = filterState.customDateEnd || null;
+        }
+    }
+
+    /**
+     * Resets all filters to default and applies them
+     */
+    clearAllFilters() {
+        if (this.filterElements.search) {
+            this.filterElements.search.value = '';
+        }
+        if (this.filterElements.date) {
+            this.filterElements.date.value = 'all';
+        }
+        if (this.filterElements.category) {
+            this.filterElements.category.value = 'all';
+        }
+        if (this.filterElements.type) {
+            this.filterElements.type.value = 'all';
+        }
+        this.customDateStart = null;
+        this.customDateEnd = null;
+        sessionStorage.removeItem('transactionFilters');
+        this.applyFilters();
     }
 
     /**

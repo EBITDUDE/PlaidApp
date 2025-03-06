@@ -195,6 +195,12 @@ function loadTransactions() {
     const txTable = document.getElementById('transactions-body');
     const txSection = document.getElementById('transactions-section');
 
+    // Check if we already have filters/paginator that we want to preserve
+    const hadExistingFilters = window.transactionFilter != null;
+    if (hadExistingFilters) {
+        console.log("Preserving existing filters during transaction reload");
+    }
+
     // Clear previous content and show loading
     txTable.innerHTML = `
         <tr>
@@ -334,11 +340,10 @@ function displayTransactions(transactions) {
         categoryFilter.appendChild(categoryFragment);
 
         // Fetch accounts before showing transactions
-        fetchAndStoreAccounts().then(accountsMap => {
+        return fetchAndStoreAccounts().then(accountsMap => {
             // Create a document fragment for transaction rows
             const fragment = document.createDocumentFragment();
-
-            transactions.forEach((tx, index) => {
+            transactions.forEach((tx) => {
                 const row = document.createElement('tr');
                 row.setAttribute('data-id', tx.id);
                 row.setAttribute('data-category', tx.category);
@@ -383,13 +388,6 @@ function displayTransactions(transactions) {
 
             // Add all rows at once
             txTable.appendChild(fragment);
-
-            // Apply filters
-            if (transactionFilter) {
-                transactionFilter.applyFilters();
-            } else {
-                setupPaginationAndFilters();
-            }
         });
     } else {
         // Handle empty case

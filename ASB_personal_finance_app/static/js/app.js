@@ -137,6 +137,16 @@ function setupFilterEventListeners() {
             paginator.updateVisibility(true);
         }
     });
+
+    // Add clear filters button handler
+    const clearFiltersBtn = document.getElementById('clear-filters-btn');
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function () {
+            if (transactionFilter) {
+                transactionFilter.clearAllFilters();
+            }
+        });
+    }
 }
 
 /**
@@ -375,6 +385,11 @@ function handleAddTransactionSubmit(event) {
         return;
     }
 
+    if (newCategory.length > 50) {
+        alert('Category name must be 50 characters or less');
+        return;
+    }
+
     // Determine if it's a debit based on the type
     const isDebit = newType === 'expense';
 
@@ -458,6 +473,15 @@ function setupPaginationAndFilters() {
         paginator: paginator // Connect filter to paginator
     });
 
-    // Apply initial filters
-    transactionFilter.applyFilters();
+    // Make transactionFilter globally available
+    window.transactionFilter = transactionFilter;
+
+    setTimeout(() => {
+        try {
+            console.log("Applying filters after delay");
+            transactionFilter.applyFilters();
+        } catch (e) {
+            console.error("Error applying filters after delay:", e);
+        }
+    }, 100);
 }
