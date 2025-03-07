@@ -58,11 +58,13 @@ function createCategoryDropdown(options = {}) {
             </div>
             
             <div style="display: none; margin-top: 5px;" id="${config.containerId}-new-subcat-container">
-                <div style="display: flex; gap: 5px;">
+                <div style="display: flex; gap: 5px; margin-bottom: 5px;">
                     <input type="text" id="${newSubcatFieldId}" placeholder="Enter new subcategory name (optional)" 
-                           style="flex-grow: 1; padding: 5px;">
+                        style="flex-grow: 1; padding: 5px;">
                     <button type="button" id="${config.containerId}-add-subcat-btn" 
                             style="padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 3px;">Add</button>
+                    <button type="button" id="${config.containerId}-cancel-subcat-btn" 
+                            style="padding: 5px 10px; border: 1px solid #ddd; background-color: #f8f8f8; cursor: pointer; border-radius: 3px;">Cancel</button>
                 </div>
             </div>
         </div>
@@ -247,6 +249,7 @@ function createCategoryDropdown(options = {}) {
         if (this.value === 'add_new') {
             // Show the new subcategory input
             newSubcatContainer.style.display = 'block';
+            subcatDropdown.style.display = 'none'; // Hide the dropdown
             newSubcatField.focus();
         } else {
             // Update hidden input with selected subcategory
@@ -370,6 +373,20 @@ function createCategoryDropdown(options = {}) {
                 alert('Error adding subcategory: ' + err.message);
             });
     });
+
+    // Event handler for cancel subcategory button
+    const cancelSubcatBtn = document.getElementById(`${config.containerId}-cancel-subcat-btn`);
+    if (cancelSubcatBtn) {
+        cancelSubcatBtn.addEventListener('click', function () {
+            // Hide new subcategory input
+            newSubcatContainer.style.display = 'none';
+            // Show the dropdown again
+            subcatDropdown.style.display = 'block';
+            subcatDropdown.value = '';
+            // Clear input
+            newSubcatField.value = '';
+        });
+    }
 
     // Event handler for cancel button
     cancelButton.addEventListener('click', function () {

@@ -456,7 +456,7 @@
             style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
             <!-- Search Box -->
             <input type="text" id="transaction-search" placeholder="Search transactions..."
-                style="padding: 5px; width: 250px;">
+                style="padding: 5px; width: 150px;">
 
             <!-- Filters -->
             <div class="filter-dropdown" style="margin-right: 10px;">
@@ -477,6 +477,14 @@
                 <select id="category-filter" style="padding: 5px;">
                     <option value="all">All Categories</option>
                     <!-- Categories will be populated dynamically -->
+                </select>
+            </div>
+
+            <div class="filter-dropdown" style="margin-right: 10px;">
+                <label for="subcategory-filter">Subcategory:</label>
+                <select id="subcategory-filter" style="padding: 5px;">
+                    <option value="all">All Subcategories</option>
+                    <!-- Subcategories will be populated dynamically -->
                 </select>
             </div>
 
@@ -529,6 +537,7 @@
                     <th>Amount</th>
                     <th>Type</th>
                     <th>Category</th>
+                    <th>Subcategory</th> 
                     <th>Merchant</th>
                     <th>Account</th>
                     <th>Actions</th>

@@ -17,6 +17,7 @@ class TransactionFilter {
                 search: 'transaction-search',
                 date: 'date-filter',
                 category: 'category-filter',
+                subcategory: 'subcategory-filter',
                 type: 'type-filter'
             },
             onFilterChange: null,
@@ -192,6 +193,9 @@ class TransactionFilter {
         const categoryFilter = this.filterElements.category ?
             this.filterElements.category.value : 'all';
 
+        const subcategoryFilter = this.filterElements.subcategory ?
+            this.filterElements.subcategory.value : 'all';
+
         const typeFilter = this.filterElements.type ?
             this.filterElements.type.value : 'all';
 
@@ -229,6 +233,7 @@ class TransactionFilter {
         // Get filter states for efficiency
         const hasSearchFilter = searchTerm.length > 0;
         const hasCategoryFilter = categoryFilter !== 'all';
+        const hasSubcategoryFilter = subcategoryFilter !== 'all';
         const hasTypeFilter = typeFilter !== 'all';
         const hasDateFilter = startDate !== null;
 
@@ -254,6 +259,12 @@ class TransactionFilter {
             // Apply category filter
             if (hasCategoryFilter && showRow) {
                 showRow = rowCategory === categoryFilter;
+            }
+
+            // Apply subcategory filter
+            if (hasSubcategoryFilter && showRow) {
+                const rowSubcategory = row.getAttribute('data-subcategory') || '';
+                showRow = rowSubcategory === subcategoryFilter;
             }
 
             // Apply type filter
@@ -319,6 +330,7 @@ class TransactionFilter {
             search: this.filterElements.search ? this.filterElements.search.value : '',
             date: this.filterElements.date ? this.filterElements.date.value : 'all',
             category: this.filterElements.category ? this.filterElements.category.value : 'all',
+            subcategory: this.filterElements.subcategory ? this.filterElements.subcategory.value : 'all',
             type: this.filterElements.type ? this.filterElements.type.value : 'all',
             customDateStart: this.customDateStart || '',
             customDateEnd: this.customDateEnd || ''
@@ -366,6 +378,9 @@ class TransactionFilter {
             if (this.filterElements.category && filterState.category !== undefined) {
                 this.filterElements.category.value = filterState.category;
             }
+            if (this.filterElements.subcategory && filterState.subcategory !== undefined) {
+                this.filterElements.subcategory.value = filterState.subcategory;
+            }
             if (this.filterElements.type && filterState.type !== undefined) {
                 this.filterElements.type.value = filterState.type;
             }
@@ -386,6 +401,9 @@ class TransactionFilter {
         }
         if (this.filterElements.category) {
             this.filterElements.category.value = 'all';
+        }
+        if (this.filterElements.subcategory) {
+            this.filterElements.subcategory.value = 'all';
         }
         if (this.filterElements.type) {
             this.filterElements.type.value = 'all';

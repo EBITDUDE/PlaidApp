@@ -115,6 +115,7 @@ function setupFilterEventListeners() {
 
     document.getElementById('category-filter').addEventListener('change', function () {
         if (transactionFilter) transactionFilter.applyFilters();
+        updateSubcategoryDropdown(this.value);
     });
 
     document.getElementById('type-filter').addEventListener('change', function () {
@@ -147,6 +148,8 @@ function setupFilterEventListeners() {
             }
         });
     }
+
+    updateSubcategoryDropdown('all');
 }
 
 /**
@@ -223,6 +226,9 @@ function initializeUIComponents() {
 
     // Initialize category dropdown
     initCategoryDropdown();
+
+    // Initialize subcategory dropdown
+    updateSubcategoryDropdown('all');
 
     // Set up custom date filters
     setupDateFilters();
@@ -484,4 +490,49 @@ function setupPaginationAndFiltersAndApply() {
     transactionFilter.applyFilters();
 
     // No setTimeout here - the caller will apply filters when needed
+}
+
+function updateSubcategoryDropdown(categoryFilter) {
+    const subcategoryFilter = document.getElementById('subcategory-filter');
+    if (!subcategoryFilter) return;
+
+    // Clear existing options
+    subcategoryFilter.innerHTML = '<option value="all">All Subcategories</option>';
+
+    // Get all subcategories across all categories or for the specific category
+    fetch('/get_categories')
+        .then(response => response.json())
+        .then(data => {
+            const categories = data.categories || [];
+            const uniqueSubcategories = new Set();
+
+            // Collect subcategories based on filter
+            categories.forEach(category => {
+                // If a specific category is selected, only get subcategories for that category
+                if (categoryFilter !== 'all' && category.name !== categoryFilter) {
+                    return;
+                }
+
+                // Add all subcategories to the set
+                if (category.subcategories && category.subcategories.length > 0) {
+                    category.subcategories.forEach(subcategory => {
+                        uniqueSubcategories.add(subcategory);
+                    });
+                }
+            });
+
+            // Sort subcategories alphabetically
+            const sortedSubcategories = Array.from(uniqueSubcategories).sort();
+
+            // Add subcategories to dropdown
+            sortedSubcategories.forEach(subcategory => {
+                const option = document.createElement('option');
+                option.value = subcategory;
+                option.textContent = subcategory;
+                subcategoryFilter.appendChild(option);
+            });
+        })
+        .catch(err => {
+            console.error('Error fetching categories:', err);
+        });
 }

@@ -622,7 +622,7 @@ def add_transaction():
         'amount': abs(amount),
         'is_debit': is_debit,
         'category': category,
-        'subcategory': tx_data.get('subcategory', ''),  # Add subcategory support
+        'subcategory': tx_data.get('subcategory', ''), 
         'merchant': merchant,
         'account_id': tx_data.get('account_id', ''),
         'manual': True

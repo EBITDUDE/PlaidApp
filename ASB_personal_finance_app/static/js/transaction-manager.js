@@ -130,6 +130,8 @@ function handleEditableCell(cell) {
 
         // Don't proceed with the rest of the function
         return;
+    } else if (field === 'subcategory') {
+        editHtml = `<input type="text" class="edit-input" value="${currentValue}">`;
     } else if (field === 'merchant') {
         editHtml = `<input type="text" class="edit-input" value="${currentValue}">`;
     } else if (field === 'type') {
@@ -201,6 +203,8 @@ function handleEditableCell(cell) {
                     const amount = parseFloat(amountStr);
                     amountCell.textContent = isDebit ? `$${amount.toFixed(2)}` : `+$${amount.toFixed(2)}`;
                 });
+            } else if (field === 'subcategory') {
+                updateTransactionField(txId, 'subcategory', newValue, cell, originalContent);
             }
         };
 
@@ -437,7 +441,8 @@ function displayTransactions(transactions, callback) {
                     <td class="editable" data-field="date">${tx.date}</td>
                     <td class="editable ${amountClass}" data-field="amount" data-is-debit="${tx.is_debit}">${amountDisplay}</td>
                     <td>${typeDisplay}</td>
-                    <td class="editable" data-field="category" data-subcategory="${tx.subcategory || ''}">${categoryDisplay}</td>
+                    <td class="editable" data-field="category">${tx.category}</td>
+                    <td class="editable" data-field="subcategory">${tx.subcategory || '—'}</td>
                     <td class="editable" data-field="merchant">${tx.merchant}</td>
                     <td>${accountDisplay}</td>
                     <td>
