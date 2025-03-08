@@ -3,85 +3,12 @@
 
 <head>
     <title>Finance App Log Viewer</title>
-    <style>
-        body {
-            font-family: monospace;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        .log-container {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 20px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .log-entry {
-            margin-bottom: 5px;
-            padding: 5px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .error {
-            color: #e74c3c;
-            background-color: #ffeaea;
-        }
-
-        .warning {
-            color: #f39c12;
-            background-color: #fff8e6;
-        }
-
-        .info {
-            color: #3498db;
-        }
-
-        .debug {
-            color: #95a5a6;
-        }
-
-        .controls {
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 8px 15px;
-            margin-right: 10px;
-            border: none;
-            border-radius: 4px;
-            background-color: #3498db;
-            color: white;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #2980b9;
-        }
-
-        input[type="text"] {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 300px;
-        }
-
-        select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-    </style>
     <!-- Include our JavaScript file -->
     <script src="/static/js/log-viewer.js"></script>
     <script src="/static/js/error-utils.js"></script>
+
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/log-viewer.css">
 </head>
 
 <body>

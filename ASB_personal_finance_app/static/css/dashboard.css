@@ -1,0 +1,280 @@
+/* Dashboard specific styles */
+
+/* Filter controls section */
+.controls-container {
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-dropdown {
+    margin-right: 10px;
+}
+
+/* Search box */
+#transaction-search {
+    padding: 5px;
+    width: 150px;
+}
+
+/* View toggle styling */
+.view-toggle {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.view-toggle label {
+    margin-right: 10px;
+}
+
+/* Toggle switch specific styles */
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.toggle-slider {
+    background-color: #3498db;
+}
+
+input:checked+.toggle-slider:before {
+    transform: translateX(34px);
+}
+
+/* Pagination controls */
+.pagination-controls {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.pagination-info {
+    margin-bottom: 10px;
+}
+
+.pagination-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    padding: 5px 10px;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.pagination-btn:hover {
+    background-color: #e8e8e8;
+}
+
+.pagination-btn-active {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+.pagination-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+    padding: 5px;
+}
+
+/* Calendar specific styles */
+.calendar {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    width: 250px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calendar-weekday {
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+}
+
+.calendar-day {
+    text-align: center;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.calendar-day:hover {
+    background-color: #f0f0f0;
+}
+
+.calendar-day.selected {
+    background-color: #3498db;
+    color: white;
+}
+
+.calendar-day.other-month {
+    color: #aaa;
+}
+
+/* Compact view adjustments */
+.compact-view th,
+.compact-view td {
+    padding: 5px 8px;
+    font-size: 0.9em;
+}
+
+.compact-view .account-card {
+    padding: 10px;
+    width: 220px;
+}
+
+.compact-view .container {
+    padding: 12px;
+    margin-bottom: 20px;
+}
+
+.compact-view h2 {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+/* Additional utility classes */
+.mt-10 {
+    margin-top: 10px;
+}
+
+/* Date range container */
+.date-range-container {
+    margin-top: 15px;
+}
+
+.date-range-inputs {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+    align-items: center;
+}
+
+.date-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+/* Export range container */
+.export-range-container {
+    margin-top: 15px;
+}
+
+#export-date-range {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Modal footer */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* Form styles */
+#add-transaction-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Form control full width settings */
+.modal-content input[type="text"],
+.modal-content select {
+    width: 100%;
+    padding: 5px;
+}
+
+/* Missing month picker style */
+.month-picker {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+/* Category container width */
+.category-container {
+    width: 100%;
+}
+
+/* Delete button hover override */
+.delete-btn:hover {
+    background-color: #ff3333 !important;
+}
+
+/* Dashboard responsive adjustments */
+@media screen and (max-width: 768px) {
+    .accounts-container {
+        justify-content: center;
+    }
+
+    .account-card {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .controls-container {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .filter-dropdown {
+        margin-bottom: 10px;
+        width: 100%;
+    }
+
+    #add-transaction-btn {
+        width: 100%;
+    }
+}

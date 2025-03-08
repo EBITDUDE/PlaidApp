@@ -19,413 +19,11 @@
     <script src="/static/js/transaction-manager.js"></script>
     <script src="/static/js/app.js"></script>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            line-height: 1.6;
-            color: #333;
-        }
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <link rel="stylesheet" href="/static/css/tables.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
 
-        button {
-            padding: 10px;
-            margin: 5px;
-            cursor: pointer;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            background-color: #f8f8f8;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: #e0e0e0;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 15px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            /* Fix for header transparency */
-            box-shadow: 0 1px 0 #ddd;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f0f0f0;
-        }
-
-        .editable {
-            position: relative;
-        }
-
-        .editable:hover {
-            background-color: #e6f7ff;
-            cursor: pointer;
-        }
-
-        .editable:hover::after {
-            content: "✏️";
-            position: absolute;
-            right: 5px;
-            opacity: 0.5;
-        }
-
-        .container {
-            margin-bottom: 40px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        h1,
-        h2 {
-            color: #2c3e50;
-        }
-
-        .accounts-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .account-card {
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 5px;
-            width: 220px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
-            background-color: #fff;
-        }
-
-        .account-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .account-card h3 {
-            margin-top: 0;
-            color: #3498db;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-        }
-
-        input[type="text"],
-        select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            transition: border-color 0.2s;
-        }
-
-        input[type="text"]:focus,
-        select:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-
-        .filter-dropdown {
-            display: inline-block;
-        }
-
-        .filter-dropdown label {
-            margin-right: 5px;
-        }
-
-        #add-transaction-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            font-weight: bold;
-        }
-
-        #add-transaction-btn:hover {
-            background-color: #45a049;
-        }
-
-        .delete-btn:hover {
-            background-color: #ff3333 !important;
-        }
-
-        /* Income text color */
-        .income-amount {
-            color: #357D40;
-        }
-
-        /* View toggle styles */
-        .view-toggle {
-            display: flex;
-            align-items: center;
-            margin-right: 15px;
-        }
-
-        .view-toggle label {
-            margin-right: 10px;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 26px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 26px;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        .secondary-nav-button {
-            display: inline-block;
-            padding: 8px 15px;
-            margin-right: 10px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .secondary-nav-button:hover {
-            background-color: #e0e0e0;
-        }
-
-        .month-picker {
-            position: absolute;
-            background-color: white;
-            border: 1px solid #ddd;
-            padding: 10px;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-        }
-
-        input:checked+.toggle-slider {
-            background-color: #3498db;
-        }
-
-        input:checked+.toggle-slider:before {
-            transform: translateX(34px);
-        }
-
-        /* Compact view styles */
-        .compact-view th,
-        .compact-view td {
-            padding: 5px 8px;
-            font-size: 0.9em;
-        }
-
-        .compact-view .account-card {
-            padding: 10px;
-            width: 220px;
-        }
-
-        .compact-view .container {
-            padding: 12px;
-            margin-bottom: 20px;
-        }
-
-        .compact-view h2 {
-            margin-top: 5px;
-            margin-bottom: 10px;
-        }
-
-        /* Pagination styles */
-        .pagination-controls {
-            margin: 15px 0;
-            text-align: center;
-        }
-
-        .pagination-info {
-            margin-bottom: 10px;
-        }
-
-        .pagination-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-
-        .pagination-btn {
-            padding: 5px 10px;
-            background-color: #f8f8f8;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .pagination-btn:hover {
-            background-color: #e8e8e8;
-        }
-
-        .pagination-btn-active {
-            background-color: #3498db;
-            color: white;
-            border-color: #3498db;
-        }
-
-        .pagination-btn[disabled] {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .pagination-ellipsis {
-            padding: 5px;
-        }
-
-        /* Date picker improvements */
-        .date-picker {
-            position: relative;
-        }
-
-        .calendar {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            z-index: 100;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            width: 250px;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
-        }
-
-        .calendar-weekday {
-            text-align: center;
-            font-weight: bold;
-            padding: 5px;
-        }
-
-        .calendar-day {
-            text-align: center;
-            padding: 6px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .calendar-day:hover {
-            background-color: #f0f0f0;
-        }
-
-        .calendar-day.selected {
-            background-color: #3498db;
-            color: white;
-        }
-
-        .calendar-day.other-month {
-            color: #aaa;
-        }
-
-        /* Category dropdown improvements */
-        .category-container {
-            width: 100%;
-        }
-
-        /* Table responsiveness */
-        @media screen and (max-width: 768px) {
-            .accounts-container {
-                justify-content: center;
-            }
-
-            .account-card {
-                width: 100%;
-                max-width: 300px;
-            }
-
-            .controls-container {
-                flex-direction: column;
-                align-items: stretch !important;
-            }
-
-            .filter-dropdown {
-                margin-bottom: 10px;
-                width: 100%;
-            }
-
-            #add-transaction-btn {
-                width: 100%;
-            }
-        }
-
-        /* Loading indicator */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(0, 0, 0, 0.3);
-            border-radius: 50%;
-            border-top-color: #3498db;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -433,36 +31,34 @@
 
     <div class="buttons-container">
         <button id="link-button">Connect a Bank Account</button>
-        <button id="transactions-button" style="display:none;">Refresh Transactions</button>
+        <button id="transactions-button" class="d-none">Refresh Transactions</button>
     </div>
 
     <!-- Navigation buttons after main buttons -->
-    <div class="secondary-buttons-container" style="margin-top: 10px;">
+    <div class="secondary-buttons-container mt-10">
         <a href="/categories" class="secondary-nav-button">Manage Categories</a>
         <a href="/monthly_totals" class="secondary-nav-button">Monthly Category Totals</a>
         <a href="/annual_totals" class="secondary-nav-button">Annual Category Totals</a>
         <button id="export-data-btn" class="secondary-nav-button">Export Data...</button>
     </div>
 
-    <div id="accounts-section" class="container" style="display:none;">
+    <div id="accounts-section" class="container d-none">
         <h2>Connected Accounts</h2>
         <div id="accounts-container" class="accounts-container"></div>
     </div>
 
-    <div id="transactions-section" class="container" style="display:none;">
+    <div id="transactions-section" class="container d-none">
         <h2>Transactions</h2>
 
         <!-- Transaction Controls -->
-        <div class="controls-container"
-            style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+        <div class="controls-container">
             <!-- Search Box -->
-            <input type="text" id="transaction-search" placeholder="Search transactions..."
-                style="padding: 5px; width: 150px;">
+            <input type="text" id="transaction-search" placeholder="Search transactions...">
 
             <!-- Filters -->
-            <div class="filter-dropdown" style="margin-right: 10px;">
+            <div class="filter-dropdown">
                 <label for="date-filter">Date Range:</label>
-                <select id="date-filter" style="padding: 5px;">
+                <select id="date-filter">
                     <option value="30">Last 30 Days</option>
                     <option value="90">Last 90 Days</option>
                     <option value="180">Last 180 Days</option>
@@ -473,25 +69,25 @@
                 </select>
             </div>
 
-            <div class="filter-dropdown" style="margin-right: 10px;">
+            <div class="filter-dropdown">
                 <label for="category-filter">Category:</label>
-                <select id="category-filter" style="padding: 5px;">
+                <select id="category-filter">
                     <option value="all">All Categories</option>
                     <!-- Categories will be populated dynamically -->
                 </select>
             </div>
 
-            <div class="filter-dropdown" style="margin-right: 10px;">
+            <div class="filter-dropdown">
                 <label for="subcategory-filter">Subcategory:</label>
-                <select id="subcategory-filter" style="padding: 5px;">
+                <select id="subcategory-filter">
                     <option value="all">All Subcategories</option>
                     <!-- Subcategories will be populated dynamically -->
                 </select>
             </div>
 
-            <div class="filter-dropdown" style="margin-right: 10px;">
+            <div class="filter-dropdown">
                 <label for="type-filter">Type:</label>
-                <select id="type-filter" style="padding: 5px;">
+                <select id="type-filter">
                     <option value="all">All Types</option>
                     <option value="expense">Expenses</option>
                     <option value="income">Income</option>
@@ -499,9 +95,9 @@
             </div>
 
             <!-- Add pagination control after filter elements -->
-            <div class="filter-dropdown" style="margin-right: 10px;">
+            <div class="filter-dropdown">
                 <label for="page-size">Show:</label>
-                <select id="page-size" style="padding: 5px;">
+                <select id="page-size">
                     <option value="50">50 per page</option>
                     <option value="100">100 per page</option>
                     <option value="200">200 per page</option>
@@ -510,7 +106,7 @@
                 </select>
             </div>
 
-            <div class="filter-dropdown" style="margin-right: 10px;">
+            <div class="filter-dropdown">
                 <button id="clear-filters-btn" class="secondary-nav-button">Clear All Filters</button>
             </div>
 
@@ -524,8 +120,7 @@
             </div>
 
             <!-- Add Transaction Button -->
-            <button id="add-transaction-btn"
-                style="margin-left: auto; padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px;">
+            <button id="add-transaction-btn" class="btn-success">
                 Add Transaction
             </button>
         </div>
@@ -548,27 +143,23 @@
         </table>
 
         <!-- Update the date picker in the Add Transaction Modal -->
-        <div id="add-transaction-modal"
-            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
-            <div
-                style="background-color: white; margin: 10% auto; padding: 20px; width: 50%; border-radius: 5px; max-width: 500px;">
+        <div id="add-transaction-modal" class="modal">
+            <div class="modal-content">
                 <h3>Add New Transaction</h3>
-                <form id="add-transaction-form" style="display: flex; flex-direction: column; gap: 10px;">
+                <form id="add-transaction-form">
                     <div>
                         <label for="new-date">Date:</label>
                         <div class="date-picker">
-                            <input type="text" id="new-date" placeholder="MM/DD/YYYY" required
-                                style="width: 100%; padding: 5px;">
+                            <input type="text" id="new-date" placeholder="MM/DD/YYYY" required>
                         </div>
                     </div>
                     <div>
                         <label for="new-amount">Amount:</label>
-                        <input type="text" id="new-amount" placeholder="0.00" required
-                            style="width: 100%; padding: 5px;">
+                        <input type="text" id="new-amount" placeholder="0.00" required>
                     </div>
                     <div>
                         <label for="new-type">Type:</label>
-                        <select id="new-type" required style="width: 100%; padding: 5px;">
+                        <select id="new-type" required>
                             <option value="expense">Expense</option>
                             <option value="income">Income</option>
                         </select>
@@ -576,23 +167,22 @@
                     <div>
                         <label for="new-category">Category:</label>
                         <!-- This div will be replaced by our category dropdown system through JavaScript -->
-                        <div id="new-category-container" style="width: 100%;"></div>
+                        <div id="new-category-container"></div>
                     </div>
                     <div>
                         <label for="new-merchant">Merchant:</label>
-                        <input type="text" id="new-merchant" required style="width: 100%; padding: 5px;">
+                        <input type="text" id="new-merchant" required>
                     </div>
                     <div>
                         <label for="new-account">Account:</label>
-                        <select id="new-account" style="width: 100%; padding: 5px;">
+                        <select id="new-account">
                             <option value="">No Account</option>
                             <!-- Account options will be populated dynamically -->
                         </select>
                     </div>
-                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
-                        <button type="button" id="cancel-add-transaction" style="padding: 5px 15px;">Cancel</button>
-                        <button type="submit"
-                            style="padding: 5px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Save</button>
+                    <div class="modal-footer">
+                        <button type="button" id="cancel-add-transaction" class="btn">Cancel</button>
+                        <button type="submit" class="btn-success">Save</button>
                     </div>
                 </form>
             </div>
@@ -600,48 +190,39 @@
     </div>
 
     <!-- Custom Date Range Modal -->
-    <div id="custom-date-modal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
-        <div
-            style="background-color: white; margin: 10% auto; padding: 20px; width: 400px; border-radius: 5px; max-width: 90%;">
+    <div id="custom-date-modal" class="modal">
+        <div class="modal-content">
             <h3>Custom date</h3>
             <p>Please select the date range you would like to view</p>
 
-            <div style="margin-top: 15px;">
+            <div class="date-range-container">
                 <label for="custom-date-start">Date range</label>
-                <div style="display: flex; gap: 10px; margin-top: 5px; align-items: center;">
-                    <div class="date-picker" style="flex: 1;">
-                        <input type="text" id="custom-date-start" placeholder="MM/DD/YYYY" class="date-input"
-                            style="width: 100%; padding: 8px; box-sizing: border-box;">
+                <div class="date-range-inputs">
+                    <div class="date-picker">
+                        <input type="text" id="custom-date-start" placeholder="MM/DD/YYYY" class="date-input">
                     </div>
                     <span>to</span>
-                    <div class="date-picker" style="flex: 1;">
-                        <input type="text" id="custom-date-end" placeholder="MM/DD/YYYY" class="date-input"
-                            style="width: 100%; padding: 8px; box-sizing: border-box;">
+                    <div class="date-picker">
+                        <input type="text" id="custom-date-end" placeholder="MM/DD/YYYY" class="date-input">
                     </div>
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                <button type="button" id="custom-date-cancel"
-                    style="margin-right: 10px; padding: 8px 15px; border: 1px solid #ddd; background-color: #f8f8f8; border-radius: 4px; cursor: pointer;">Cancel</button>
-                <button type="button" id="custom-date-apply"
-                    style="padding: 8px 15px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Apply</button>
+            <div class="modal-footer">
+                <button type="button" id="custom-date-cancel" class="btn">Cancel</button>
+                <button type="button" id="custom-date-apply" class="btn-primary">Apply</button>
             </div>
         </div>
     </div>
 
     <!-- Export Data Modal -->
-    <div id="export-data-modal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
-        <div
-            style="background-color: white; margin: 10% auto; padding: 20px; width: 400px; border-radius: 5px; max-width: 90%;">
+    <div id="export-data-modal" class="modal">
+        <div class="modal-content">
             <h3>Export Transactions</h3>
             <p>Select a date range for exporting transactions:</p>
 
-            <div style="margin-top: 15px;">
-                <select id="export-date-range"
-                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <div class="export-range-container">
+                <select id="export-date-range">
                     <option value="30">Last 30 Days</option>
                     <option value="60">Last 60 Days</option>
                     <option value="90">Last 90 Days</option>
@@ -651,11 +232,9 @@
                 </select>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                <button type="button" id="export-cancel"
-                    style="margin-right: 10px; padding: 8px 15px; border: 1px solid #ddd; background-color: #f8f8f8; border-radius: 4px; cursor: pointer;">Cancel</button>
-                <button type="button" id="export-confirm"
-                    style="padding: 8px 15px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Export</button>
+            <div class="modal-footer">
+                <button type="button" id="export-cancel" class="btn">Cancel</button>
+                <button type="button" id="export-confirm" class="btn-primary">Export</button>
             </div>
         </div>
     </div>

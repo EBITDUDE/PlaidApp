@@ -2,118 +2,12 @@
 <html>
 
 <head>
-    <title>Annual Category Totals - My Finance App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            line-height: 1.6;
-            color: #333;
-        }
+    <title>Annual Category Totals</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <link rel="stylesheet" href="/static/css/tables.css">
+    <link rel="stylesheet" href="/static/css/reports.css">
 
-        h1,
-        h2 {
-            color: #2c3e50;
-        }
-
-        .container {
-            margin-bottom: 40px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 15px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 1px 0 #ddd;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f0f0f0;
-        }
-
-        .nav-button {
-            display: inline-block;
-            padding: 8px 15px;
-            margin-right: 10px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .nav-button:hover {
-            background-color: #2980b9;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(0, 0, 0, 0.3);
-            border-radius: 50%;
-            border-top-color: #3498db;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-
-        .date-controls {
-            margin-bottom: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .date-picker {
-            margin-right: 10px;
-        }
-
-        .date-picker input {
-            padding: 5px;
-            width: 80px;
-        }
-
-        .year-picker {
-            position: absolute;
-            background-color: white;
-            border: 1px solid #ddd;
-            padding: 10px;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
     <!-- Include our JavaScript file -->
     <script src="/static/js/data-formatter.js"></script>
     <script src="/static/js/annual-totals.js"></script>
@@ -136,12 +30,12 @@
     <div class="date-controls">
         <div class="date-picker">
             <label for="annual-start-year">Start Year:</label>
-            <input type="text" id="annual-start-year" placeholder="YYYY" readonly style="width: 80px;">
+            <input type="text" id="annual-start-year" placeholder="YYYY" readonly>
         </div>
 
         <div class="date-picker">
             <label for="annual-end-year">End Year:</label>
-            <input type="text" id="annual-end-year" placeholder="YYYY" readonly style="width: 80px;">
+            <input type="text" id="annual-end-year" placeholder="YYYY" readonly>
         </div>
 
         <button id="apply-annual-years" class="nav-button">
@@ -153,7 +47,7 @@
             Loading annual data... <div class="loading"></div>
         </div>
     
-        <table id="annual-table" style="display: none;">
+        <table id="annual-table" class="d-none">
             <thead id="annual-header">
                 <tr>
                     <th>Category</th>

@@ -1,0 +1,44 @@
+/* Log viewer styles */
+body {
+    font-family: monospace;
+    margin: 20px;
+    background-color: #f5f5f5;
+}
+
+.log-container {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.log-entry {
+    margin-bottom: 5px;
+    padding: 5px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.error {
+    color: #e74c3c;
+    background-color: #ffeaea;
+}
+
+.warning {
+    color: #f39c12;
+    background-color: #fff8e6;
+}
+
+.info {
+    color: #3498db;
+}
+
+.debug {
+    color: #95a5a6;
+}
+
+.controls {
+    margin-bottom: 20px;
+}

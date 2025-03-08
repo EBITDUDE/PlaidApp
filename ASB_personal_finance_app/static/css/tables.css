@@ -1,0 +1,52 @@
+/* Tables */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 0 #ddd;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f0f0f0;
+}
+
+/* Editable cells */
+.editable {
+    position: relative;
+}
+
+.editable:hover {
+    background-color: #e6f7ff;
+    cursor: pointer;
+}
+
+.editable:hover::after {
+    content: "✏️";
+    position: absolute;
+    right: 5px;
+    opacity: 0.5;
+}
+
+/* Income amount */
+.income-amount {
+    color: #357D40;
+}

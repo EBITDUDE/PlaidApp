@@ -1,0 +1,22 @@
+/* Report styles */
+.date-controls {
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.date-picker {
+    margin-right: 10px;
+}
+
+.date-picker input {
+    padding: 5px;
+    width: 80px;
+}
+
+#loading-indicator {
+    text-align: center;
+    padding: 20px;
+}
