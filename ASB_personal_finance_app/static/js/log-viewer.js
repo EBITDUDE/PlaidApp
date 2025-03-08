@@ -32,7 +32,7 @@ function loadLogs() {
             displayLogs(data.logs);
         })
         .catch(err => {
-            console.error('Error loading logs:', err);
+            ErrorUtils.handleError(err, 'Failed to load logs');
             document.getElementById('log-content').innerHTML =
                 `<div class="log-entry error">Error loading logs: ${err.message}</div>`;
         });

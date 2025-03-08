@@ -313,8 +313,9 @@ function exportTransactions() {
             exportConfirm.disabled = false;
         })
         .catch(err => {
-            console.error('Error exporting transactions:', err);
-            alert('Error exporting transactions: ' + err.message);
+            ErrorUtils.handleError(err, 'Failed to export transactions');
+
+            // Reset button
             exportConfirm.innerHTML = 'Export';
             exportConfirm.disabled = false;
         });
@@ -482,8 +483,9 @@ function updateMonthlyCategoryTotals() {
             monthlyTable.style.display = 'table';
         })
         .catch(err => {
-            console.error('Error filtering transactions:', err);
-            alert('Error filtering transactions: ' + err.message);
+            ErrorUtils.handleError(err, 'Failed to load transaction data');
+
+            // Hide loading indicator and show table
             loadingIndicator.style.display = 'none';
             monthlyTable.style.display = 'table';
         });

@@ -12,7 +12,9 @@ from flask import Flask, render_template, jsonify, request
 from functools import wraps
 from data_utils import (
     Cache, KeyedCache, load_access_token, save_access_token,
-    load_saved_transactions, save_transactions, parse_date
+    load_saved_transactions, save_transactions, parse_date,
+    _access_token_cache, _saved_transactions_cache, 
+    _account_names_cache, _transaction_cache
 )
 import datetime
 import time
@@ -55,12 +57,6 @@ TRANSACTIONS_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_
 
 # Create the logs_and_json directory if it doesn't exist
 os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
-
-# Initialize caches with different expiration times
-_access_token_cache = Cache(expiration_seconds=3600)  # 1 hour  
-_saved_transactions_cache = Cache(expiration_seconds=600)  # 10 minutes
-_account_names_cache = Cache(expiration_seconds=1800)  # 30 minutes
-_transaction_cache = KeyedCache(expiration_seconds=300)  # 5 minutes
 
 class AppError(Exception):
     """Base exception for application errors"""
@@ -757,93 +753,6 @@ def get_categories():
         'categories': categories,
         'category_names': category_names  # For backward compatibility
     })
-    
-# Helper function to parse dates in various formats
-def parse_date(date_str):
-    """
-    Parse date string in various formats and return a datetime.date object
-    Handles more formats and provides better error messages than the original
-    
-    Parameters:
-    date_str (str|datetime|date): Date to parse, can be string, datetime object, or date object
-    
-    Returns:
-    datetime.date: The parsed date as a date object
-    
-    Raises:
-    ValueError: If the date cannot be parsed
-    """
-    # If it's already a date object, return it
-    if isinstance(date_str, datetime.date):
-        return date_str
-        
-    # If it's a datetime object, return its date component
-    if isinstance(date_str, datetime.datetime):
-        return date_str.date()
-    
-    # If it's not a string, try to convert it to string
-    if not isinstance(date_str, str):
-        try:
-            date_str = str(date_str)
-        except:
-            raise ValueError(f"Could not convert {type(date_str).__name__} to string")
-    
-    # Handle empty strings
-    date_str = date_str.strip()
-    if not date_str:
-        raise ValueError("Empty date string")
-    
-    # Try different formats
-    formats = [
-        # ISO format variations
-        "%Y-%m-%d",    # 2023-01-31
-        "%Y/%m/%d",    # 2023/01/31
-        
-        # US format variations
-        "%m/%d/%Y",    # 01/31/2023
-        "%m-%d-%Y",    # 01-31-2023
-        "%m/%d/%y",    # 01/31/23
-        
-        # European format variations
-        "%d/%m/%Y",    # 31/01/2023
-        "%d-%m-%Y",    # 31-01-2023
-        
-        # Month name formats
-        "%b %d, %Y",   # Jan 31, 2023
-        "%B %d, %Y",   # January 31, 2023
-        "%d %b %Y",    # 31 Jan 2023
-        "%d %B %Y",    # 31 January 2023
-        
-        # Month-year only formats (defaulting to 1st of month)
-        "%m/%Y",       # 01/2023
-        "%b %Y",       # Jan 2023
-        "%B %Y"        # January 2023
-    ]
-    
-    # Track individual errors for better error messages
-    parse_errors = []
-    
-    for fmt in formats:
-        try:
-            dt = datetime.datetime.strptime(date_str, fmt)
-            # Successfully parsed
-            return dt.date()
-        except ValueError as e:
-            parse_errors.append(f"Format {fmt}: {str(e)}")
-    
-    # Special case: Try parsing with dateutil if available (handles more formats)
-    try:
-        from dateutil import parser
-        dt = parser.parse(date_str)
-        return dt.date()
-    except ImportError:
-        parse_errors.append("dateutil parser not available")
-    except Exception as e:
-        parse_errors.append(f"dateutil parser: {str(e)}")
-            
-    # If we get here, none of the formats worked
-    error_msg = f"Could not parse date string: '{date_str}'. Tried the following formats:\n" + "\n".join(parse_errors)
-    raise ValueError(error_msg)
 
 # Route to get annual category totals
 @app.route('/get_annual_totals', methods=['GET'])

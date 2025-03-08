@@ -22,24 +22,20 @@ function loadAccounts(forceRefresh = false) {
     return fetchAndStoreAccounts(forceRefresh)
         .then(accountsMap => {
             const accountsContainer = document.getElementById('accounts-container');
-
-            // Check if we have the accounts data from server response
-            const accountsData = accountsCache.rawData?.accounts;
-            if (!accountsData || accountsData.length === 0) {
-                return fetch('/get_accounts')
-                    .then(response => response.json())
-                    .then(data => {
-                        accountsCache.rawData = data;
-                        displayAccounts(data);
-                    });
-            } else {
-                // Use cached data
+            
+            // Use cached data if already available - no additional API call needed
+            if (accountsCache.rawData && accountsCache.rawData.accounts) {
                 displayAccounts(accountsCache.rawData);
-                return Promise.resolve();
+                return Promise.resolve(accountsMap);
+            } else {
+                // This should rarely happen as fetchAndStoreAccounts should have populated the cache
+                console.warn("Account data not available in cache after fetchAndStoreAccounts");
+                return Promise.resolve(accountsMap);
             }
         })
         .catch(err => {
-            console.error('Error loading accounts:', err);
+            ErrorUtils.handleError(err, 'Failed to load account information');
+            return {};
         });
 }
 
@@ -102,7 +98,7 @@ function fetchAndStoreAccounts(forceRefresh = false) {
                 });
         })
         .catch(err => {
-            console.error('Error fetching accounts:', err);
+            ErrorUtils.handleError(err, 'Failed to check access token');
             return {};
         });
 }
@@ -174,6 +170,6 @@ function updateAccountDropdown() {
             });
         })
         .catch(err => {
-            console.error('Error fetching accounts:', err);
+            ErrorUtils.handleError(err, 'Failed to load account dropdown information');
         });
 }

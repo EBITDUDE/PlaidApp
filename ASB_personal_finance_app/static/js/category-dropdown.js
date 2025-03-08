@@ -116,7 +116,7 @@ function createCategoryDropdown(options = {}) {
                 return categoriesData;
             })
             .catch(err => {
-                console.error('Error loading categories:', err);
+                ErrorUtils.handleError(err, 'Failed to load categories');
                 return [];
             });
     }
@@ -188,6 +188,9 @@ function createCategoryDropdown(options = {}) {
                     throw new Error('Category already exists');
                 }
                 return data;
+            })
+            .catch(err => {
+                ErrorUtils.handleError(err, 'Failed to add category');
             });
     }
 
@@ -207,6 +210,9 @@ function createCategoryDropdown(options = {}) {
                     throw new Error(data.error);
                 }
                 return data;
+            })
+            .catch(err => {
+                ErrorUtils.handleError(err, 'Failed to add subcategory');
             });
     }
 

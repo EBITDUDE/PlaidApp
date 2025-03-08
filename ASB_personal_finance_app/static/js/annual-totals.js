@@ -185,8 +185,8 @@ function loadAnnualTotals() {
             }
         })
         .catch(err => {
-            loadingIndicator.textContent = 'Error loading data: ' + err.message;
-            console.error('Error loading annual totals:', err);
+            loadingIndicator.textContent = 'Error: Failed to load data';
+            ErrorUtils.handleError(err, 'Failed to load annual totals');
         });
 }
 

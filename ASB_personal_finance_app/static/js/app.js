@@ -35,36 +35,35 @@ function debounce(func, wait) {
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Initializing ASB Personal Finance App...');
 
-    // Check if an access token exists on page load
-    checkAccessToken();
-
     // Set up the navigation and UI components
     setupEventListeners();
+    setupTransactionEventHandlers();
 
-    setupTransactionEventHandlers()
-
-    // Initialize UI components
+    // Initialize UI components - without account fetching
     initializeUIComponents();
 
-    // Load accounts and transactions if token exists
-    loadInitialData();
+    // Single point of entry for data loading
+    checkAccessTokenAndLoadData();
 });
 
 /**
  * Checks if an access token exists and updates the UI accordingly
  */
-function checkAccessToken() {
+function checkAccessTokenAndLoadData() {
     fetch('/has_access_token')
         .then(response => response.json())
         .then(data => {
             if (data.has_token) {
                 document.getElementById('transactions-button').style.display = 'block';
-                loadAccounts();
-                loadTransactions();
+
+                // Load accounts first, then transactions
+                loadAccounts().then(() => {
+                    loadTransactions();
+                });
             }
         })
         .catch(err => {
-            console.error('Error checking access token:', err);
+            ErrorUtils.handleError(err, 'Failed to check account connection');
         });
 }
 
@@ -225,9 +224,6 @@ function initializeUIComponents() {
     // Initialize the monthly category date pickers
     setupMonthlyCategoryDatePickers();
 
-    // Pre-fetch and store accounts for later use
-    fetchAndStoreAccounts();
-
     // Initialize category dropdown
     initCategoryDropdown();
 
@@ -249,7 +245,7 @@ function loadInitialData() {
             }
         })
         .catch(err => {
-            console.error('Error loading initial data:', err);
+            ErrorUtils.handleError(err, 'Failed to load initial data');
         });
 }
 
@@ -325,10 +321,8 @@ function initiatePlaidConnection() {
                             alert('Bank account connected successfully!');
                         })
                         .catch(err => {
-                            console.error('Token exchange error:', err);
-                            alert('Error connecting bank: ' + err.message);
-                        })
-                        .finally(() => {
+                            ErrorUtils.handleError(err, 'Error connecting to bank');
+
                             // Reset button
                             linkButton.innerHTML = originalButtonText;
                             linkButton.disabled = false;
@@ -352,8 +346,7 @@ function initiatePlaidConnection() {
             handler.open();
         })
         .catch(err => {
-            console.error('Error initializing Plaid Link:', err);
-            alert('Error connecting to bank: ' + err.message);
+            ErrorUtils.handleError(err, 'Error connecting bank account');
 
             // Reset button
             linkButton.innerHTML = originalButtonText;
@@ -445,8 +438,7 @@ function handleAddTransactionSubmit(event) {
             loadTransactions();
         })
         .catch(err => {
-            console.error('Error adding transaction:', err);
-            alert('Error adding transaction: ' + err.message);
+            ErrorUtils.handleError(err, 'Error adding transaction');
         });
 }
 
@@ -546,6 +538,6 @@ function updateSubcategoryDropdown(categoryFilter) {
             }
         })
         .catch(err => {
-            console.error('Error fetching subcategories:', err);
+            ErrorUtils.handleError(err, 'Failed to fetch subcategories');
         });
 }

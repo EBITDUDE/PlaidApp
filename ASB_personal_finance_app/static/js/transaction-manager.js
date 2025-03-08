@@ -246,8 +246,7 @@ function handleDeleteButton(button) {
                 loadTransactions();
             })
             .catch(err => {
-                console.error('Error deleting transaction:', err);
-                alert('Error deleting transaction: ' + err.message);
+                ErrorUtils.handleError(err, 'Failed to delete transaction');
             });
     }
 }
@@ -351,7 +350,7 @@ function loadTransactions() {
             });
         })
         .catch(err => {
-            console.error("Transaction fetch error:", err);
+            ErrorUtils.handleError(err, 'Failed to load transactions');
 
             // Show error in table
             const errorRow = document.createElement('tr');
@@ -364,6 +363,94 @@ function loadTransactions() {
             `;
             txTable.appendChild(errorRow);
         });
+}
+
+/**
+ * Creates a transaction row using DOM methods instead of innerHTML
+ * @param {Object} tx - Transaction object
+ * @param {Object} accountsMap - Map of account IDs to account names
+ * @returns {HTMLElement} - The created table row
+ */
+function createTransactionRow(tx, accountsMap) {
+    const row = document.createElement('tr');
+    row.setAttribute('data-id', tx.id);
+    row.setAttribute('data-category', tx.category);
+    row.setAttribute('data-subcategory', tx.subcategory || '');
+    row.setAttribute('data-date', tx.date);
+    row.setAttribute('data-type', tx.is_debit ? 'expense' : 'income');
+
+    // Date cell
+    const dateCell = document.createElement('td');
+    dateCell.className = 'editable';
+    dateCell.setAttribute('data-field', 'date');
+    dateCell.textContent = tx.date;
+    row.appendChild(dateCell);
+
+    // Amount cell
+    const amountCell = document.createElement('td');
+    amountCell.className = 'editable';
+    if (!tx.is_debit) {
+        amountCell.classList.add('income-amount');
+    }
+    amountCell.setAttribute('data-field', 'amount');
+    amountCell.setAttribute('data-is-debit', tx.is_debit.toString());
+    amountCell.textContent = formatAmount(tx);
+    row.appendChild(amountCell);
+
+    // Type cell
+    const typeCell = document.createElement('td');
+    typeCell.textContent = tx.is_debit ? 'Expense' : 'Income';
+    row.appendChild(typeCell);
+
+    // Category cell
+    const categoryCell = document.createElement('td');
+    categoryCell.className = 'editable';
+    categoryCell.setAttribute('data-field', 'category');
+    categoryCell.textContent = tx.category;
+    row.appendChild(categoryCell);
+
+    // Subcategory cell
+    const subcategoryCell = document.createElement('td');
+    subcategoryCell.className = 'editable';
+    subcategoryCell.setAttribute('data-field', 'subcategory');
+    subcategoryCell.textContent = tx.subcategory || '—';
+    row.appendChild(subcategoryCell);
+
+    // Merchant cell
+    const merchantCell = document.createElement('td');
+    merchantCell.className = 'editable';
+    merchantCell.setAttribute('data-field', 'merchant');
+    merchantCell.textContent = tx.merchant;
+    row.appendChild(merchantCell);
+
+    // Account cell
+    const accountCell = document.createElement('td');
+    let accountDisplay;
+    if (tx.account_id) {
+        accountDisplay = accountsMap[tx.account_id] ||
+            tx.account_name ||
+            `Account ${tx.account_id.substring(0, 8)}...`;
+    } else {
+        accountDisplay = 'No Account';
+    }
+    accountCell.textContent = accountDisplay;
+    row.appendChild(accountCell);
+
+    // Actions cell
+    const actionCell = document.createElement('td');
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.style.backgroundColor = '#ff4d4d';
+    deleteBtn.style.color = 'white';
+    deleteBtn.style.border = 'none';
+    deleteBtn.style.padding = '2px 5px';
+    deleteBtn.style.cursor = 'pointer';
+    deleteBtn.style.borderRadius = '3px';
+    deleteBtn.textContent = 'Delete';
+    actionCell.appendChild(deleteBtn);
+    row.appendChild(actionCell);
+
+    return row;
 }
 
 /**
@@ -407,50 +494,10 @@ function displayTransactions(transactions, callback) {
         return accountsPromise.then(accountsMap => {
             // Create a document fragment for transaction rows
             const fragment = document.createDocumentFragment();
+
+            // Create and add each transaction row to the fragment
             transactions.forEach((tx) => {
-                const row = document.createElement('tr');
-                row.setAttribute('data-id', tx.id);
-                row.setAttribute('data-category', tx.category);
-                row.setAttribute('data-subcategory', tx.subcategory || '');
-                row.setAttribute('data-date', tx.date);
-                row.setAttribute('data-type', tx.is_debit ? 'expense' : 'income');
-
-                // Format amount - always positive, with +/- sign depending on type
-                const amountDisplay = formatAmount(tx);
-                const amountClass = !tx.is_debit ? 'income-amount' : '';
-
-                // Display the correct transaction type
-                const typeDisplay = !tx.is_debit ? 'Income' : 'Expense';
-
-                // Get the proper account name
-                let accountDisplay;
-                if (tx.account_id) {
-                    accountDisplay = accountsMap[tx.account_id] ||
-                        tx.account_name ||
-                        `Account ${tx.account_id.substring(0, 8)}...`;
-                } else {
-                    accountDisplay = 'No Account';
-                }
-
-                // Format category with subcategory
-                const categoryDisplay = tx.subcategory ?
-                    `${tx.category} › ${tx.subcategory}` :
-                    tx.category;
-
-                row.innerHTML = `
-                    <td class="editable" data-field="date">${tx.date}</td>
-                    <td class="editable ${amountClass}" data-field="amount" data-is-debit="${tx.is_debit}">${amountDisplay}</td>
-                    <td>${typeDisplay}</td>
-                    <td class="editable" data-field="category">${tx.category}</td>
-                    <td class="editable" data-field="subcategory">${tx.subcategory || '—'}</td>
-                    <td class="editable" data-field="merchant">${tx.merchant}</td>
-                    <td>${accountDisplay}</td>
-                    <td>
-                        <button class="delete-btn" style="background-color: #ff4d4d; color: white; border: none; padding: 2px 5px; cursor: pointer; border-radius: 3px;">Delete</button>
-                    </td>
-                `;
-
-                // Add to fragment
+                const row = createTransactionRow(tx, accountsMap);
                 fragment.appendChild(row);
             });
 
@@ -467,13 +514,18 @@ function displayTransactions(transactions, callback) {
         });
     } else {
         // Handle empty case
-        txTable.innerHTML = `
-            <tr>
-                <td colspan="7" style="text-align: center; color: #666; padding: 20px;">
-                    No transactions available. Connect a bank account or add manual transactions.
-                </td>
-            </tr>
-        `;
+        txTable.innerHTML = '';
+
+        const emptyRow = document.createElement('tr');
+        const emptyCell = document.createElement('td');
+        emptyCell.setAttribute('colspan', '7');
+        emptyCell.style.textAlign = 'center';
+        emptyCell.style.color = '#666';
+        emptyCell.style.padding = '20px';
+        emptyCell.textContent = 'No transactions available. Connect a bank account or add manual transactions.';
+
+        emptyRow.appendChild(emptyCell);
+        txTable.appendChild(emptyRow);
 
         // Call the callback even in the empty case
         if (typeof callback === 'function') {
@@ -520,8 +572,7 @@ function updateTransactionCategory(txId, newCategory, newSubcategory, cell, orig
             loadTransactions();
         })
         .catch(err => {
-            console.error('Error updating category:', err);
-            alert('Error updating category: ' + err.message);
+            ErrorUtils.handleError(err, 'Failed to update transaction category');
             // Restore original content on error
             cell.innerHTML = originalContent || newCategory;
         });
@@ -586,8 +637,7 @@ function updateTransactionField(txId, field, value, cell, originalContent, isDeb
             }
         })
         .catch(err => {
-            console.error(`Error updating ${field}:`, err);
-            alert(`Error updating transaction: ${err.message}`);
+            ErrorUtils.handleError(err, `Failed to update transaction ${field}`);
             // Restore original content on error
             cell.innerHTML = originalContent;
         });
@@ -694,7 +744,7 @@ function calculateMonthlyCategoryTotals(transactions, startDate, endDate) {
             const amount = tx.is_debit ? -tx.amount : tx.amount;
             monthlyTotals[monthYear][tx.category] += amount;
         } catch (err) {
-            console.error('Error processing transaction for monthly totals:', err);
+            ErrorUtils.handleError(err, 'Failed to process transaction for monthly totals');
         }
     });
 

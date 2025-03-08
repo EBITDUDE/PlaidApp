@@ -243,8 +243,9 @@ function loadMonthlyTotals() {
             monthlyTable.style.display = 'table';
         })
         .catch(err => {
-            loadingIndicator.textContent = 'Error loading data: ' + err.message;
-            console.error('Error loading monthly totals:', err);
+            loadingIndicator.style.display = 'none';
+
+            ErrorUtils.handleError(err, 'Failed to load monthly totals');
         });
 }
 
@@ -281,7 +282,7 @@ function calculateMonthlyCategoryTotals(transactions, startDate, endDate) {
                     data.categories.forEach(category => allCategories.add(category));
                 }
             })
-            .catch(err => console.error('Error fetching categories:', err));
+            .catch(err => ErrorUtils.handleError(err, 'Failed to fetch categories'));
     }
 
     // Generate all months in the date range
@@ -351,7 +352,7 @@ function calculateMonthlyCategoryTotals(transactions, startDate, endDate) {
             const amount = tx.is_debit ? -tx.amount : tx.amount;
             monthlyTotals[monthYear][tx.category] += amount;
         } catch (err) {
-            console.error('Error processing transaction for monthly totals:', err);
+            ErrorUtils.handleError(err, 'Failed to process transaction');
         }
     });
 

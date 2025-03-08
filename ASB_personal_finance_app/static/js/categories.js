@@ -50,8 +50,7 @@ function loadCategories() {
             }
         })
         .catch(err => {
-            console.error('Error loading categories:', err);
-            alert('Error loading categories: ' + err.message);
+            ErrorUtils.handleError(err, 'Failed to load categories');
         });
 }
 
@@ -264,8 +263,7 @@ function addCategory() {
             }
         })
         .catch(err => {
-            console.error('Error adding category:', err);
-            alert('Error adding category: ' + err.message);
+            ErrorUtils.handleError(err, 'Failed to add category');
         });
 }
 
@@ -294,8 +292,7 @@ function deleteCategory(category) {
             }
         })
         .catch(err => {
-            console.error('Error deleting category:', err);
-            alert('Error deleting category: ' + err.message);
+            ErrorUtils.handleError(err, 'Failed to delete category');
         });
 }
 
@@ -359,8 +356,7 @@ function addSubcategory(categoryName) {
             }
         })
         .catch(err => {
-            console.error('Error adding subcategory:', err);
-            alert('Error adding subcategory: ' + err.message);
+            ErrorUtils.handleError(err, 'Failed to add subcategory');
         });
 }
 
@@ -396,7 +392,6 @@ function deleteSubcategory(categoryName, subcategoryName) {
             }
         })
         .catch(err => {
-            console.error('Error deleting subcategory:', err);
-            alert('Error deleting subcategory: ' + err.message);
+            ErrorUtils.handleError(err, 'Failed to delete subcategory');
         });
 }
