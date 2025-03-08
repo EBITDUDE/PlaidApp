@@ -84,6 +84,13 @@ class TransactionFilter {
             });
         }
 
+        // Subcategory filter
+        if (this.filterElements.subcategory) {
+            this.filterElements.subcategory.addEventListener('change', () => {
+                this.applyFilters();
+            });
+        }
+
         // Type filter
         if (this.filterElements.type) {
             this.filterElements.type.addEventListener('change', () => {
@@ -244,6 +251,7 @@ class TransactionFilter {
         rows.forEach(row => {
             // Get filter attributes once for efficiency
             const rowCategory = row.getAttribute('data-category') || '';
+            const rowSubcategory = row.getAttribute('data-subcategory') || '';
             const rowType = row.getAttribute('data-type') || '';
             const rowDate = row.getAttribute('data-date') || '';
             const rowText = hasSearchFilter ? row.textContent.toLowerCase() : '';
@@ -263,7 +271,6 @@ class TransactionFilter {
 
             // Apply subcategory filter
             if (hasSubcategoryFilter && showRow) {
-                const rowSubcategory = row.getAttribute('data-subcategory') || '';
                 showRow = rowSubcategory === subcategoryFilter;
             }
 
@@ -318,6 +325,8 @@ class TransactionFilter {
         }
 
         this.saveFilters();
+
+        console.log('Subcategory filter applied:', subcategoryFilter, 'Visible rows:', visibleCount);
 
         return visibleCount;
     }
@@ -410,10 +419,7 @@ class TransactionFilter {
         }
         this.customDateStart = null;
         this.customDateEnd = null;
-
-        // Remove filter settings but keep session marker
         sessionStorage.removeItem('transactionFilters');
-
         this.applyFilters();
     }
     

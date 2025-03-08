@@ -423,6 +423,7 @@ def get_transactions():
                     'is_debit': is_debit,
                     'merchant': tx_name,
                     'category': category,
+                    'subcategory': saved_transactions[tx_id].get('subcategory', '') if tx_id in saved_transactions else '',
                     'account_id': tx_account_id,
                     'manual': False
                 })
@@ -469,6 +470,7 @@ def get_transactions():
                         'is_debit': tx_data.get('is_debit', True),
                         'merchant': tx_data.get('merchant', 'Unknown'),
                         'category': category,
+                        'subcategory': tx_data.get('subcategory', ''),
                         'account_id': account_id,
                         'manual': True
                     })

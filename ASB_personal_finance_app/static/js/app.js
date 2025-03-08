@@ -227,9 +227,6 @@ function initializeUIComponents() {
     // Initialize category dropdown
     initCategoryDropdown();
 
-    // Initialize subcategory dropdown
-    updateSubcategoryDropdown('all');
-
     // Set up custom date filters
     setupDateFilters();
 }
@@ -496,35 +493,39 @@ function updateSubcategoryDropdown(categoryFilter) {
     const subcategoryFilter = document.getElementById('subcategory-filter');
     if (!subcategoryFilter) return;
 
-    // Clear existing options
+    // Clear existing options only once
     subcategoryFilter.innerHTML = '<option value="all">All Subcategories</option>';
 
-    // Get all subcategories across all categories or for the specific category
     fetch('/get_categories')
         .then(response => response.json())
         .then(data => {
             const categories = data.categories || [];
             const uniqueSubcategories = new Set();
 
-            // Collect subcategories based on filter
             categories.forEach(category => {
-                // If a specific category is selected, only get subcategories for that category
                 if (categoryFilter !== 'all' && category.name !== categoryFilter) {
                     return;
                 }
-
-                // Add all subcategories to the set
                 if (category.subcategories && category.subcategories.length > 0) {
                     category.subcategories.forEach(subcategory => {
-                        uniqueSubcategories.add(subcategory);
+                        // Normalize to prevent duplicates due to case differences
+                        uniqueSubcategories.add(subcategory.trim().toLowerCase());
                     });
                 }
             });
 
-            // Sort subcategories alphabetically
-            const sortedSubcategories = Array.from(uniqueSubcategories).sort();
+            // Convert to array, restore original case, and sort
+            const subcategoryMap = new Map();
+            categories.forEach(category => {
+                if (categoryFilter === 'all' || category.name === categoryFilter) {
+                    category.subcategories.forEach(sub => {
+                        subcategoryMap.set(sub.trim().toLowerCase(), sub);
+                    });
+                }
+            });
+            const sortedSubcategories = Array.from(subcategoryMap.values()).sort();
+            console.log('Subcategories:', sortedSubcategories);
 
-            // Add subcategories to dropdown
             sortedSubcategories.forEach(subcategory => {
                 const option = document.createElement('option');
                 option.value = subcategory;
@@ -533,6 +534,6 @@ function updateSubcategoryDropdown(categoryFilter) {
             });
         })
         .catch(err => {
-            console.error('Error fetching categories:', err);
+            console.error('Error fetching subcategories:', err);
         });
 }

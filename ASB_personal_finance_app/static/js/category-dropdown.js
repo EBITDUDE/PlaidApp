@@ -40,35 +40,31 @@ function createCategoryDropdown(options = {}) {
                 <option value="" disabled selected>Select a category</option>
             </select>
         </div>
-        
         <div style="margin-bottom: 10px; display: none;" id="${config.containerId}-subcat-container">
             <select id="${subcatDropdownId}" class="subcategory-select" style="width: 100%; padding: 5px; display: block;">
                 <option value="" selected>No subcategory (optional)</option>
             </select>
         </div>
-        
+        <div id="${config.containerId}-new-subcat-container" style="display: none; margin-top: 5px;">
+            <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                <input type="text" id="${newSubcatFieldId}" placeholder="Enter new subcategory name (optional)" 
+                    style="flex-grow: 1; padding: 5px;">
+                <button type="button" id="${config.containerId}-add-subcat-btn" 
+                    style="padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 3px;">Add</button>
+                <button type="button" id="${config.containerId}-cancel-subcat-btn" 
+                    style="padding: 5px 10px; border: 1px solid #ddd; background-color: #f8f8f8; cursor: pointer; border-radius: 3px;">Cancel</button>
+            </div>
+        </div>
         <div id="${config.containerId}-new-container" style="display: none; margin-top: 5px;">
             <div style="display: flex; gap: 5px; margin-bottom: 10px;">
                 <input type="text" id="${newFieldId}" placeholder="Enter new category name" 
-                       style="flex-grow: 1; padding: 5px;">
+                    style="flex-grow: 1; padding: 5px;">
                 <button type="button" id="${config.containerId}-add-btn" 
-                        style="padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 3px;">Add</button>
+                    style="padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 3px;">Add</button>
                 <button type="button" id="${config.containerId}-cancel-btn" 
-                        style="padding: 5px 10px; border: 1px solid #ddd; background-color: #f8f8f8; cursor: pointer; border-radius: 3px;">Cancel</button>
-            </div>
-            
-            <div style="display: none; margin-top: 5px;" id="${config.containerId}-new-subcat-container">
-                <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-                    <input type="text" id="${newSubcatFieldId}" placeholder="Enter new subcategory name (optional)" 
-                        style="flex-grow: 1; padding: 5px;">
-                    <button type="button" id="${config.containerId}-add-subcat-btn" 
-                            style="padding: 5px 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 3px;">Add</button>
-                    <button type="button" id="${config.containerId}-cancel-subcat-btn" 
-                            style="padding: 5px 10px; border: 1px solid #ddd; background-color: #f8f8f8; cursor: pointer; border-radius: 3px;">Cancel</button>
-                </div>
+                    style="padding: 5px 10px; border: 1px solid #ddd; background-color: #f8f8f8; cursor: pointer; border-radius: 3px;">Cancel</button>
             </div>
         </div>
-        
         <input type="hidden" id="${hiddenInputId}" name="${config.inputName}" ${config.required ? 'required' : ''}>
         <input type="hidden" id="${hiddenSubcatInputId}" name="${config.subcategoryInputName}">
     `;
@@ -247,16 +243,22 @@ function createCategoryDropdown(options = {}) {
     // Event handler for subcategory dropdown change
     subcatDropdown.addEventListener('change', function () {
         if (this.value === 'add_new') {
-            // Show the new subcategory input
-            newSubcatContainer.style.display = 'block';
+            // Show and ensure the new subcategory input is usable
+            console.log('Showing newSubcatContainer', newSubcatContainer);
+            newSubcatContainer.style.display = 'flex'; // Match new category container styling
             subcatDropdown.style.display = 'none'; // Hide the dropdown
-            newSubcatField.focus();
+            newSubcatField.value = ''; // Clear any previous value
+            newSubcatField.focus(); // Ensure focus
+            newSubcatField.disabled = false; // Ensure it's not disabled
         } else {
             // Update hidden input with selected subcategory
             hiddenSubcatInput.value = this.value;
 
             // Hide new subcategory input if visible
             newSubcatContainer.style.display = 'none';
+
+            // Show the dropdown again if it was hidden
+            subcatDropdown.style.display = 'block';
 
             // Call onChange callback if provided
             if (typeof config.onChange === 'function') {
@@ -357,6 +359,7 @@ function createCategoryDropdown(options = {}) {
                 // Select the new subcategory
                 subcatDropdown.value = newSubcategory;
                 hiddenSubcatInput.value = newSubcategory;
+                subcatDropdown.style.display = 'block'; // Ensure dropdown is visible
 
                 // Hide new subcategory form
                 newSubcatContainer.style.display = 'none';
