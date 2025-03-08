@@ -32,19 +32,6 @@ class TransactionPaginator {
 
         // Initialize pagination controls and events
         this._init();
-
-        console.log('Paginator initialized', {
-            tableId: this.options.tableId,
-            pageSize: this.pageSize,
-            defaultPageSize: this.options.defaultPageSize
-        });
-
-        console.log('TransactionPaginator initialized:', {
-            totalItems: this.totalItems,
-            pageSize: this.pageSize,
-            currentPage: this.currentPage,
-            filteredItems: this.filteredItems
-        });
     }
 
     /**
@@ -104,13 +91,6 @@ class TransactionPaginator {
      * @param {boolean} forceUpdate Force update even if nothing changed
      */
     updateVisibility(forceUpdate = false) {
-        console.log('Updating visibility', {
-            currentPage: this.currentPage,
-            pageSize: this.pageSize,
-            totalItems: this.totalItems,
-            filteredItems: this.filteredItems,
-            forceUpdate
-        });
 
         if (!this.tableElement) return;
 
@@ -448,26 +428,3 @@ class TransactionPaginator {
         }
     }
 }
-
-// Usage example:
-//
-// const paginator = new TransactionPaginator({
-//     tableId: 'transactions-table',
-//     pageSizeId: 'page-size',
-//     defaultPageSize: 50,
-//     onPageChange: (info) => {
-//         console.log(`Showing page ${info.currentPage} of ${info.totalPages}`);
-//     }
-// });
-//
-// // Apply a search filter
-// document.getElementById('search-input').addEventListener('input', function(e) {
-//     const searchTerm = e.target.value.toLowerCase();
-//     paginator.applyFilter(row => {
-//         const text = row.textContent.toLowerCase();
-//         return text.includes(searchTerm);
-//     });
-// });
-//
-// // Initial visibility update
-// paginator.updateVisibility();

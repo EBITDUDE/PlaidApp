@@ -326,8 +326,6 @@ class TransactionFilter {
 
         this.saveFilters();
 
-        console.log('Subcategory filter applied:', subcategoryFilter, 'Visible rows:', visibleCount);
-
         return visibleCount;
     }
 

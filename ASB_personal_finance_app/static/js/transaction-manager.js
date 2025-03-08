@@ -415,8 +415,6 @@ function displayTransactions(transactions, callback) {
                 row.setAttribute('data-date', tx.date);
                 row.setAttribute('data-type', tx.is_debit ? 'expense' : 'income');
 
-                console.log('Row subcategory:', row.getAttribute('data-subcategory'));
-
                 // Format amount - always positive, with +/- sign depending on type
                 const amountDisplay = formatAmount(tx);
                 const amountClass = !tx.is_debit ? 'income-amount' : '';

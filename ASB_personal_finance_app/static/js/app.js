@@ -118,6 +118,10 @@ function setupFilterEventListeners() {
         updateSubcategoryDropdown(this.value);
     });
 
+    document.getElementById('subcategory-filter').addEventListener('change', function () {
+        if (transactionFilter) transactionFilter.applyFilters();
+    });
+
     document.getElementById('type-filter').addEventListener('change', function () {
         if (transactionFilter) transactionFilter.applyFilters();
     });
@@ -467,6 +471,7 @@ function setupPaginationAndFiltersAndApply() {
             search: 'transaction-search',
             date: 'date-filter',
             category: 'category-filter',
+            subcategory: 'subcategory-filter',
             type: 'type-filter'
         },
         onFilterChange: (info) => {
@@ -496,6 +501,9 @@ function updateSubcategoryDropdown(categoryFilter) {
     // Clear existing options only once
     subcategoryFilter.innerHTML = '<option value="all">All Subcategories</option>';
 
+    // Explicitly reset the selected value to "All Subcategories"
+    subcategoryFilter.value = 'all';
+
     fetch('/get_categories')
         .then(response => response.json())
         .then(data => {
@@ -524,7 +532,6 @@ function updateSubcategoryDropdown(categoryFilter) {
                 }
             });
             const sortedSubcategories = Array.from(subcategoryMap.values()).sort();
-            console.log('Subcategories:', sortedSubcategories);
 
             sortedSubcategories.forEach(subcategory => {
                 const option = document.createElement('option');
@@ -532,6 +539,11 @@ function updateSubcategoryDropdown(categoryFilter) {
                 option.textContent = subcategory;
                 subcategoryFilter.appendChild(option);
             });
+
+            // Apply filters after dropdown is updated
+            if (window.transactionFilter) {
+                window.transactionFilter.applyFilters();
+            }
         })
         .catch(err => {
             console.error('Error fetching subcategories:', err);

@@ -393,12 +393,3 @@ class CalendarPicker {
         }
     }
 }
-
-// Usage example:
-// const datePicker = new CalendarPicker({
-//     inputSelector: '#new-date',
-//     format: 'MM/DD/YYYY',
-//     onSelect: (date, formatted) => {
-//         console.log('Selected date:', formatted);
-//     }
-// });
