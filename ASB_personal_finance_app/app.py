@@ -16,6 +16,7 @@ from data_utils import (
     _access_token_cache, _saved_transactions_cache, 
     _account_names_cache, _transaction_cache
 )
+from error_utils import api_error_handler, AppError, AuthenticationError, ValidationError, ResourceNotFoundError, PlaidApiError
 import datetime
 import time
 import json
@@ -58,67 +59,9 @@ TRANSACTIONS_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_
 # Create the logs_and_json directory if it doesn't exist
 os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
 
-class AppError(Exception):
-    """Base exception for application errors"""
-    status_code = 500
-    
-    def __init__(self, message, status_code=None, details=None):
-        super().__init__(message)
-        self.message = message
-        if status_code is not None:
-            self.status_code = status_code
-        self.details = details or {}
-    
-    def to_dict(self):
-        return {
-            'error': self.message,
-            'details': self.details
-        }
-
-class AuthenticationError(AppError):
-    """Exception for authentication failures"""
-    status_code = 401
-
-class ValidationError(AppError):
-    """Exception for validation failures"""
-    status_code = 400
-
-class ResourceNotFoundError(AppError):
-    """Exception for missing resources"""
-    status_code = 404
-
-class PlaidApiError(AppError):
-    """Exception for Plaid API errors"""
-    status_code = 502  # Bad Gateway
-
-# Replace the existing api_error_handler with this improved version
-def api_error_handler(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except AppError as e:
-            logger.error(f"Application error in {f.__name__}: {str(e)}")
-            return jsonify(e.to_dict()), e.status_code
-        except plaid.ApiException as e:
-            logger.error(f"Plaid API error in {f.__name__}: {str(e)}")
-            error_response = json.loads(e.body) if hasattr(e, 'body') else {'error_message': str(e)}
-            details = {'plaid_error': error_response.get('error_message', 'Unknown Plaid error')}
-            return jsonify(PlaidApiError('Error communicating with Plaid', details=details).to_dict()), 502
-        except ValueError as e:
-            logger.error(f"Validation error in {f.__name__}: {str(e)}")
-            return jsonify(ValidationError(str(e)).to_dict()), 400
-        except Exception as e:
-            logger.error(f"Unexpected error in {f.__name__}: {str(e)}")
-            logger.error(traceback.format_exc())
-            return jsonify({
-                'error': 'An unexpected error occurred',
-                'details': {'message': str(e)}
-            }), 500
-    return decorated_function
-
 # New route to check if an access token exists
 @app.route('/has_access_token', methods=['GET'])
+@api_error_handler
 def has_access_token():
     token = load_access_token()
     # FIX: Added logging for token check
@@ -315,7 +258,6 @@ def get_transactions():
     # Create a cache key based on parameters
     cache_key = f"txn_{start_date}_{end_date}_{category_filter}_{account_filter}"
     cached_transactions = _transaction_cache.get(cache_key)
-    # logger.debug(f"Cached transactions retrieved: type={type(cached_transactions)}, value={cached_transactions}")
     
     if cached_transactions:
         logger.info(f"Using cached transactions for {cache_key}")
@@ -329,22 +271,104 @@ def get_transactions():
                 'transactions': []
             }), 400
 
-        # Create transactions request - Plaid API doesn't support all our filtering options,
-        # so we'll filter the results after fetching
+        # Load saved transactions and pre-process them for efficient lookups
+        saved_transactions = load_saved_transactions()
+        deleted_tx_ids = set()
+        modified_tx_map = {}
+        manual_transactions = []
+        
+        for tx_id, tx_data in saved_transactions.items():
+            if tx_data.get('deleted', False):
+                deleted_tx_ids.add(tx_id)
+            elif tx_data.get('manual', False):
+                manual_transactions.append((tx_id, tx_data))
+            else:
+                modified_tx_map[tx_id] = tx_data
+        
+        transaction_list = []
+        
+        # Process Plaid transactions if we have an access token
         try:
             transactions_request = TransactionsGetRequest(
                 access_token=access_token,
                 start_date=start_date,
                 end_date=end_date
             )
-
-            # Fetch transactions
             response = client.transactions_get(transactions_request)
+            plaid_txs = response.get('transactions', [])
+            logger.info(f"Total transactions retrieved from Plaid: {len(plaid_txs)}")
             
-            # Extract transactions safely
-            transactions = response.get('transactions', [])
-            logger.info(f"Total transactions retrieved from Plaid: {len(transactions)}")
-
+            # Process each transaction in a single pass
+            for tx in plaid_txs:
+                try:
+                    # Skip if manually deleted
+                    tx_id = getattr(tx, 'transaction_id', None)
+                    if tx_id in deleted_tx_ids:
+                        continue
+                    
+                    # Extract basic transaction details
+                    tx_date = getattr(tx, 'date', None)
+                    tx_amount = getattr(tx, 'amount', 0.0)
+                    tx_name = getattr(tx, 'name', 'Unknown')
+                    tx_category = getattr(tx, 'category', [])
+                    tx_account_id = getattr(tx, 'account_id', '')
+                    
+                    # Normalize date
+                    if not isinstance(tx_date, datetime.date):
+                        if isinstance(tx_date, str):
+                            try:
+                                tx_date = parse_date(tx_date)
+                            except ValueError:
+                                logger.warning(f"Invalid date format: {tx_date}")
+                                tx_date = datetime.datetime.now().date()
+                        else:
+                            logger.warning(f"Using current date for transaction {tx_id}: invalid date type {type(tx_date)}")
+                            tx_date = datetime.datetime.now().date()
+                    
+                    # Set initial values
+                    category = tx_category[0] if tx_category else 'Uncategorized'
+                    amount = abs(float(tx_amount))
+                    is_debit = float(tx_amount) > 0
+                    subcategory = ''
+                    
+                    # Apply any saved modifications
+                    if tx_id in modified_tx_map:
+                        mods = modified_tx_map[tx_id]
+                        
+                        if 'category' in mods:
+                            category = mods['category']
+                        if 'subcategory' in mods:
+                            subcategory = mods['subcategory']
+                        if 'merchant' in mods:
+                            tx_name = mods['merchant']
+                        if 'date' in mods:
+                            try:
+                                tx_date = parse_date(mods['date'])
+                            except ValueError:
+                                logger.debug(f"Invalid saved date format for {tx_id}: {mods['date']}")
+                        if 'amount' in mods:
+                            amount = abs(float(mods['amount']))
+                        if 'is_debit' in mods:
+                            is_debit = mods['is_debit']
+                    
+                    # Add to transaction list
+                    transaction_list.append({
+                        'id': tx_id,
+                        'date': tx_date.strftime("%m/%d/%Y"),
+                        'raw_date': tx_date.strftime("%Y-%m-%d"),
+                        'amount': amount,
+                        'is_debit': is_debit,
+                        'merchant': tx_name,
+                        'category': category,
+                        'subcategory': subcategory,
+                        'account_id': tx_account_id,
+                        'manual': False
+                    })
+                    
+                except Exception as tx_error:
+                    logger.error(f"Error processing transaction: {str(tx_error)}")
+                    logger.error(traceback.format_exc())
+                    
         except Exception as plaid_error:
             logger.error(f"Plaid Transaction Fetch Error: {str(plaid_error)}")
             logger.error(traceback.format_exc())
@@ -352,152 +376,65 @@ def get_transactions():
                 'error': f'Failed to fetch transactions: {str(plaid_error)}',
                 'transactions': []
             }), 500
-
-        # Process transactions more efficiently
-        transaction_list = []
-        saved_transactions = load_saved_transactions()
         
-        # Use a set for faster lookups of deleted transaction IDs
-        deleted_tx_ids = {tx_id for tx_id, tx_data in saved_transactions.items() 
-                            if tx_data.get('deleted', False)}
-        
-        for tx in transactions:
+        # Add manual transactions
+        for tx_id, tx_data in manual_transactions:
             try:
-                # Skip if manually deleted
-                tx_id = getattr(tx, 'transaction_id', None)
-                if tx_id and tx_id in deleted_tx_ids:
+                # Parse date and validate
+                date_str = tx_data.get('date')
+                if not date_str:
                     continue
                 
-                # Extract and convert date safely
-                tx_date = getattr(tx, 'date', None)
-                if not isinstance(tx_date, datetime.date):
-                    if isinstance(tx_date, str):
-                        try:
-                            tx_date = parse_date(tx_date)
-                        except ValueError:
-                            logger.warning(f"Invalid date format: {tx_date}")
-                            tx_date = datetime.datetime.now().date()
-                    else:
-                        logger.warning(f"Using current date for transaction {tx_id}: invalid date type {type(tx_date)}")
-                        tx_date = datetime.datetime.now().date()
+                try:
+                    tx_date = parse_date(date_str)
+                    # Apply date filter to manual transactions
+                    if tx_date < start_date or tx_date > end_date:
+                        continue
+                except ValueError:
+                    logger.warning(f"Invalid date format for manual transaction {tx_id}: {date_str}")
+                    continue
                 
-                # Default values for transaction
-                tx_amount = getattr(tx, 'amount', 0.0)
-                tx_name = getattr(tx, 'name', 'Unknown')
-                tx_category = getattr(tx, 'category', [])
-                tx_account_id = getattr(tx, 'account_id', '')
-                
-                # Use first category or default
-                category = tx_category[0] if tx_category else 'Uncategorized'
-                amount = abs(float(tx_amount))
-                is_debit = float(tx_amount) > 0
-                
-                # Apply updates from saved modifications
-                if tx_id in saved_transactions:
-                    saved_tx = saved_transactions[tx_id]
-                    if 'category' in saved_tx:
-                        category = saved_tx['category']
-                    if 'merchant' in saved_tx:
-                        tx_name = saved_tx['merchant']
-                    if 'date' in saved_tx:
-                        try:
-                            tx_date = parse_date(saved_tx['date'])
-                        except ValueError:
-                            # Keep original if saved date is invalid
-                            logger.debug(f"Invalid saved date format for {tx_id}: {saved_tx['date']}")
-                    if 'amount' in saved_tx:
-                        amount = abs(float(saved_tx['amount']))
-                    if 'is_debit' in saved_tx:
-                        is_debit = saved_tx['is_debit']
-                
-                # Add to transaction list
+                # Add manual transaction to list
                 transaction_list.append({
                     'id': tx_id,
                     'date': tx_date.strftime("%m/%d/%Y"),
                     'raw_date': tx_date.strftime("%Y-%m-%d"),
-                    'amount': amount,
-                    'is_debit': is_debit,
-                    'merchant': tx_name,
-                    'category': category,
-                    'subcategory': saved_transactions[tx_id].get('subcategory', '') if tx_id in saved_transactions else '',
-                    'account_id': tx_account_id,
-                    'manual': False
+                    'amount': abs(float(tx_data.get('amount', 0))),
+                    'is_debit': tx_data.get('is_debit', True),
+                    'merchant': tx_data.get('merchant', 'Unknown'),
+                    'category': tx_data.get('category', 'Uncategorized'),
+                    'subcategory': tx_data.get('subcategory', ''),
+                    'account_id': tx_data.get('account_id', ''),
+                    'manual': True
                 })
-
-            except Exception as tx_error:
-                logger.error(f"Error processing transaction: {str(tx_error)}")
-                logger.error(traceback.format_exc())
-
-        # Add manual transactions with the same filtering
-        for tx_id, tx_data in saved_transactions.items():
-            if tx_data.get('manual', False) and not tx_data.get('deleted', False):
-                try:
-                    date_str = tx_data.get('date')
-                    if not date_str:
-                        continue
-                    
-                    try:
-                        tx_date = parse_date(date_str)
-                        
-                        # Apply date filter to manual transactions
-                        if tx_date < start_date or tx_date > end_date:
-                            continue
-                    except ValueError:
-                        logger.warning(f"Invalid date format for manual transaction {tx_id}: {date_str}")
-                        continue
-                    
-                    # Extract category for filtering
-                    category = tx_data.get('category', 'Uncategorized')
-                    account_id = tx_data.get('account_id', '')
-                    
-                    # Apply category filter
-                    if category_filter and category != category_filter:
-                        continue
-                    
-                    # Apply account filter
-                    if account_filter and account_id != account_filter:
-                        continue
-                    
-                    transaction_list.append({
-                        'id': tx_id,
-                        'date': tx_date.strftime("%m/%d/%Y"),
-                        'raw_date': tx_date.strftime("%Y-%m-%d"),
-                        'amount': abs(float(tx_data.get('amount', 0))),
-                        'is_debit': tx_data.get('is_debit', True),
-                        'merchant': tx_data.get('merchant', 'Unknown'),
-                        'category': category,
-                        'subcategory': tx_data.get('subcategory', ''),
-                        'account_id': account_id,
-                        'manual': True
-                    })
-                except Exception as manual_tx_error:
-                    logger.error(f"Error processing manual transaction: {str(manual_tx_error)}")
-
-        # ADD THIS LINE to cache the result before pagination:
+                
+            except Exception as manual_tx_error:
+                logger.error(f"Error processing manual transaction: {str(manual_tx_error)}")
+                
+        # Cache the result before filtering by category/account
         _transaction_cache.set(cache_key, transaction_list)
-
-    # After the if-else block, before sorting
+    
+    # Apply category and account filters
+    filtered_list = transaction_list
     if category_filter:
-        transaction_list = [tx for tx in transaction_list if tx['category'] == category_filter]
+        filtered_list = [tx for tx in filtered_list if tx['category'] == category_filter]
     if account_filter:
-        transaction_list = [tx for tx in transaction_list if tx['account_id'] == account_filter]
+        filtered_list = [tx for tx in filtered_list if tx['account_id'] == account_filter]
     
     # Sort transactions by date (newest first)
-    transaction_list.sort(key=lambda x: x.get('raw_date', ''), reverse=True)
+    filtered_list.sort(key=lambda x: x.get('raw_date', ''), reverse=True)
     
-    
-    # Client-side pagination parameters
+    # Apply pagination
     page = request.args.get('page', default=1, type=int)
     page_size = request.args.get('page_size', default=50, type=int)
     
-    # Calculate total and paged results
-    total_count = len(transaction_list)
+    total_count = len(filtered_list)
     start_idx = (page - 1) * page_size
     end_idx = min(start_idx + page_size, total_count)
     
     # Return paginated results
     return jsonify({
-        'transactions': transaction_list[start_idx:end_idx],
+        'transactions': filtered_list[start_idx:end_idx],
         'pagination': {
             'total_count': total_count,
             'page': page,
@@ -682,16 +619,19 @@ def delete_transaction():
 
 # New route for category management page
 @app.route('/categories')
+@api_error_handler
 def categories_page():
     return render_template('categories.html')
 
 # New route for annual totals page
 @app.route('/annual_totals')
+@api_error_handler
 def annual_totals_page():
     return render_template('annual_totals.html')
 
 # New route for monthly totals page
 @app.route('/monthly_totals')
+@api_error_handler
 def monthly_totals_page():
     return render_template('monthly_totals.html')
 
@@ -1418,6 +1358,7 @@ def delete_subcategory():
     
 # Route to view logs
 @app.route('/logs')
+@api_error_handler
 def view_logs():
     return render_template('log_viewer.html')
 
@@ -1566,11 +1507,11 @@ def debug_info():
 
 # Serve the webpage with Plaid Link
 @app.route('/')
+@api_error_handler
 def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    # FIX: Log startup message
     logger.info("================================")
     logger.info("Starting Personal Finance App")
     logger.info(f"Environment: {'Development' if app.debug else 'Production'}")
