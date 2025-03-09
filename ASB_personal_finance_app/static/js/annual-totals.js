@@ -101,9 +101,9 @@ function showYearPicker(inputElement) {
         // Get current year
         const currentYear = new Date().getFullYear();
 
-        // Create range of years (current year down to 10 years ago)
+        // Create range of years (10 years ago up to current year)
         const years = [];
-        for (let year = currentYear; year >= currentYear - 10; year--) {
+        for (let year = currentYear - 10; year <= currentYear; year++) {
             years.push(year);
         }
 

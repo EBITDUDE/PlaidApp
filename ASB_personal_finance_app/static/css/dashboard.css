@@ -157,7 +157,7 @@ input:checked+.toggle-slider:before {
 /* Compact view adjustments */
 .compact-view th,
 .compact-view td {
-    padding: 5px 8px;
+    padding: 4px 8px;
     font-size: 0.9em;
 }
 
@@ -168,7 +168,7 @@ input:checked+.toggle-slider:before {
 
 .compact-view .container {
     padding: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .compact-view h2 {
@@ -177,8 +177,9 @@ input:checked+.toggle-slider:before {
 }
 
 /* Additional utility classes */
-.mt-10 {
+.mtmb-10 {
     margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 /* Date range container */
@@ -251,6 +252,17 @@ input:checked+.toggle-slider:before {
 /* Delete button hover override */
 .delete-btn:hover {
     background-color: #ff3333 !important;
+}
+
+.buttons-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.buttons-container button {
+    flex: 0 0 auto;
 }
 
 /* Dashboard responsive adjustments */

@@ -163,7 +163,40 @@ function setupTransactionEventListeners() {
     const addTransactionBtn = document.getElementById('add-transaction-btn');
     if (addTransactionBtn) {
         addTransactionBtn.addEventListener('click', function () {
-            document.getElementById('add-transaction-modal').style.display = 'block';
+            const modal = document.getElementById('add-transaction-modal');
+            const modalTitle = modal.querySelector('h3');
+            const form = document.getElementById('add-transaction-form');
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            // Set to add mode
+            modalTitle.textContent = 'Add New Transaction';
+            submitButton.textContent = 'Save';
+            form.setAttribute('data-mode', 'add');
+            form.removeAttribute('data-id');
+
+            // Hide delete button if it exists
+            const deleteButton = document.getElementById('delete-transaction-btn');
+            if (deleteButton) {
+                deleteButton.style.display = 'none';
+            }
+
+            // Clear form fields
+            document.getElementById('new-date').value = formatDate(new Date()); // Default to today
+            document.getElementById('new-amount').value = '';
+            document.getElementById('new-type').value = 'expense'; // Default to expense
+            document.getElementById('new-merchant').value = '';
+
+            // Reset category safely
+            if (window.categoryComponent && typeof window.categoryComponent.setValue === 'function') {
+                window.categoryComponent.setValue({
+                    category: '',
+                    subcategory: ''
+                });
+            }
+
+            // Show modal
+            modal.style.display = 'block';
+
             updateAccountDropdown();
             initCategoryDropdown();
         });
@@ -180,7 +213,12 @@ function setupTransactionEventListeners() {
     // Handle add transaction form submission
     const addTransactionForm = document.getElementById('add-transaction-form');
     if (addTransactionForm) {
-        addTransactionForm.addEventListener('submit', handleAddTransactionSubmit);
+        // Remove any existing event listeners to avoid duplicates
+        const newForm = addTransactionForm.cloneNode(true);
+        addTransactionForm.parentNode.replaceChild(newForm, addTransactionForm);
+
+        // Add new event listener using our handler from transaction-manager.js
+        newForm.addEventListener('submit', handleTransactionFormSubmit);
     }
 
     // Close modal if clicked outside
@@ -351,94 +389,6 @@ function initiatePlaidConnection() {
             // Reset button
             linkButton.innerHTML = originalButtonText;
             linkButton.disabled = false;
-        });
-}
-
-/**
- * Handles form submission for adding a transaction
- * 
- * @param {Event} event - The form submission event
- */
-function handleAddTransactionSubmit(event) {
-    event.preventDefault();
-
-    // Get form values
-    const newDate = document.getElementById('new-date').value;
-    const newAmount = document.getElementById('new-amount').value;
-    const newType = document.getElementById('new-type').value;
-    const newMerchant = document.getElementById('new-merchant').value;
-    const newAccount = document.getElementById('new-account').value;
-
-    // Get category and subcategory values from our component
-    let newCategory = '';
-    let newSubcategory = '';
-
-    if (window.categoryComponent && typeof window.categoryComponent.getValue === 'function') {
-        const categoryData = window.categoryComponent.getValue();
-        newCategory = categoryData.category;
-        newSubcategory = categoryData.subcategory;
-    }
-
-    // Validate inputs
-    if (!newDate || !newAmount || !newCategory || !newMerchant) {
-        alert('Please fill in all required fields');
-        return;
-    }
-
-    if (newCategory.length > 50) {
-        alert('Category name must be 50 characters or less');
-        return;
-    }
-
-    // Determine if it's a debit based on the type
-    const isDebit = newType === 'expense';
-
-    // Create transaction object
-    const transaction = {
-        date: newDate,
-        amount: newAmount,
-        is_debit: isDebit,
-        category: newCategory,
-        subcategory: newSubcategory,
-        merchant: newMerchant,
-        account_id: newAccount
-    };
-
-    // Send to server
-    fetch('/add_transaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(transaction)
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Server error: ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Transaction added:', data);
-
-            // Reset form
-            document.getElementById('new-amount').value = '';
-            document.getElementById('new-merchant').value = '';
-
-            // Reset category safely
-            if (window.categoryComponent && typeof window.categoryComponent.setValue === 'function') {
-                window.categoryComponent.setValue({
-                    category: '',
-                    subcategory: ''
-                });
-            }
-
-            // Hide modal
-            document.getElementById('add-transaction-modal').style.display = 'none';
-
-            // Refresh transactions
-            loadTransactions();
-        })
-        .catch(err => {
-            ErrorUtils.handleError(err, 'Error adding transaction');
         });
 }
 

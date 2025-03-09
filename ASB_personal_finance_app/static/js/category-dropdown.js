@@ -250,7 +250,7 @@ function createCategoryDropdown(options = {}) {
     subcatDropdown.addEventListener('change', function () {
         if (this.value === 'add_new') {
             // Show and ensure the new subcategory input is usable
-            newSubcatContainer.style.display = 'flex'; // Match new category container styling
+            newSubcatContainer.style.display = 'block'; // Match new category container styling
             subcatDropdown.style.display = 'none'; // Hide the dropdown
             newSubcatField.value = ''; // Clear any previous value
             newSubcatField.focus(); // Ensure focus

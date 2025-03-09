@@ -50,3 +50,13 @@ tr:hover {
 .income-amount {
     color: #357D40;
 }
+
+/* Make transaction rows clickable */
+.transaction-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.transaction-row:hover {
+    background-color: #f0f7ff;
+}

@@ -11,215 +11,184 @@ let isEventListenerAttached = false;
 
 function setupTransactionEventHandlers() {
     if (isEventListenerAttached) return; // Skip if already attached
+
     const txTable = document.getElementById('transactions-body');
     txTable.addEventListener('click', function (event) {
         const target = event.target;
-        if (target.classList.contains('editable')) {
-            handleEditableCell(target);
-        } else if (target.classList.contains('delete-btn')) {
+
+        // Check if the click was on a delete button
+        if (target.classList.contains('delete-btn')) {
             handleDeleteButton(target);
+            return;
+        }
+
+        // Get the transaction row
+        const row = target.closest('tr');
+        if (row && row.classList.contains('transaction-row')) {
+            handleEditTransaction(row);
         }
     });
+
     isEventListenerAttached = true; // Mark as attached
+
+    // Cancel add/edit transaction
+    const cancelAddTransaction = document.getElementById('cancel-add-transaction');
+    if (cancelAddTransaction) {
+        cancelAddTransaction.addEventListener('click', function () {
+            // Hide delete button if it exists
+            const deleteButton = document.getElementById('delete-transaction-btn');
+            if (deleteButton) {
+                deleteButton.style.display = 'none';
+            }
+
+            // Reset form mode
+            document.getElementById('add-transaction-form').setAttribute('data-mode', 'add');
+
+            // Hide modal
+            document.getElementById('add-transaction-modal').style.display = 'none';
+        });
+    }
+}
+
+// Add after setupTransactionEventHandlers
+function handleTransactionFormSubmit(event) {
+    event.preventDefault();
+
+    // Get form values
+    const newDate = document.getElementById('new-date').value;
+    const newAmount = document.getElementById('new-amount').value;
+    const newType = document.getElementById('new-type').value;
+    const newMerchant = document.getElementById('new-merchant').value;
+    const newAccount = document.getElementById('new-account').value;
+
+    // Get category and subcategory values from our component
+    let newCategory = '';
+    let newSubcategory = '';
+
+    if (window.categoryComponent && typeof window.categoryComponent.getValue === 'function') {
+        const categoryData = window.categoryComponent.getValue();
+        newCategory = categoryData.category;
+        newSubcategory = categoryData.subcategory;
+    }
+
+    // Validate inputs
+    if (!newDate || !newAmount || !newCategory || !newMerchant) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    if (newCategory.length > 50) {
+        alert('Category name must be 50 characters or less');
+        return;
+    }
+
+    // Determine if it's a debit based on the type
+    const isDebit = newType === 'expense';
+
+    // Create transaction object
+    const transaction = {
+        date: newDate,
+        amount: newAmount,
+        is_debit: isDebit,
+        category: newCategory,
+        subcategory: newSubcategory,
+        merchant: newMerchant,
+        account_id: newAccount
+    };
+
+    // Check if adding or editing
+    const form = event.target;
+    const mode = form.getAttribute('data-mode') || 'add';
+
+    if (mode === 'edit') {
+        // Add transaction ID to the object
+        transaction.id = form.getAttribute('data-id');
+
+        // Update the transaction
+        updateTransaction(transaction);
+    } else {
+        // Add a new transaction
+        addTransaction(transaction);
+    }
+}
+
+function updateTransaction(transaction) {
+    fetch('/update_transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(transaction)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Server error: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Transaction updated:', data);
+
+            // Reset form
+            document.getElementById('add-transaction-form').setAttribute('data-mode', 'add');
+
+            // Hide delete button
+            const deleteButton = document.getElementById('delete-transaction-btn');
+            if (deleteButton) {
+                deleteButton.style.display = 'none';
+            }
+
+            // Hide modal
+            document.getElementById('add-transaction-modal').style.display = 'none';
+
+            // Refresh transactions
+            loadTransactions();
+        })
+        .catch(err => {
+            ErrorUtils.handleError(err, 'Error updating transaction');
+        });
 }
 
 /**
- * Handler for editable cell clicks
+ * Adds a new transaction
+ * 
+ * @param {Object} transaction - Transaction data to add
  */
-function handleEditableCell(cell) {
-    const field = cell.getAttribute('data-field');
-    const row = cell.closest('tr');
-    const txId = row.getAttribute('data-id');
-    const currentValue = cell.textContent.trim();
-
-    // Don't allow editing if already in edit mode
-    if (cell.querySelector('input, select')) return;
-
-    // Store original content to restore if edit is cancelled
-    const originalContent = cell.innerHTML;
-
-    // Create edit interface based on field type
-    let editHtml = '';
-
-    if (field === 'date') {
-        editHtml = `<input type="text" class="edit-input" value="${currentValue}" placeholder="MM/DD/YYYY">`;
-    } else if (field === 'amount') {
-        // Strip currency formatting
-        let numValue = currentValue.replace(/[^0-9.-]+/g, '');
-        if (numValue.startsWith('+')) numValue = numValue.substring(1);
-        editHtml = `<input type="text" class="edit-input" value="${numValue}" placeholder="0.00">`;
-    } else if (field === 'category') {
-        // Extract category and subcategory
-        let category = currentValue;
-        let subcategory = cell.getAttribute('data-subcategory') || '';
-
-        // If display includes subcategory, parse it out
-        if (currentValue.includes(' › ')) {
-            const parts = currentValue.split(' › ');
-            category = parts[0];
-            subcategory = parts[1];
-        }
-
-        // Create container for the category editor
-        editHtml = `<div id="tx-category-editor"></div>`;
-
-        // Set the cell content to the edit interface
-        cell.innerHTML = editHtml;
-
-        // Create the category dropdown
-        const categoryEditor = createCategoryDropdown({
-            containerId: 'tx-category-editor',
-            inputName: 'tx-category',
-            subcategoryInputName: 'tx-subcategory',
-            required: false
-        });
-
-        // Set the initial value
-        categoryEditor.setValue({
-            category: category,
-            subcategory: subcategory
-        });
-
-        // Create a save button
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = 'Save';
-        saveBtn.className = 'save-btn';
-        saveBtn.style.marginTop = '5px';
-        saveBtn.style.padding = '2px 5px';
-        saveBtn.style.backgroundColor = '#4CAF50';
-        saveBtn.style.color = 'white';
-        saveBtn.style.border = 'none';
-        saveBtn.style.borderRadius = '3px';
-        saveBtn.style.cursor = 'pointer';
-
-        // Create a cancel button
-        const cancelBtn = document.createElement('button');
-        cancelBtn.textContent = 'Cancel';
-        cancelBtn.className = 'cancel-btn';
-        cancelBtn.style.marginTop = '5px';
-        cancelBtn.style.marginLeft = '5px';
-        cancelBtn.style.padding = '2px 5px';
-        cancelBtn.style.backgroundColor = '#f8f8f8';
-        cancelBtn.style.border = '1px solid #ddd';
-        cancelBtn.style.borderRadius = '3px';
-        cancelBtn.style.cursor = 'pointer';
-
-        // Add buttons to the cell
-        const buttonContainer = document.createElement('div');
-        buttonContainer.style.display = 'flex';
-        buttonContainer.appendChild(saveBtn);
-        buttonContainer.appendChild(cancelBtn);
-        cell.appendChild(buttonContainer);
-
-        // Save button handler
-        saveBtn.addEventListener('click', function () {
-            const value = categoryEditor.getValue();
-            if (!value.category) {
-                alert('Please select a category');
-                return;
+function addTransaction(transaction) {
+    fetch('/add_transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(transaction)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Server error: ' + response.statusText);
             }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Transaction added:', data);
 
-            // Update transaction with new category and subcategory
-            updateTransactionCategory(txId, value.category, value.subcategory, cell, originalContent);
-        });
+            // Reset form fields
+            document.getElementById('new-date').value = formatDate(new Date()); // Default to today
+            document.getElementById('new-amount').value = '';
+            document.getElementById('new-merchant').value = '';
 
-        // Cancel button handler
-        cancelBtn.addEventListener('click', function () {
-            cell.innerHTML = originalContent;
-        });
-
-        // Don't proceed with the rest of the function
-        return;
-    } else if (field === 'subcategory') {
-        editHtml = `<input type="text" class="edit-input" value="${currentValue}">`;
-    } else if (field === 'merchant') {
-        editHtml = `<input type="text" class="edit-input" value="${currentValue}">`;
-    } else if (field === 'type') {
-        const isDebit = row.querySelector('[data-field="amount"]').getAttribute('data-is-debit') === 'true';
-        editHtml = `
-            <select class="edit-input">
-                <option value="expense" ${isDebit ? 'selected' : ''}>Expense</option>
-                <option value="income" ${!isDebit ? 'selected' : ''}>Income</option>
-            </select>
-        `;
-    }
-
-    // Set the cell content to the edit interface (for non-category fields)
-    if (editHtml) {
-        cell.innerHTML = editHtml;
-        const input = cell.querySelector('.edit-input');
-        input.focus();
-
-        // Handler for save on Enter or blur
-        const saveEdit = () => {
-            let newValue = input.value.trim();
-
-            // For select elements, get the selected option
-            if (input.tagName === 'SELECT') {
-                newValue = input.options[input.selectedIndex].value;
-            }
-
-            // Don't save if empty
-            if (!newValue) {
-                cell.innerHTML = originalContent;
-                return;
-            }
-
-            // Process based on field type
-            if (field === 'date') {
-                // Validate date format
-                if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(newValue)) {
-                    alert('Please use MM/DD/YYYY format');
-                    cell.innerHTML = originalContent;
-                    return;
-                }
-
-                updateTransactionField(txId, 'date', newValue, cell, originalContent);
-            } else if (field === 'amount') {
-                // Validate amount
-                if (isNaN(parseFloat(newValue))) {
-                    alert('Please enter a valid number');
-                    cell.innerHTML = originalContent;
-                    return;
-                }
-
-                const isDebit = row.querySelector('[data-field="amount"]').getAttribute('data-is-debit') === 'true';
-                updateTransactionField(txId, 'amount', newValue, cell, originalContent, isDebit);
-            } else if (field === 'merchant') {
-                updateTransactionField(txId, 'merchant', newValue, cell, originalContent);
-            } else if (field === 'type') {
-                const isDebit = newValue === 'expense';
-                const amountCell = row.querySelector('[data-field="amount"]');
-                const amountStr = amountCell.textContent.replace(/[^0-9.-]+/g, '');
-
-                updateTransactionField(txId, 'is_debit', isDebit, cell, originalContent, null, () => {
-                    // Update the UI to reflect type change
-                    cell.textContent = isDebit ? 'Expense' : 'Income';
-
-                    // Update amount display and data-is-debit attribute
-                    amountCell.setAttribute('data-is-debit', isDebit);
-                    amountCell.classList.toggle('income-amount', !isDebit);
-
-                    const amount = parseFloat(amountStr);
-                    amountCell.textContent = isDebit ? `$${amount.toFixed(2)}` : `+$${amount.toFixed(2)}`;
+            // Reset category safely
+            if (window.categoryComponent && typeof window.categoryComponent.setValue === 'function') {
+                window.categoryComponent.setValue({
+                    category: '',
+                    subcategory: ''
                 });
-            } else if (field === 'subcategory') {
-                updateTransactionField(txId, 'subcategory', newValue, cell, originalContent);
             }
-        };
 
-        // Event handlers for non-category fields
-        input.addEventListener('blur', saveEdit);
-        input.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                saveEdit();
-            } else if (e.key === 'Escape') {
-                e.preventDefault();
-                cell.innerHTML = originalContent;
-            }
+            // Hide modal
+            document.getElementById('add-transaction-modal').style.display = 'none';
+
+            // Refresh transactions
+            loadTransactions();
+        })
+        .catch(err => {
+            ErrorUtils.handleError(err, 'Error adding transaction');
         });
-    }
 }
 
 /**
@@ -230,25 +199,104 @@ function handleDeleteButton(button) {
     const txId = row.getAttribute('data-id');
 
     if (confirm('Are you sure you want to delete this transaction?')) {
-        fetch('/delete_transaction', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: txId })
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Transaction deleted:', data);
-
-                // Remove row from table
-                row.style.display = 'none';
-
-                // Refresh transactions to update totals
-                loadTransactions();
-            })
-            .catch(err => {
-                ErrorUtils.handleError(err, 'Failed to delete transaction');
-            });
+        deleteTransaction(txId);
     }
+}
+
+// Add after handleDeleteButton function
+function handleEditTransaction(row) {
+    // Get transaction data from row attributes
+    const txId = row.getAttribute('data-id');
+    const txCategory = row.getAttribute('data-category');
+    const txSubcategory = row.getAttribute('data-subcategory');
+    const txDate = row.getAttribute('data-date');
+    const txAmount = row.getAttribute('data-amount');
+    const txIsDebit = row.getAttribute('data-is-debit') === 'true';
+    const txMerchant = row.getAttribute('data-merchant');
+    const txAccountId = row.getAttribute('data-account-id');
+
+    // Get modal elements
+    const modal = document.getElementById('add-transaction-modal');
+    const modalTitle = modal.querySelector('h3');
+    const form = document.getElementById('add-transaction-form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const modalFooter = modal.querySelector('.modal-footer');
+
+    // Change modal title and button text
+    modalTitle.textContent = 'Edit Transaction';
+    submitButton.textContent = 'Save Changes';
+
+    // Set form to edit mode
+    form.setAttribute('data-mode', 'edit');
+    form.setAttribute('data-id', txId);
+
+    // Populate form fields
+    document.getElementById('new-date').value = txDate;
+    document.getElementById('new-amount').value = txAmount;
+    document.getElementById('new-type').value = txIsDebit ? 'expense' : 'income';
+    document.getElementById('new-merchant').value = txMerchant;
+
+    // Set category and subcategory
+    if (window.categoryComponent && typeof window.categoryComponent.setValue === 'function') {
+        window.categoryComponent.setValue({
+            category: txCategory,
+            subcategory: txSubcategory
+        });
+    }
+
+    // Populate account dropdown
+    updateAccountDropdown();
+
+    // Set account
+    const accountSelect = document.getElementById('new-account');
+    if (accountSelect) {
+        accountSelect.value = txAccountId;
+    }
+
+    // Add delete button if it doesn't exist
+    let deleteButton = document.getElementById('delete-transaction-btn');
+    if (!deleteButton) {
+        deleteButton = document.createElement('button');
+        deleteButton.id = 'delete-transaction-btn';
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn-danger';
+        deleteButton.textContent = 'Delete';
+        deleteButton.style.marginRight = '10px';
+        deleteButton.addEventListener('click', function () {
+            if (confirm('Are you sure you want to delete this transaction?')) {
+                const txId = form.getAttribute('data-id');
+                deleteTransaction(txId, modal);
+            }
+        });
+        modalFooter.insertBefore(deleteButton, document.getElementById('cancel-add-transaction'));
+    } else {
+        deleteButton.style.display = 'inline-block';
+    }
+
+    // Show modal
+    modal.style.display = 'block';
+}
+
+// Helper function to delete a transaction
+function deleteTransaction(txId, modal) {
+    fetch('/delete_transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: txId })
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Transaction deleted:', data);
+
+            // Hide modal
+            modal.style.display = 'none';
+
+            // Refresh transactions
+            loadTransactions();
+        })
+        .catch(err => {
+            ErrorUtils.handleError(err, 'Failed to delete transaction');
+        });
 }
 
 /**
@@ -270,7 +318,7 @@ function loadTransactions() {
     // Clear previous content and show loading
     txTable.innerHTML = `
         <tr>
-            <td colspan="7" style="text-align: center; padding: 20px;">
+            <td colspan="6" style="text-align: center; padding: 20px;">
                 <div class="loading" style="display: inline-block; width: 30px; height: 30px; 
                     border: 3px solid rgba(0,0,0,0.3); border-radius: 50%; 
                     border-top-color: #3498db; animation: spin 1s ease-in-out infinite;">
@@ -320,7 +368,7 @@ function loadTransactions() {
                 // Show error message in the table
                 const errorRow = document.createElement('tr');
                 errorRow.innerHTML = `
-                    <td colspan="7" style="text-align: center; color: red; padding: 20px;">
+                    <td colspan="6" style="text-align: center; color: red; padding: 20px;">
                         Error loading transactions: ${data.error}
                     </td>
                 `;
@@ -335,7 +383,7 @@ function loadTransactions() {
 
                 const emptyRow = document.createElement('tr');
                 emptyRow.innerHTML = `
-                    <td colspan="7" style="text-align: center; color: #666; padding: 20px;">
+                    <td colspan="6" style="text-align: center; color: #666; padding: 20px;">
                         No transactions available. Connect a bank account or add manual transactions.
                     </td>
                 `;
@@ -355,7 +403,7 @@ function loadTransactions() {
             // Show error in table
             const errorRow = document.createElement('tr');
             errorRow.innerHTML = `
-                <td colspan="7" style="text-align: center; color: red; padding: 20px;">
+                <td colspan="6" style="text-align: center; color: red; padding: 20px;">
                     Error fetching transactions: ${err.message}
                     <br>
                     <small>Check console for more details</small>
@@ -373,27 +421,30 @@ function loadTransactions() {
  */
 function createTransactionRow(tx, accountsMap) {
     const row = document.createElement('tr');
+    row.className = 'transaction-row'; // Add class for styling and selection
+
+    // Store all transaction data as attributes
     row.setAttribute('data-id', tx.id);
     row.setAttribute('data-category', tx.category);
     row.setAttribute('data-subcategory', tx.subcategory || '');
     row.setAttribute('data-date', tx.date);
+    row.setAttribute('data-raw-date', tx.raw_date || tx.date);
     row.setAttribute('data-type', tx.is_debit ? 'expense' : 'income');
+    row.setAttribute('data-amount', tx.amount);
+    row.setAttribute('data-merchant', tx.merchant);
+    row.setAttribute('data-account-id', tx.account_id || '');
+    row.setAttribute('data-is-debit', tx.is_debit.toString());
 
-    // Date cell
+    // Date cell - remove editable class
     const dateCell = document.createElement('td');
-    dateCell.className = 'editable';
-    dateCell.setAttribute('data-field', 'date');
     dateCell.textContent = tx.date;
     row.appendChild(dateCell);
 
-    // Amount cell
+    // Amount cell - remove editable class
     const amountCell = document.createElement('td');
-    amountCell.className = 'editable';
     if (!tx.is_debit) {
         amountCell.classList.add('income-amount');
     }
-    amountCell.setAttribute('data-field', 'amount');
-    amountCell.setAttribute('data-is-debit', tx.is_debit.toString());
     amountCell.textContent = formatAmount(tx);
     row.appendChild(amountCell);
 
@@ -402,24 +453,18 @@ function createTransactionRow(tx, accountsMap) {
     typeCell.textContent = tx.is_debit ? 'Expense' : 'Income';
     row.appendChild(typeCell);
 
-    // Category cell
+    // Category cell - remove editable class
     const categoryCell = document.createElement('td');
-    categoryCell.className = 'editable';
-    categoryCell.setAttribute('data-field', 'category');
     categoryCell.textContent = tx.category;
     row.appendChild(categoryCell);
 
-    // Subcategory cell
+    // Subcategory cell - remove editable class
     const subcategoryCell = document.createElement('td');
-    subcategoryCell.className = 'editable';
-    subcategoryCell.setAttribute('data-field', 'subcategory');
     subcategoryCell.textContent = tx.subcategory || '—';
     row.appendChild(subcategoryCell);
 
-    // Merchant cell
+    // Merchant cell - remove editable class
     const merchantCell = document.createElement('td');
-    merchantCell.className = 'editable';
-    merchantCell.setAttribute('data-field', 'merchant');
     merchantCell.textContent = tx.merchant;
     row.appendChild(merchantCell);
 
@@ -435,20 +480,6 @@ function createTransactionRow(tx, accountsMap) {
     }
     accountCell.textContent = accountDisplay;
     row.appendChild(accountCell);
-
-    // Actions cell
-    const actionCell = document.createElement('td');
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'delete-btn';
-    deleteBtn.style.backgroundColor = '#ff4d4d';
-    deleteBtn.style.color = 'white';
-    deleteBtn.style.border = 'none';
-    deleteBtn.style.padding = '2px 5px';
-    deleteBtn.style.cursor = 'pointer';
-    deleteBtn.style.borderRadius = '3px';
-    deleteBtn.textContent = 'Delete';
-    actionCell.appendChild(deleteBtn);
-    row.appendChild(actionCell);
 
     return row;
 }
@@ -518,7 +549,7 @@ function displayTransactions(transactions, callback) {
 
         const emptyRow = document.createElement('tr');
         const emptyCell = document.createElement('td');
-        emptyCell.setAttribute('colspan', '7');
+        emptyCell.setAttribute('colspan', '6');
         emptyCell.style.textAlign = 'center';
         emptyCell.style.color = '#666';
         emptyCell.style.padding = '20px';
@@ -532,115 +563,6 @@ function displayTransactions(transactions, callback) {
             callback();
         }
     }
-}
-
-/**
- * Updates a transaction category
- * 
- * @param {string} txId - Transaction ID
- * @param {string} newCategory - New category value
- * @param {HTMLElement} cell - The cell element being edited
- * @param {string} originalContent - Original HTML content to restore on error
- */
-function updateTransactionCategory(txId, newCategory, newSubcategory, cell, originalContent) {
-    fetch('/update_transaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            id: txId,
-            category: newCategory,
-            subcategory: newSubcategory
-        })
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Transaction category updated:', data);
-
-            // Update cell with new category and subcategory
-            const displayValue = newSubcategory ?
-                `${newCategory} › ${newSubcategory}` :
-                newCategory;
-
-            cell.textContent = displayValue;
-
-            // Update data attributes
-            cell.setAttribute('data-subcategory', newSubcategory || '');
-            cell.closest('tr').setAttribute('data-category', newCategory);
-            cell.closest('tr').setAttribute('data-subcategory', newSubcategory || '');
-
-            // Refresh transactions to update category totals
-            loadTransactions();
-        })
-        .catch(err => {
-            ErrorUtils.handleError(err, 'Failed to update transaction category');
-            // Restore original content on error
-            cell.innerHTML = originalContent || newCategory;
-        });
-}
-
-/**
- * Updates any transaction field
- * 
- * @param {string} txId - Transaction ID
- * @param {string} field - Field name to update
- * @param {*} value - New value
- * @param {HTMLElement} cell - The cell element being edited
- * @param {string} originalContent - Original HTML content to restore on error
- * @param {boolean} [isDebit] - Whether transaction is a debit (for amount)
- * @param {Function} [callback] - Optional callback on success
- */
-function updateTransactionField(txId, field, value, cell, originalContent, isDebit, callback) {
-    // Create update object
-    const updateData = {
-        id: txId,
-        [field]: value
-    };
-
-    // Add is_debit for amount updates
-    if (field === 'amount' && isDebit !== undefined) {
-        updateData.is_debit = isDebit;
-    }
-
-    fetch('/update_transaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData)
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log(`Transaction ${field} updated:`, data);
-
-            if (callback) {
-                // Use callback for custom UI updates
-                callback();
-            } else {
-                // Default behavior for different fields
-                if (field === 'amount') {
-                    // Format amount with proper display
-                    const amount = parseFloat(value);
-                    if (!isNaN(amount)) {
-                        cell.textContent = isDebit ?
-                            formatCurrency(amount) :
-                            '+' + formatCurrency(amount);
-                    } else {
-                        cell.textContent = value;
-                    }
-                } else {
-                    // For other fields, just set the content
-                    cell.textContent = value;
-                }
-            }
-
-            // Reload if needed for certain fields
-            if (['category', 'amount', 'date'].includes(field)) {
-                loadTransactions();
-            }
-        })
-        .catch(err => {
-            ErrorUtils.handleError(err, `Failed to update transaction ${field}`);
-            // Restore original content on error
-            cell.innerHTML = originalContent;
-        });
 }
 
 /**
