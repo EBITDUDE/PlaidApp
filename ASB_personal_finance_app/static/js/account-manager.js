@@ -189,7 +189,7 @@ function updateAccountDropdown(selectedAccountId) {
                 resolve();
             })
             .catch(err => {
-                console.error('Failed to load account dropdown information:', err);
+                ErrorUtils.handleError(err, 'Failed to load account dropdown information:');
                 reject(err);
             });
     });

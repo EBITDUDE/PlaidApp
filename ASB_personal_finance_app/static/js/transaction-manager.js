@@ -254,7 +254,7 @@ function handleEditTransaction(row) {
             mappedName: txAccountId ? window.accountsMap[String(txAccountId)] : null
         });
     }).catch(err => {
-        console.error('Error updating account dropdown:', err);
+        ErrorUtils.handleError(err, 'Error updating account dropdown');
 
         // As a fallback, try direct selection if dropdown update failed
         const accountSelect = document.getElementById('new-account');
