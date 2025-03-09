@@ -142,34 +142,99 @@ function displayAccounts(data) {
 
 /**
  * Updates the account dropdown in the add transaction form
+ * 
+ * @param {string} [selectedAccountId] - Optional account ID to select after updating
+ * @returns {Promise} Promise that resolves when the dropdown is updated
  */
-function updateAccountDropdown() {
-    // Fetch accounts from the server
-    fetch('/get_accounts')
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                console.error('Error loading accounts:', data.error);
-                return;
-            }
+function updateAccountDropdown(selectedAccountId) {
+    return new Promise((resolve, reject) => {
+        // First check if we have data in our cache
+        if (accountsCache.rawData && accountsCache.rawData.accounts) {
+            console.log("Using cached account data for dropdown");
+            populateAccountDropdown(accountsCache.rawData.accounts, selectedAccountId);
+            resolve();
+            return;
+        }
 
-            const accounts = data.accounts || [];
-            const accountDropdown = document.getElementById('new-account');
+        // If not in cache, fetch from server
+        console.log("Fetching fresh account data for dropdown");
+        fetch('/get_accounts')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error loading accounts:', data.error);
+                    reject(data.error);
+                    return;
+                }
 
-            // Clear current options except the first one
-            while (accountDropdown.options.length > 1) {
-                accountDropdown.remove(1);
-            }
+                // Update cache
+                accountsCache.rawData = data;
+                accountsCache.timestamp = Date.now();
 
-            // Add account options
-            accounts.forEach(account => {
-                const option = document.createElement('option');
-                option.value = account.id;
-                option.textContent = `${account.name} - ${formatCurrency(account.balance.current)}`;
-                accountDropdown.appendChild(option);
+                // Create accounts map
+                const accountsMap = {};
+                const accounts = data.accounts || [];
+                accounts.forEach(account => {
+                    if (account.id) {
+                        accountsMap[account.id] = account.name || `Account ${account.id.substring(0, 8)}...`;
+                    }
+                });
+
+                // Update global accounts map
+                accountsCache.data = accountsMap;
+                window.accountsMap = accountsMap;
+
+                // Populate the dropdown
+                populateAccountDropdown(accounts, selectedAccountId);
+                resolve();
+            })
+            .catch(err => {
+                console.error('Failed to load account dropdown information:', err);
+                reject(err);
             });
-        })
-        .catch(err => {
-            ErrorUtils.handleError(err, 'Failed to load account dropdown information');
-        });
+    });
+}
+
+/**
+ * Helper function to populate the account dropdown
+ * 
+ * @param {Array} accounts - Array of account objects
+ * @param {string} [selectedAccountId] - Optional account ID to select
+ */
+function populateAccountDropdown(accounts, selectedAccountId) {
+    const accountDropdown = document.getElementById('new-account');
+
+    // Clear current options except the first one (if it exists)
+    if (accountDropdown.options.length > 0 && accountDropdown.options[0].value === '') {
+        // Keep only the first empty/placeholder option
+        while (accountDropdown.options.length > 1) {
+            accountDropdown.remove(1);
+        }
+    } else {
+        // Clear all options and add a placeholder
+        accountDropdown.innerHTML = '<option value="">Select Account</option>';
+    }
+
+    // Add account options
+    accounts.forEach(account => {
+        const option = document.createElement('option');
+        option.value = account.id;
+        option.textContent = `${account.name} - ${formatCurrency(account.balance.current)}`;
+        accountDropdown.appendChild(option);
+    });
+
+    // Select account if provided
+    if (selectedAccountId) {
+        accountDropdown.value = selectedAccountId;
+
+        // Log whether selection worked
+        console.log(`Account selection: ${selectedAccountId} -> ${accountDropdown.value}`);
+
+        // If selection failed, log available options for debugging
+        if (!accountDropdown.value && accounts.length > 0) {
+            console.warn("Account selection failed. Available options:",
+                Array.from(accountDropdown.options).map(opt => ({ value: opt.value, text: opt.text }))
+            );
+        }
+    }
 }

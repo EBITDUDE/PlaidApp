@@ -244,14 +244,25 @@ function handleEditTransaction(row) {
         });
     }
 
-    // Populate account dropdown
-    updateAccountDropdown();
+    // First, update account dropdown and pass the account ID to select
+    // This ensures the dropdown is populated before we try to select a value
+    updateAccountDropdown(txAccountId).then(() => {
+        // Log debug info
+        console.log('Account dropdown updated and account selected:', {
+            txAccountId,
+            accountValue: document.getElementById('new-account').value,
+            mappedName: txAccountId ? window.accountsMap[String(txAccountId)] : null
+        });
+    }).catch(err => {
+        console.error('Error updating account dropdown:', err);
 
-    // Set account
-    const accountSelect = document.getElementById('new-account');
-    if (accountSelect) {
-        accountSelect.value = txAccountId;
-    }
+        // As a fallback, try direct selection if dropdown update failed
+        const accountSelect = document.getElementById('new-account');
+        if (accountSelect && txAccountId) {
+            accountSelect.value = txAccountId;
+            console.log('Fallback account selection result:', accountSelect.value);
+        }
+    });
 
     // Add delete button if it doesn't exist
     let deleteButton = document.getElementById('delete-transaction-btn');
