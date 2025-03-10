@@ -77,3 +77,19 @@
 .delete-btn:hover {
     background-color: #c0392b;
 }
+
+.count-badge {
+    display: inline-block;
+    background-color: #3498db;
+    color: white;
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+/* Make the subcategory count column narrower */
+.subcategory-count-column {
+    width: 100px;
+    text-align: center;
+}

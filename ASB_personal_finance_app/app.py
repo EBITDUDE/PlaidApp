@@ -14,7 +14,7 @@ from data_utils import (
     Cache, KeyedCache, load_access_token, save_access_token,
     load_saved_transactions, save_transactions, parse_date,
     _access_token_cache, _saved_transactions_cache, 
-    _account_names_cache, _transaction_cache
+    _account_names_cache, _transaction_cache, _category_counts_cache
 )
 from error_utils import api_error_handler, AppError, AuthenticationError, ValidationError, ResourceNotFoundError, PlaidApiError
 import datetime
@@ -497,7 +497,8 @@ def update_transaction():
     
     # Save the updated transactions
     save_transactions(saved_transactions)
-    _transaction_cache.clear()  # Add this line
+    _transaction_cache.clear() 
+    _category_counts_cache.clear() 
     logger.info(f"Transaction {tx_id} updated successfully")
     return jsonify({'message': 'Transaction updated successfully'})
 
@@ -565,7 +566,8 @@ def add_transaction():
     
     # Save the updated transactions
     save_transactions(saved_transactions)
-    _transaction_cache.clear()  # Add this line
+    _transaction_cache.clear() 
+    _category_counts_cache.clear()  # Clear category counts cache
     logger.info(f"Manual transaction {tx_id} created successfully")
     return jsonify({
         'message': 'Transaction created successfully',
@@ -613,6 +615,7 @@ def delete_transaction():
     # Save the updated transactions and clear the cache
     save_transactions(saved_transactions)
     _transaction_cache.clear()  # Add this line to invalidate the cache
+    _category_counts_cache.clear()  # Clear category counts cache
     return jsonify({'message': 'Transaction deleted successfully'})
 
 # Additional routes for enhanced functionality
@@ -1315,6 +1318,44 @@ def add_category():
         
     return jsonify({'message': 'Category added successfully', 'categories': categories})
 
+@app.route('/delete_category', methods=['POST'])
+@api_error_handler
+def delete_category():
+    data = request.json
+    category = data.get('category')
+    
+    if not category:
+        return jsonify({'error': 'Category name is required'}), 400
+        
+    # Load saved category preferences
+    categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
+    
+    categories = []
+    if os.path.exists(categories_file):
+        with open(categories_file, 'r') as f:
+            categories = json.load(f)
+    
+    # Find the category
+    category_index = next((i for i, c in enumerate(categories) if c["name"] == category), None)
+    if category_index is None:
+        return jsonify({'error': 'Category not found'}), 404
+    
+    # Remove the category
+    removed_category = categories.pop(category_index)
+    
+    # Save categories
+    with open(categories_file, 'w') as f:
+        json.dump(categories, f)
+    
+    # Also clear the counts cache to reflect this change
+    _category_counts_cache.clear()
+        
+    return jsonify({
+        'message': 'Category deleted successfully', 
+        'categories': categories,
+        'deleted_category': removed_category
+    })
+
 # Route to delete a category
 @app.route('/delete_subcategory', methods=['POST'])
 @api_error_handler
@@ -1504,6 +1545,105 @@ def debug_info():
     }
     
     return jsonify(info)
+
+@app.route('/get_category_counts', methods=['GET'])
+@api_error_handler
+def get_category_counts():
+    # Check cache first
+    cached_counts = _category_counts_cache.get()
+    if cached_counts:
+        return jsonify(cached_counts)
+    
+    # Initialize category counts
+    category_counts = {}
+    subcategory_counts = {}
+    
+    # Load all transactions
+    access_token = load_access_token()
+    saved_transactions = load_saved_transactions()
+    
+    # Process all transactions from Plaid API
+    if access_token:
+        try:
+            # Use a wide date range to get all transactions
+            start_date = datetime.datetime(2015, 1, 1).date()
+            end_date = datetime.datetime.now().date()
+            
+            transactions_request = TransactionsGetRequest(
+                access_token=access_token,
+                start_date=start_date,
+                end_date=end_date
+            )
+            response = client.transactions_get(transactions_request)
+            plaid_txs = response['transactions']
+            
+            # Count transactions by category
+            for tx in plaid_txs:
+                tx_id = getattr(tx, 'transaction_id', None)
+                
+                # Skip if manually deleted
+                if tx_id in saved_transactions and saved_transactions[tx_id].get('deleted', False):
+                    continue
+                
+                # Get category (use modified if available)
+                category = None
+                if tx_id in saved_transactions and 'category' in saved_transactions[tx_id]:
+                    category = saved_transactions[tx_id]['category']
+                else:
+                    tx_category = getattr(tx, 'category', [])
+                    category = tx_category[0] if tx_category else 'Uncategorized'
+                
+                # Get subcategory
+                subcategory = None
+                if tx_id in saved_transactions and 'subcategory' in saved_transactions[tx_id]:
+                    subcategory = saved_transactions[tx_id]['subcategory']
+                
+                # Count category
+                if category not in category_counts:
+                    category_counts[category] = 0
+                category_counts[category] += 1
+                
+                # Count subcategory
+                if subcategory:
+                    if category not in subcategory_counts:
+                        subcategory_counts[category] = {}
+                    if subcategory not in subcategory_counts[category]:
+                        subcategory_counts[category][subcategory] = 0
+                    subcategory_counts[category][subcategory] += 1
+                    
+        except Exception as e:
+            logger.error(f"Error processing transactions for category counts: {str(e)}")
+            logger.error(traceback.format_exc())
+    
+    # Add manual transactions
+    for tx_id, tx_data in saved_transactions.items():
+        if tx_data.get('manual', False) and not tx_data.get('deleted', False):
+            category = tx_data.get('category', 'Uncategorized')
+            subcategory = tx_data.get('subcategory')
+            
+            # Count category
+            if category not in category_counts:
+                category_counts[category] = 0
+            category_counts[category] += 1
+            
+            # Count subcategory
+            if subcategory:
+                if category not in subcategory_counts:
+                    subcategory_counts[category] = {}
+                if subcategory not in subcategory_counts[category]:
+                    subcategory_counts[category][subcategory] = 0
+                subcategory_counts[category][subcategory] += 1
+    
+    # Prepare result
+    result = {
+        'category_counts': category_counts,
+        'subcategory_counts': subcategory_counts
+    }
+    
+    # Store in cache
+    _category_counts_cache.set(result)
+    
+    return jsonify(result)
 
 # Serve the webpage with Plaid Link
 @app.route('/')

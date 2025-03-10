@@ -72,6 +72,7 @@ _access_token_cache = Cache(expiration_seconds=3600)  # 1 hour
 _saved_transactions_cache = Cache(expiration_seconds=600)  # 10 minutes
 _account_names_cache = Cache(expiration_seconds=1800)  # 30 minutes
 _transaction_cache = KeyedCache(expiration_seconds=300)  # 5 minutes
+_category_counts_cache = Cache(expiration_seconds=300)  # 5 minutes
 
 def load_access_token():
     """

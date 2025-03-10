@@ -27,30 +27,45 @@ document.addEventListener('DOMContentLoaded', function () {
  * Load categories from the server and display them
  */
 function loadCategories() {
-    fetch('/get_categories')
+    // Show loading indicator
+    const categoriesList = document.getElementById('categories-list');
+    categoriesList.innerHTML = '<div style="text-align: center; padding: 20px;">Loading categories...</div>';
+
+    // Create promises for both categories and counts
+    const categoriesPromise = fetch('/get_categories')
         .then(response => response.json())
         .then(data => {
             if (data.error) {
                 console.error('Error loading categories:', data.error);
-                alert('Error loading categories: ' + data.error);
-            } else {
-                currentCategories = data.categories || [];
-                displayCategories(currentCategories);
-
-                // If we had a previously selected category, try to reselect it
-                if (selectedCategory) {
-                    const category = currentCategories.find(c => c.name === selectedCategory.name);
-                    if (category) {
-                        selectCategory(category);
-                    } else {
-                        selectedCategory = null;
-                        displaySubcategories(null);
-                    }
-                }
+                return [];
             }
+            return data.categories || [];
         })
         .catch(err => {
             ErrorUtils.handleError(err, 'Failed to load categories');
+            return [];
+        });
+
+    const countsPromise = loadCategoryCounts();
+
+    // Wait for both to complete
+    Promise.all([categoriesPromise, countsPromise])
+        .then(([categories, counts]) => {
+            currentCategories = categories;
+
+            // Display categories with counts
+            displayCategories(categories, counts.categoryCounts);
+
+            // If we had a previously selected category, try to reselect it
+            if (selectedCategory) {
+                const category = currentCategories.find(c => c.name === selectedCategory.name);
+                if (category) {
+                    selectCategory(category, counts.subcategoryCounts[category.name] || {});
+                } else {
+                    selectedCategory = null;
+                    displaySubcategories(null);
+                }
+            }
         });
 }
 
@@ -59,7 +74,7 @@ function loadCategories() {
  * 
  * @param {Array} categories - Array of category objects
  */
-function displayCategories(categories) {
+function displayCategories(categories, categoryCounts = {}) {
     const categoriesList = document.getElementById('categories-list');
     categoriesList.innerHTML = '';
 
@@ -75,16 +90,20 @@ function displayCategories(categories) {
             categoryItem.className += ' active';
         }
 
+        // Get count for this category
+        const count = categoryCounts[category.name] || 0;
+
         categoryItem.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span>${category.name}</span>
                 <button class="delete-btn" data-category="${category.name}">✕</button>
             </div>
             <div style="font-size: 0.8em; color: #777;">
-                ${category.subcategories.length} subcategories
+                ${category.subcategories.length} subcategories<br>
+                ${count} total transactions
             </div>
         `;
-
+        
         categoryItem.addEventListener('click', function (e) {
             // Don't trigger if the delete button was clicked
             if (e.target.classList.contains('delete-btn')) {
@@ -99,8 +118,10 @@ function displayCategories(categories) {
             // Add active class to this category
             categoryItem.classList.add('active');
 
-            // Set selected category and display subcategories
-            selectCategory(category);
+            // Fetch counts and then select category with subcounts
+            loadCategoryCounts().then(counts => {
+                selectCategory(category, counts.subcategoryCounts[category.name] || {});
+            });
         });
 
         categoriesList.appendChild(categoryItem);
@@ -123,9 +144,9 @@ function displayCategories(categories) {
  * 
  * @param {Object} category - The category object to select
  */
-function selectCategory(category) {
+function selectCategory(category, subcategoryCounts = {}) {
     selectedCategory = category;
-    displaySubcategories(category);
+    displaySubcategories(category, subcategoryCounts);
 }
 
 /**
@@ -133,7 +154,7 @@ function selectCategory(category) {
  * 
  * @param {Object} category - The selected category object
  */
-function displaySubcategories(category) {
+function displaySubcategories(category, subcategoryCounts = {}) {
     const headerDiv = document.getElementById('subcategory-header');
     const contentDiv = document.getElementById('subcategory-content');
 
@@ -169,6 +190,7 @@ function displaySubcategories(category) {
                 <thead>
                     <tr>
                         <th>Subcategory Name</th>
+                        <th class="subcategory-count-column">Transactions</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -179,10 +201,14 @@ function displaySubcategories(category) {
         const tbody = document.getElementById('subcategories-body');
 
         category.subcategories.forEach(subcategory => {
+            // Get count for this subcategory
+            const count = subcategoryCounts[subcategory] || 0;
+
             const row = document.createElement('tr');
 
             row.innerHTML = `
                 <td>${subcategory}</td>
+                <td class="subcategory-count-column">${count}</td>
                 <td>
                     <button class="delete-subcategory-btn delete-btn" 
                             data-category="${category.name}" 
@@ -348,8 +374,10 @@ function addSubcategory(categoryName) {
                 const categoryIndex = currentCategories.findIndex(c => c.name === categoryName);
                 if (categoryIndex >= 0) {
                     currentCategories[categoryIndex] = data.category;
-                    displayCategories(currentCategories);
-                    selectCategory(currentCategories[categoryIndex]);
+                    loadCategoryCounts().then(counts => {
+                        displayCategories(currentCategories, counts.categoryCounts);
+                        selectCategory(currentCategories[categoryIndex], counts.subcategoryCounts[categoryName] || {});
+                    });
                 } else {
                     loadCategories(); // Fallback to full reload
                 }
@@ -384,8 +412,10 @@ function deleteSubcategory(categoryName, subcategoryName) {
                 const categoryIndex = currentCategories.findIndex(c => c.name === categoryName);
                 if (categoryIndex >= 0) {
                     currentCategories[categoryIndex] = data.category;
-                    displayCategories(currentCategories);
-                    selectCategory(currentCategories[categoryIndex]);
+                    loadCategoryCounts().then(counts => {
+                        displayCategories(currentCategories, counts.categoryCounts);
+                        selectCategory(currentCategories[categoryIndex], counts.subcategoryCounts[categoryName] || {});
+                    });
                 } else {
                     loadCategories(); // Fallback to full reload
                 }
@@ -393,5 +423,24 @@ function deleteSubcategory(categoryName, subcategoryName) {
         })
         .catch(err => {
             ErrorUtils.handleError(err, 'Failed to delete subcategory');
+        });
+}
+
+// Add a function to fetch category counts from the server
+function loadCategoryCounts() {
+    return fetch('/get_category_counts')
+        .then(response => response.json())
+        .then(data => {
+            return {
+                categoryCounts: data.category_counts || {},
+                subcategoryCounts: data.subcategory_counts || {}
+            };
+        })
+        .catch(err => {
+            ErrorUtils.handleError(err, 'Failed to load category counts');
+            return {
+                categoryCounts: {},
+                subcategoryCounts: {}
+            };
         });
 }

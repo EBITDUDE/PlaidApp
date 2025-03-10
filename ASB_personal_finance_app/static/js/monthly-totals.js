@@ -244,7 +244,6 @@ function loadMonthlyTotals() {
         })
         .catch(err => {
             loadingIndicator.style.display = 'none';
-
             ErrorUtils.handleError(err, 'Failed to load monthly totals');
         });
 }
