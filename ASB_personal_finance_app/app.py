@@ -13,8 +13,10 @@ from functools import wraps
 from data_utils import (
     Cache, KeyedCache, load_access_token, save_access_token,
     load_saved_transactions, save_transactions, parse_date,
+    load_rules, save_rules, apply_rules_to_transaction,
     _access_token_cache, _saved_transactions_cache, 
-    _account_names_cache, _transaction_cache, _category_counts_cache
+    _account_names_cache, _transaction_cache, _category_counts_cache,
+    _rules_cache
 )
 from error_utils import api_error_handler, AppError, AuthenticationError, ValidationError, ResourceNotFoundError, PlaidApiError
 import datetime
@@ -423,6 +425,23 @@ def get_transactions():
     
     # Sort transactions by date (newest first)
     filtered_list.sort(key=lambda x: x.get('raw_date', ''), reverse=True)
+
+    # Apply rules to transactions that don't have a category set already
+    rules = load_rules()
+    if rules:
+        for tx in transaction_list:
+            # Only apply rules to transactions without manually set categories
+            tx_id = tx.get('id')
+            if tx_id not in saved_transactions or 'category' not in saved_transactions[tx_id]:
+                tx_data = {
+                    'merchant': tx.get('merchant'),
+                    'amount': tx.get('amount'),
+                    'is_debit': tx.get('is_debit', True)
+                }
+                if apply_rules_to_transaction(tx_data, rules):
+                    # Update transaction with rule-applied category
+                    tx['category'] = tx_data['category']
+                    tx['subcategory'] = tx_data['subcategory']
     
     # Apply pagination
     page = request.args.get('page', default=1, type=int)
@@ -1443,6 +1462,170 @@ def add_subcategory():
         'categories': categories,
         'category': categories[category_index]
     })
+
+# Rule management endpoints
+@app.route('/get_rules', methods=['GET'])
+@api_error_handler
+def get_rules():
+    """Get all transaction categorization rules"""
+    rules = load_rules()
+    return jsonify({'rules': rules})
+
+@app.route('/add_rule', methods=['POST'])
+@api_error_handler
+def add_rule():
+    """Add a new transaction categorization rule"""
+    rule_data = request.json
+    
+    # Validate required fields
+    required_fields = ['description', 'category']
+    missing_fields = [field for field in required_fields if field not in rule_data]
+    if missing_fields:
+        return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
+    
+    # Create a new rule ID
+    rule_id = f"rule-{str(uuid.uuid4())}"
+    
+    # Load existing rules
+    rules = load_rules()
+    
+    # Add the new rule
+    rules[rule_id] = {
+        'description': rule_data.get('description'),
+        'match_description': rule_data.get('match_description', True),
+        'amount': rule_data.get('amount'),
+        'match_amount': rule_data.get('match_amount', False),
+        'category': rule_data.get('category'),
+        'subcategory': rule_data.get('subcategory', ''),
+        'active': True,
+        'created_at': datetime.datetime.now().isoformat()
+    }
+    
+    # Save rules
+    save_rules(rules)
+    
+    # Apply rule to past transactions if requested
+    if rule_data.get('apply_to_past', False):
+        apply_rule_to_past_transactions(rule_id, rules[rule_id])
+    
+    return jsonify({
+        'message': 'Rule created successfully', 
+        'rule_id': rule_id, 
+        'rule': rules[rule_id]
+    })
+
+@app.route('/update_rule', methods=['POST'])
+@api_error_handler
+def update_rule():
+    """Update an existing transaction categorization rule"""
+    rule_data = request.json
+    rule_id = rule_data.get('id')
+    
+    if not rule_id:
+        return jsonify({'error': 'Rule ID is required'}), 400
+    
+    # Load existing rules
+    rules = load_rules()
+    
+    # Check if rule exists
+    if rule_id not in rules:
+        return jsonify({'error': 'Rule not found'}), 404
+    
+    # Update rule fields
+    if 'description' in rule_data:
+        rules[rule_id]['description'] = rule_data['description']
+    if 'match_description' in rule_data:
+        rules[rule_id]['match_description'] = rule_data['match_description']
+    if 'amount' in rule_data:
+        rules[rule_id]['amount'] = rule_data['amount']
+    if 'match_amount' in rule_data:
+        rules[rule_id]['match_amount'] = rule_data['match_amount']
+    if 'category' in rule_data:
+        rules[rule_id]['category'] = rule_data['category']
+    if 'subcategory' in rule_data:
+        rules[rule_id]['subcategory'] = rule_data['subcategory']
+    if 'active' in rule_data:
+        rules[rule_id]['active'] = rule_data['active']
+    
+    # Save rules
+    save_rules(rules)
+    
+    # Apply rule to past transactions if requested
+    if rule_data.get('apply_to_past', False):
+        apply_rule_to_past_transactions(rule_id, rules[rule_id])
+    
+    return jsonify({
+        'message': 'Rule updated successfully', 
+        'rule': rules[rule_id]
+    })
+
+@app.route('/delete_rule', methods=['POST'])
+@api_error_handler
+def delete_rule():
+    """Delete a transaction categorization rule"""
+    rule_data = request.json
+    rule_id = rule_data.get('id')
+    
+    if not rule_id:
+        return jsonify({'error': 'Rule ID is required'}), 400
+    
+    # Load existing rules
+    rules = load_rules()
+    
+    # Check if rule exists
+    if rule_id not in rules:
+        return jsonify({'error': 'Rule not found'}), 404
+    
+    # Remove rule
+    del rules[rule_id]
+    
+    # Save rules
+    save_rules(rules)
+    
+    return jsonify({'message': 'Rule deleted successfully'})
+
+def apply_rule_to_past_transactions(rule_id, rule):
+    """Apply a rule to all past transactions that match"""
+    # Load saved transactions
+    transactions = load_saved_transactions()
+    modified_count = 0
+    
+    # Get rule criteria
+    rule_description = rule.get('description', '').lower().strip()
+    rule_amount = None
+    if rule.get('match_amount', False) and rule.get('amount') is not None:
+        rule_amount = abs(float(rule.get('amount')))
+    
+    # Apply to matching transactions
+    for tx_id, tx_data in transactions.items():
+        # Skip deleted transactions
+        if tx_data.get('deleted', False):
+            continue
+            
+        # Get transaction fields for matching
+        tx_description = tx_data.get('merchant', '').lower().strip()
+        
+        # Skip if description doesn't match
+        if rule.get('match_description', True) and (not rule_description or rule_description not in tx_description):
+            continue
+        
+        # Check amount match if required
+        if rule.get('match_amount', False) and rule_amount is not None:
+            tx_amount = abs(float(tx_data.get('amount', 0)))
+            if tx_amount != rule_amount:
+                continue
+        
+        # Apply the rule
+        tx_data['category'] = rule.get('category')
+        tx_data['subcategory'] = rule.get('subcategory', '')
+        modified_count += 1
+    
+    # Save transactions if any were modified
+    if modified_count > 0:
+        save_transactions(transactions)
+        
+    logger.info(f"Applied rule {rule_id} to {modified_count} past transactions")
+    return modified_count
 
 # API endpoint to get logs
 @app.route('/api/logs')

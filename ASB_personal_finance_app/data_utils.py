@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 # File paths for storing tokens and transactions
 TOKEN_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'tokens.json')
 TRANSACTIONS_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'transactions.json')
+RULES_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'rules.json')
 
 class Cache:
     """
@@ -73,6 +74,7 @@ _saved_transactions_cache = Cache(expiration_seconds=600)  # 10 minutes
 _account_names_cache = Cache(expiration_seconds=1800)  # 30 minutes
 _transaction_cache = KeyedCache(expiration_seconds=300)  # 5 minutes
 _category_counts_cache = Cache(expiration_seconds=300)  # 5 minutes
+_rules_cache = Cache(expiration_seconds=600)  # 10 minutes
 
 def load_access_token():
     """
@@ -138,6 +140,84 @@ def save_transactions(transactions):
     except Exception as e:
         logger.error(f"Error saving transactions: {str(e)}")
         return False
+
+def load_rules():
+    """
+    Load transaction categorization rules from cache or file.
+    """
+    rules = _rules_cache.get()
+    if rules:
+        return rules
+    if os.path.exists(RULES_FILE):
+        try:
+            with open(RULES_FILE, 'r') as f:
+                rules = json.load(f)
+                _rules_cache.set(rules)
+                return rules
+        except Exception as e:
+            logger.error(f"Error loading rules: {str(e)}")
+    rules = {}
+    _rules_cache.set(rules)
+    return rules
+
+def save_rules(rules):
+    """
+    Save transaction categorization rules to cache and file.
+    """
+    _rules_cache.set(rules)
+    try:
+        os.makedirs(os.path.dirname(RULES_FILE), exist_ok=True)
+        with open(RULES_FILE, 'w') as f:
+            json.dump(rules, f)
+        return True
+    except Exception as e:
+        logger.error(f"Error saving rules: {str(e)}")
+        return False
+
+def apply_rules_to_transaction(tx_data, rules=None):
+    """
+    Apply matching rules to a transaction. Returns True if a rule was applied.
+    
+    Args:
+        tx_data (dict): Transaction data to categorize
+        rules (dict, optional): Rules dictionary, loaded if not provided
+        
+    Returns:
+        bool: True if a rule was applied, False otherwise
+    """
+    if rules is None:
+        rules = load_rules()
+    
+    if not rules or not tx_data:
+        return False
+    
+    # Get transaction fields for matching
+    tx_description = tx_data.get('merchant', '').lower().strip()
+    tx_amount = abs(float(tx_data.get('amount', 0)))
+    
+    for rule_id, rule in rules.items():
+        # Skip inactive rules
+        if not rule.get('active', True):
+            continue
+            
+        # Check description match (required)
+        if rule.get('match_description', True):
+            rule_description = rule.get('description', '').lower().strip()
+            if not rule_description or rule_description not in tx_description:
+                continue
+        
+        # Check amount match (optional)
+        if rule.get('match_amount', False):
+            rule_amount = abs(float(rule.get('amount', 0)))
+            if rule_amount != tx_amount:
+                continue
+                
+        # We have a match - apply the rule
+        tx_data['category'] = rule.get('category', 'Uncategorized')
+        tx_data['subcategory'] = rule.get('subcategory', '')
+        return True
+        
+    return False
 
 def parse_date(date_str):
     """

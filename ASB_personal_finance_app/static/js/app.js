@@ -267,6 +267,9 @@ function initializeUIComponents() {
 
     // Set up custom date filters
     setupDateFilters();
+
+    // Initialize the rule manager
+    initRuleManager();
 }
 
 /**

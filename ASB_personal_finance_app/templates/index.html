@@ -18,6 +18,7 @@
     <script src="/static/js/account-manager.js"></script>
     <script src="/static/js/transaction-manager.js"></script>
     <script src="/static/js/app.js"></script>
+    <script src="/static/js/rule-manager.js"></script>
 
     <link rel="stylesheet" href="/static/css/main.css">
     <link rel="stylesheet" href="/static/css/components.css">
@@ -182,6 +183,53 @@
                     <div class="modal-footer">
                         <button type="button" id="cancel-add-transaction" class="btn">Cancel</button>
                         <button type="submit" class="btn-success">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Rule Creation Modal -->
+        <div id="rule-modal" class="modal">
+            <div class="modal-content">
+                <h3>Create Categorization Rule</h3>
+                <p>Set up a rule to automatically categorize similar transactions</p>
+        
+                <form id="rule-form">
+                    <div>
+                        <label>
+                            <input type="checkbox" id="match-description-toggle" checked>
+                            Use this rule for all future transactions if...
+                        </label>
+                    </div>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px;">
+                        <label for="rule-description">The statement description contains</label>
+                        <input type="text" id="rule-description" style="width: 100%;" required>
+                    </div>
+        
+                    <div>
+                        <label>
+                            <input type="checkbox" id="match-amount-toggle">
+                            The transaction amount is
+                        </label>
+                        <input type="text" id="rule-amount" style="width: 100%;" disabled>
+                    </div>
+        
+                    <div style="margin-top: 20px;">
+                        <label>Then categorize the transaction as</label>
+                        <div id="rule-category-container" style="margin-top: 10px;"></div>
+                    </div>
+        
+                    <div style="margin-top: 20px;">
+                        <label>
+                            <input type="checkbox" id="apply-to-past-toggle">
+                            Apply rule to past transactions (optional)
+                        </label>
+                    </div>
+        
+                    <div class="modal-footer">
+                        <button type="button" id="cancel-rule-btn" class="btn">Cancel</button>
+                        <button type="button" id="apply-rule-btn" class="btn-success">Create rule</button>
                     </div>
                 </form>
             </div>

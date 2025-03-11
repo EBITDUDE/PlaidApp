@@ -244,6 +244,57 @@ function handleEditTransaction(row) {
         });
     }
 
+    // Create a "Create Rule" button if it doesn't exist
+    let createRuleBtn = document.getElementById('create-rule-btn');
+    if (!createRuleBtn) {
+        // Create the rule button container
+        const categoryContainer = document.getElementById('new-category-container');
+        if (categoryContainer) {
+            const ruleButtonContainer = document.createElement('div');
+            ruleButtonContainer.style.marginTop = '10px';
+
+            // Create the button
+            createRuleBtn = document.createElement('button');
+            createRuleBtn.id = 'create-rule-btn';
+            createRuleBtn.type = 'button';
+            createRuleBtn.className = 'btn-primary';
+            createRuleBtn.style.fontSize = '0.9em';
+            createRuleBtn.innerHTML = '<span style="font-size: 1.2em;">+</span> Create Rule';
+
+            // Add button to container
+            ruleButtonContainer.appendChild(createRuleBtn);
+
+            // Add container after category dropdown
+            categoryContainer.parentNode.insertBefore(ruleButtonContainer, categoryContainer.nextSibling);
+        }
+    }
+
+    // Add click event to rule button
+    if (createRuleBtn) {
+        // Remove any existing event listeners to avoid duplicates
+        const newBtn = createRuleBtn.cloneNode(true);
+        createRuleBtn.parentNode.replaceChild(newBtn, createRuleBtn);
+        createRuleBtn = newBtn;
+
+        // Add new event listener
+        createRuleBtn.addEventListener('click', function () {
+            // Get current transaction data
+            const transactionData = {
+                merchant: document.getElementById('new-merchant').value,
+                amount: document.getElementById('new-amount').value,
+                is_debit: document.getElementById('new-type').value === 'expense',
+                category: window.categoryComponent ? window.categoryComponent.getValue().category : '',
+                subcategory: window.categoryComponent ? window.categoryComponent.getValue().subcategory : ''
+            };
+
+            // Show rule modal with transaction data
+            showRuleModal(transactionData);
+
+            // Initialize rule category dropdown
+            initRuleCategoryDropdown();
+        });
+    }
+
     // First, update account dropdown and pass the account ID to select
     // This ensures the dropdown is populated before we try to select a value
     updateAccountDropdown(txAccountId).then(() => {
