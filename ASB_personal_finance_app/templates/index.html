@@ -38,6 +38,7 @@
     <!-- Navigation buttons after main buttons -->
     <div class="secondary-buttons-container mtmb-10">
         <a href="/categories" class="secondary-nav-button">Manage Categories</a>
+        <a href="/rules" class="secondary-nav-button">Manage Rules</a>
         <a href="/monthly_totals" class="secondary-nav-button">Monthly Category Totals</a>
         <a href="/annual_totals" class="secondary-nav-button">Annual Category Totals</a>
         <button id="export-data-btn" class="secondary-nav-button">Export Data...</button>
@@ -193,40 +194,44 @@
             <div class="modal-content">
                 <h3>Create Categorization Rule</h3>
                 <p>Set up a rule to automatically categorize similar transactions</p>
-        
+
                 <form id="rule-form">
-                    <div>
+                    <div style="margin-bottom: 15px;">
+                        <label>
+                            <input type="checkbox" id="match-original-category-toggle" checked>
+                            Only apply to transactions with original category/subcategory
+                        </label>
+                        <div id="rule-original-category-container" style="margin-top: 10px;"></div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
                         <label>
                             <input type="checkbox" id="match-description-toggle" checked>
-                            Use this rule for all future transactions if...
+                            Only apply if description contains
                         </label>
-                    </div>
-        
-                    <div style="margin-top: 10px; margin-bottom: 10px;">
-                        <label for="rule-description">The statement description contains</label>
                         <input type="text" id="rule-description" style="width: 100%;" required>
                     </div>
-        
-                    <div>
+
+                    <div style="margin-bottom: 15px;">
                         <label>
                             <input type="checkbox" id="match-amount-toggle">
-                            The transaction amount is
+                            Only apply if amount is exactly
                         </label>
                         <input type="text" id="rule-amount" style="width: 100%;" disabled>
                     </div>
-        
-                    <div style="margin-top: 20px;">
-                        <label>Then categorize the transaction as</label>
+
+                    <div style="margin-top: 20px; margin-bottom: 15px;">
+                        <label>When rule conditions match, categorize as:</label>
                         <div id="rule-category-container" style="margin-top: 10px;"></div>
                     </div>
-        
-                    <div style="margin-top: 20px;">
+
+                    <div style="margin-bottom: 15px;">
                         <label>
                             <input type="checkbox" id="apply-to-past-toggle">
-                            Apply rule to past transactions (optional)
+                            Apply rule to past transactions that match these criteria
                         </label>
                     </div>
-        
+
                     <div class="modal-footer">
                         <button type="button" id="cancel-rule-btn" class="btn">Cancel</button>
                         <button type="button" id="apply-rule-btn" class="btn-success">Create rule</button>

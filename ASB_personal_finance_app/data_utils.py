@@ -174,13 +174,15 @@ def save_rules(rules):
         logger.error(f"Error saving rules: {str(e)}")
         return False
 
-def apply_rules_to_transaction(tx_data, rules=None):
+def apply_rules_to_transaction(tx_data, rules=None, original_category=None, original_subcategory=None):
     """
     Apply matching rules to a transaction. Returns True if a rule was applied.
     
     Args:
         tx_data (dict): Transaction data to categorize
         rules (dict, optional): Rules dictionary, loaded if not provided
+        original_category (str, optional): Original transaction category for selective matching
+        original_subcategory (str, optional): Original transaction subcategory for selective matching
         
     Returns:
         bool: True if a rule was applied, False otherwise
@@ -193,31 +195,161 @@ def apply_rules_to_transaction(tx_data, rules=None):
     
     # Get transaction fields for matching
     tx_description = tx_data.get('merchant', '').lower().strip()
-    tx_amount = abs(float(tx_data.get('amount', 0)))
+    try:
+        tx_amount = abs(float(tx_data.get('amount', 0)))
+    except (ValueError, TypeError):
+        logger.warning(f"Invalid amount in transaction: {tx_data.get('amount')}")
+        tx_amount = 0
     
-    for rule_id, rule in rules.items():
-        # Skip inactive rules
-        if not rule.get('active', True):
-            continue
-            
-        # Check description match (required)
-        if rule.get('match_description', True):
-            rule_description = rule.get('description', '').lower().strip()
-            if not rule_description or rule_description not in tx_description:
+    # If no original category is provided, use the current category as original
+    if original_category is None:
+        original_category = tx_data.get('category', '')
+    
+    if original_subcategory is None:
+        original_subcategory = tx_data.get('subcategory', '')
+    
+    # Sort rules by specificity (more specific rules first)
+    sorted_rules = sorted(
+        rules.items(), 
+        key=lambda x: (
+            1 if x[1].get('original_category') else 0,
+            1 if x[1].get('original_subcategory') else 0,
+            1 if x[1].get('match_description', True) else 0,
+            1 if x[1].get('match_amount', False) else 0
+        ),
+        reverse=True
+    )
+    
+    for rule_id, rule in sorted_rules:
+        try:
+            # Skip inactive rules
+            if not rule.get('active', True):
                 continue
-        
-        # Check amount match (optional)
-        if rule.get('match_amount', False):
-            rule_amount = abs(float(rule.get('amount', 0)))
-            if rule_amount != tx_amount:
+            
+            # Check original category match (if specified in rule)
+            if rule.get('original_category') and rule.get('original_category') != original_category:
+                continue
+            
+            # Check original subcategory match (if specified in rule)
+            if rule.get('original_subcategory') and rule.get('original_subcategory') != original_subcategory:
                 continue
                 
-        # We have a match - apply the rule
-        tx_data['category'] = rule.get('category', 'Uncategorized')
-        tx_data['subcategory'] = rule.get('subcategory', '')
-        return True
+            # Check description match (if enabled)
+            if rule.get('match_description', True):
+                rule_description = rule.get('description', '').lower().strip()
+                if not rule_description or rule_description not in tx_description:
+                    continue
+            
+            # Check amount match (if enabled)
+            if rule.get('match_amount', False):
+                try:
+                    rule_amount = abs(float(rule.get('amount', 0)))
+                    if rule_amount != tx_amount:
+                        continue
+                except (ValueError, TypeError):
+                    logger.warning(f"Invalid amount in rule {rule_id}: {rule.get('amount')}")
+                    continue
+                    
+            # We have a match - apply the rule
+            tx_data['category'] = rule.get('category', 'Uncategorized')
+            tx_data['subcategory'] = rule.get('subcategory', '')
+            
+            # Update rule stats
+            now = datetime.datetime.now().isoformat()
+            rules[rule_id]['last_applied'] = now
+            rules[rule_id]['match_count'] = rules[rule_id].get('match_count', 0) + 1
+            try:
+                save_rules(rules)
+            except Exception as e:
+                logger.error(f"Error updating rule stats: {str(e)}")
+                
+            return True
+        except Exception as e:
+            logger.error(f"Error applying rule {rule_id}: {str(e)}")
+            continue
         
     return False
+
+def apply_rule_to_past_transactions(rule_id, rule):
+    """Apply a rule to all past transactions that match"""
+    # Load saved transactions
+    transactions = load_saved_transactions()
+    modified_count = 0
+    
+    # Get rule criteria
+    rule_description = rule.get('description', '').lower().strip()
+    rule_amount = None
+    if rule.get('match_amount', False) and rule.get('amount') is not None:
+        try:
+            rule_amount = abs(float(rule.get('amount')))
+        except (ValueError, TypeError) as e:
+            logger.error(f"Error converting rule amount: {str(e)}")
+            return 0
+    
+    # Get original category criteria
+    original_category = rule.get('original_category', '')
+    original_subcategory = rule.get('original_subcategory', '')
+    
+    # Apply to matching transactions
+    for tx_id, tx_data in transactions.items():
+        try:
+            # Skip deleted transactions
+            if tx_data.get('deleted', False):
+                continue
+                
+            # Check original category match (if specified)
+            tx_category = tx_data.get('category', '')
+            if original_category and tx_category != original_category:
+                continue
+                
+            # Check original subcategory match (if specified)
+            tx_subcategory = tx_data.get('subcategory', '')
+            if original_subcategory and tx_subcategory != original_subcategory:
+                continue
+                
+            # Get transaction fields for matching
+            tx_description = tx_data.get('merchant', '').lower().strip()
+            
+            # Skip if description doesn't match (when enabled)
+            if rule.get('match_description', True) and (not rule_description or rule_description not in tx_description):
+                continue
+            
+            # Check amount match if required
+            if rule.get('match_amount', False) and rule_amount is not None:
+                try:
+                    tx_amount = abs(float(tx_data.get('amount', 0)))
+                    if tx_amount != rule_amount:
+                        continue
+                except (ValueError, TypeError) as e:
+                    logger.error(f"Error converting transaction amount for {tx_id}: {str(e)}")
+                    continue
+            
+            # Apply the rule
+            tx_data['category'] = rule.get('category')
+            tx_data['subcategory'] = rule.get('subcategory', '')
+            modified_count += 1
+        except Exception as e:
+            logger.error(f"Error applying rule to transaction {tx_id}: {str(e)}")
+            continue
+    
+    # Save transactions if any were modified
+    if modified_count > 0:
+        try:
+            save_transactions(transactions)
+            
+            # Update rule usage statistics
+            rules = load_rules()
+            if rule_id in rules:
+                rules[rule_id]['last_applied'] = datetime.datetime.now().isoformat()
+                rules[rule_id]['match_count'] = rules[rule_id].get('match_count', 0) + modified_count
+                save_rules(rules)
+                
+        except Exception as e:
+            logger.error(f"Error saving transactions after applying rule: {str(e)}")
+            return 0
+        
+    logger.info(f"Applied rule {rule_id} to {modified_count} past transactions")
+    return modified_count
 
 def parse_date(date_str):
     """

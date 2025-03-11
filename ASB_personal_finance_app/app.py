@@ -14,6 +14,7 @@ from data_utils import (
     Cache, KeyedCache, load_access_token, save_access_token,
     load_saved_transactions, save_transactions, parse_date,
     load_rules, save_rules, apply_rules_to_transaction,
+    apply_rule_to_past_transactions,
     _access_token_cache, _saved_transactions_cache, 
     _account_names_cache, _transaction_cache, _category_counts_cache,
     _rules_cache
@@ -433,15 +434,24 @@ def get_transactions():
             # Only apply rules to transactions without manually set categories
             tx_id = tx.get('id')
             if tx_id not in saved_transactions or 'category' not in saved_transactions[tx_id]:
-                tx_data = {
-                    'merchant': tx.get('merchant'),
-                    'amount': tx.get('amount'),
-                    'is_debit': tx.get('is_debit', True)
-                }
-                if apply_rules_to_transaction(tx_data, rules):
-                    # Update transaction with rule-applied category
-                    tx['category'] = tx_data['category']
-                    tx['subcategory'] = tx_data['subcategory']
+                try:
+                    tx_data = {
+                        'merchant': tx.get('merchant'),
+                        'amount': tx.get('amount'),
+                        'is_debit': tx.get('is_debit', True)
+                    }
+                    # Get original category info
+                    original_category = tx.get('category', '')
+                    original_subcategory = tx.get('subcategory', '')
+                    
+                    if apply_rules_to_transaction(tx_data, rules, original_category, original_subcategory):
+                        # Update transaction with rule-applied category
+                        tx['category'] = tx_data['category']
+                        tx['subcategory'] = tx_data['subcategory']
+                except Exception as e:
+                    logger.error(f"Error applying rules to transaction {tx_id}: {str(e)}")
+                    # Continue processing other transactions
+                    continue
     
     # Apply pagination
     page = request.args.get('page', default=1, type=int)
@@ -1464,13 +1474,6 @@ def add_subcategory():
     })
 
 # Rule management endpoints
-@app.route('/get_rules', methods=['GET'])
-@api_error_handler
-def get_rules():
-    """Get all transaction categorization rules"""
-    rules = load_rules()
-    return jsonify({'rules': rules})
-
 @app.route('/add_rule', methods=['POST'])
 @api_error_handler
 def add_rule():
@@ -1478,7 +1481,7 @@ def add_rule():
     rule_data = request.json
     
     # Validate required fields
-    required_fields = ['description', 'category']
+    required_fields = ['category']
     missing_fields = [field for field in required_fields if field not in rule_data]
     if missing_fields:
         return jsonify({'error': f'Missing required fields: {", ".join(missing_fields)}'}), 400
@@ -1491,14 +1494,18 @@ def add_rule():
     
     # Add the new rule
     rules[rule_id] = {
-        'description': rule_data.get('description'),
+        'description': rule_data.get('description', ''),
         'match_description': rule_data.get('match_description', True),
         'amount': rule_data.get('amount'),
         'match_amount': rule_data.get('match_amount', False),
+        'original_category': rule_data.get('original_category', ''),
+        'original_subcategory': rule_data.get('original_subcategory', ''),
         'category': rule_data.get('category'),
         'subcategory': rule_data.get('subcategory', ''),
         'active': True,
-        'created_at': datetime.datetime.now().isoformat()
+        'created_at': datetime.datetime.now().isoformat(),
+        'last_applied': None,
+        'match_count': 0
     }
     
     # Save rules
@@ -1506,13 +1513,24 @@ def add_rule():
     
     # Apply rule to past transactions if requested
     if rule_data.get('apply_to_past', False):
-        apply_rule_to_past_transactions(rule_id, rules[rule_id])
+        try:
+            affected_count = apply_rule_to_past_transactions(rule_id, rules[rule_id])
+            logger.info(f"Rule {rule_id} applied to {affected_count} past transactions")
+        except Exception as e:
+            logger.error(f"Error applying rule to past transactions: {str(e)}")
     
     return jsonify({
         'message': 'Rule created successfully', 
         'rule_id': rule_id, 
         'rule': rules[rule_id]
     })
+
+@app.route('/get_rules', methods=['GET'])
+@api_error_handler
+def get_rules():
+    """Get all transaction categorization rules"""
+    rules = load_rules()
+    return jsonify({'rules': rules})
 
 @app.route('/update_rule', methods=['POST'])
 @api_error_handler
@@ -1540,6 +1558,10 @@ def update_rule():
         rules[rule_id]['amount'] = rule_data['amount']
     if 'match_amount' in rule_data:
         rules[rule_id]['match_amount'] = rule_data['match_amount']
+    if 'original_category' in rule_data:
+        rules[rule_id]['original_category'] = rule_data['original_category']
+    if 'original_subcategory' in rule_data:
+        rules[rule_id]['original_subcategory'] = rule_data['original_subcategory']
     if 'category' in rule_data:
         rules[rule_id]['category'] = rule_data['category']
     if 'subcategory' in rule_data:
@@ -1552,7 +1574,11 @@ def update_rule():
     
     # Apply rule to past transactions if requested
     if rule_data.get('apply_to_past', False):
-        apply_rule_to_past_transactions(rule_id, rules[rule_id])
+        try:
+            affected_count = apply_rule_to_past_transactions(rule_id, rules[rule_id])
+            logger.info(f"Rule {rule_id} applied to {affected_count} past transactions")
+        except Exception as e:
+            logger.error(f"Error applying rule to past transactions: {str(e)}")
     
     return jsonify({
         'message': 'Rule updated successfully', 
@@ -1576,13 +1602,53 @@ def delete_rule():
     if rule_id not in rules:
         return jsonify({'error': 'Rule not found'}), 404
     
+    # Store for response
+    deleted_rule = rules[rule_id]
+    
     # Remove rule
     del rules[rule_id]
     
     # Save rules
     save_rules(rules)
     
-    return jsonify({'message': 'Rule deleted successfully'})
+    return jsonify({
+        'message': 'Rule deleted successfully',
+        'deleted_rule': deleted_rule
+    })
+
+@app.route('/toggle_rule', methods=['POST'])
+@api_error_handler
+def toggle_rule():
+    """Toggle a rule's active status"""
+    rule_data = request.json
+    rule_id = rule_data.get('id')
+    
+    if not rule_id:
+        return jsonify({'error': 'Rule ID is required'}), 400
+    
+    # Load existing rules
+    rules = load_rules()
+    
+    # Check if rule exists
+    if rule_id not in rules:
+        return jsonify({'error': 'Rule not found'}), 404
+    
+    # Toggle active status
+    rules[rule_id]['active'] = not rules[rule_id].get('active', True)
+    
+    # Save rules
+    save_rules(rules)
+    
+    return jsonify({
+        'message': f"Rule {rule_id} {'activated' if rules[rule_id]['active'] else 'deactivated'} successfully",
+        'rule': rules[rule_id]
+    })
+
+# Add route for the rules management page
+@app.route('/rules')
+@api_error_handler
+def rules_page():
+    return render_template('rules.html')
 
 def apply_rule_to_past_transactions(rule_id, rule):
     """Apply a rule to all past transactions that match"""

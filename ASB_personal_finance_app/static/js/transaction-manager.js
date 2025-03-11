@@ -203,7 +203,6 @@ function handleDeleteButton(button) {
     }
 }
 
-// Add after handleDeleteButton function
 function handleEditTransaction(row) {
     // Get transaction data from row attributes
     const txId = row.getAttribute('data-id');
@@ -214,6 +213,11 @@ function handleEditTransaction(row) {
     const txIsDebit = row.getAttribute('data-is-debit') === 'true';
     const txMerchant = row.getAttribute('data-merchant');
     const txAccountId = row.getAttribute('data-account-id');
+
+    // Store the original category data for the transaction
+    // This way we can create selective rules that only apply to similar transactions
+    row.originalCategory = txCategory;
+    row.originalSubcategory = txSubcategory;
 
     // Get modal elements
     const modal = document.getElementById('add-transaction-modal');
@@ -284,7 +288,10 @@ function handleEditTransaction(row) {
                 amount: document.getElementById('new-amount').value,
                 is_debit: document.getElementById('new-type').value === 'expense',
                 category: window.categoryComponent ? window.categoryComponent.getValue().category : '',
-                subcategory: window.categoryComponent ? window.categoryComponent.getValue().subcategory : ''
+                subcategory: window.categoryComponent ? window.categoryComponent.getValue().subcategory : '',
+                // Add original category data for selective rule creation
+                originalCategory: row.originalCategory,
+                originalSubcategory: row.originalSubcategory
             };
 
             // Show rule modal with transaction data

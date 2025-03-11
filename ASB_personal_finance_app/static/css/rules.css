@@ -1,0 +1,153 @@
+/* Rules management page styling */
+.rules-container {
+    margin-top: 20px;
+}
+
+/* Rule table styling */
+#rules-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#rules-table th,
+#rules-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#rules-table th {
+    background-color: #f5f7fa;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+#rules-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Rule status indicators */
+.rule-active {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.rule-inactive {
+    color: #e74c3c;
+}
+
+/* Rule action buttons */
+.edit-rule-btn,
+.toggle-rule-btn {
+    padding: 6px 10px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-rule-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.toggle-rule-btn {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.edit-rule-btn:hover {
+    background-color: #2980b9;
+}
+
+.toggle-rule-btn:hover {
+    background-color: #7f8c8d;
+}
+
+/* Rule modals */
+.rule-form-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.rule-form-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.rule-form-section p {
+    margin-top: 0;
+    color: #7f8c8d;
+    font-size: 0.9em;
+}
+
+/* Rule toggle switches */
+.rule-toggle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.rule-toggle label {
+    margin-left: 10px;
+}
+
+/* Make sure the modal content is taller for the rule form */
+#edit-rule-modal .modal-content,
+#add-rule-modal .modal-content {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Add spacing between form elements */
+#edit-rule-form .form-group,
+#add-rule-form .form-group {
+    margin-bottom: 15px;
+}
+
+/* Style for rule metadata */
+.rule-meta {
+    font-size: 0.8em;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+/* Empty state message */
+.empty-rules-message {
+    text-align: center;
+    padding: 40px;
+    color: #7f8c8d;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+/* Add rule button styling */
+#add-rule-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#add-rule-btn:hover {
+    background-color: #27ae60;
+}
+
+/* Match counter */
+.match-count {
+    display: inline-block;
+    background-color: #3498db;
+    color: white;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.8em;
+    margin-left: 5px;
+}

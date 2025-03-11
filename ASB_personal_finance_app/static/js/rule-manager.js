@@ -64,6 +64,34 @@ function setupRuleModalListeners() {
             }
         });
     }
+
+    const matchOriginalCategoryToggle = document.getElementById('match-original-category-toggle');
+    if (matchOriginalCategoryToggle) {
+        matchOriginalCategoryToggle.addEventListener('change', function () {
+            toggleOriginalCategoryField(this.checked);
+        });
+    }
+}
+
+/**
+ * Toggle the original category dropdown based on the checkbox state
+ * 
+ * @param {boolean} isEnabled - Whether the original category field should be enabled
+ */
+function toggleOriginalCategoryField(isEnabled) {
+    // Get the original category container
+    const originalCategoryContainer = document.getElementById('rule-original-category-container');
+
+    if (originalCategoryContainer) {
+        // Set the disabled state of all inputs in the container
+        const inputs = originalCategoryContainer.querySelectorAll('select, input');
+        inputs.forEach(input => {
+            input.disabled = !isEnabled;
+        });
+
+        // Update visual styling for the container
+        originalCategoryContainer.style.opacity = isEnabled ? '1' : '0.5';
+    }
 }
 
 /**
@@ -75,6 +103,16 @@ function showRuleModal(transactionData) {
     // Get modal element
     const ruleModal = document.getElementById('rule-modal');
     if (!ruleModal) return;
+
+    // Initialize category dropdowns if they don't exist
+    if (!window.ruleOriginalCategoryComponent && document.getElementById('rule-original-category-container')) {
+        window.ruleOriginalCategoryComponent = createCategoryDropdown({
+            containerId: 'rule-original-category-container',
+            inputName: 'rule-original-category',
+            subcategoryInputName: 'rule-original-subcategory',
+            required: false
+        });
+    }
 
     // Set rule form values if transaction data provided
     if (transactionData) {
@@ -90,7 +128,26 @@ function showRuleModal(transactionData) {
             amountField.value = transactionData.amount;
         }
 
-        // Category/subcategory
+        // Original Category (the category before edit)
+        if (window.ruleOriginalCategoryComponent && typeof window.ruleOriginalCategoryComponent.setValue === 'function') {
+            window.ruleOriginalCategoryComponent.setValue({
+                category: transactionData.originalCategory || '',
+                subcategory: transactionData.originalSubcategory || ''
+            });
+        }
+
+        // Match Original Category toggle
+        const matchOriginalCategoryToggle = document.getElementById('match-original-category-toggle');
+        if (matchOriginalCategoryToggle) {
+            // Enable by default if original category is provided
+            const hasOriginalCategory = !!(transactionData.originalCategory);
+            matchOriginalCategoryToggle.checked = hasOriginalCategory;
+
+            // Update original category field state
+            toggleOriginalCategoryField(hasOriginalCategory);
+        }
+
+        // New Category (target category)
         if (window.rulesCategoryComponent && typeof window.rulesCategoryComponent.setValue === 'function') {
             window.rulesCategoryComponent.setValue({
                 category: transactionData.category || '',
@@ -122,6 +179,7 @@ function saveRule() {
     const amountField = document.getElementById('rule-amount');
     const matchDescriptionToggle = document.getElementById('match-description-toggle');
     const matchAmountToggle = document.getElementById('match-amount-toggle');
+    const matchOriginalCategoryToggle = document.getElementById('match-original-category-toggle');
     const applyToPastToggle = document.getElementById('apply-to-past-toggle');
 
     // Validate required fields
@@ -130,14 +188,20 @@ function saveRule() {
         return;
     }
 
-    // Get category data
+    // Get original category data
+    let originalCategoryData = { category: '', subcategory: '' };
+    if (window.ruleOriginalCategoryComponent && typeof window.ruleOriginalCategoryComponent.getValue === 'function') {
+        originalCategoryData = window.ruleOriginalCategoryComponent.getValue();
+    }
+
+    // Get target category data
     let categoryData = { category: '', subcategory: '' };
     if (window.rulesCategoryComponent && typeof window.rulesCategoryComponent.getValue === 'function') {
         categoryData = window.rulesCategoryComponent.getValue();
     }
 
     if (!categoryData.category) {
-        alert('Please select a category');
+        alert('Please select a target category');
         return;
     }
 
@@ -151,6 +215,12 @@ function saveRule() {
         subcategory: categoryData.subcategory || '',
         apply_to_past: applyToPastToggle ? applyToPastToggle.checked : false
     };
+
+    // Add original category data only if the toggle is checked
+    if (matchOriginalCategoryToggle && matchOriginalCategoryToggle.checked) {
+        rule.original_category = originalCategoryData.category || '';
+        rule.original_subcategory = originalCategoryData.subcategory || '';
+    }
 
     // Save rule to server
     fetch('/add_rule', {
@@ -188,29 +258,41 @@ function saveRule() {
  * Initialize the category dropdown component in the rule modal
  */
 function initRuleCategoryDropdown() {
-    // If category component already exists, just reload its data and return
+    // Initialize both the original and target category components
+
+    // If original category component already exists, just reload its data
+    if (window.ruleOriginalCategoryComponent) {
+        window.ruleOriginalCategoryComponent.reload();
+    } else {
+        // Initialize the original category component
+        const originalCategoryContainer = document.getElementById('rule-original-category-container');
+        if (originalCategoryContainer) {
+            window.ruleOriginalCategoryComponent = createCategoryDropdown({
+                containerId: 'rule-original-category-container',
+                inputName: 'rule-original-category',
+                subcategoryInputName: 'rule-original-subcategory',
+                required: false
+            });
+        }
+    }
+
+    // If target category component already exists, just reload its data
     if (window.rulesCategoryComponent) {
         window.rulesCategoryComponent.reload();
         return;
     }
 
-    // Use the rule category container
+    // Initialize the target category component
     const categoryContainer = document.getElementById('rule-category-container');
-
-    // Handle the case where the container doesn't exist
     if (!categoryContainer) {
         console.error("Cannot find rule-category-container element");
         return;
     }
 
-    // Initialize the category component
-    const categoryComponent = createCategoryDropdown({
+    window.rulesCategoryComponent = createCategoryDropdown({
         containerId: 'rule-category-container',
         inputName: 'rule-category',
         subcategoryInputName: 'rule-subcategory',
         required: true
     });
-
-    // Store the component in a global variable for access from other functions
-    window.rulesCategoryComponent = categoryComponent;
 }
