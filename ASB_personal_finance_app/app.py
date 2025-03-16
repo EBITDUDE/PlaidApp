@@ -1783,6 +1783,13 @@ def run_rule():
     # Clear transaction cache
     _transaction_cache.clear()
     
+    # Sync categories (this is a new step)
+    try:
+        sync_result = sync_transaction_categories_internal()
+        logger.info(f"Category sync after rule application: {sync_result}")
+    except Exception as e:
+        logger.error(f"Error syncing categories after rule application: {str(e)}")
+    
     return jsonify({
         'message': f"Rule applied successfully. {affected_count} transaction(s) updated.",
         'affected_count': affected_count
@@ -1824,10 +1831,170 @@ def run_all_rules():
     # Clear transaction cache
     _transaction_cache.clear()
     
+    # ADD THIS BLOCK: Sync categories after applying all rules
+    try:
+        sync_result = sync_transaction_categories_internal()
+        logger.info(f"Category sync after running all rules: added {sync_result[0]} categories and {sync_result[1]} subcategories")
+    except Exception as e:
+        logger.error(f"Error syncing categories after running all rules: {str(e)}")
+    
     return jsonify({
         'message': f"All rules applied successfully. {total_affected} transaction(s) updated.",
         'total_affected': total_affected,
         'affected_by_rule': affected_by_rule
+    })
+
+@app.route('/rename_category', methods=['POST'])
+@api_error_handler
+def rename_category():
+    """Rename a category and update all transactions using it"""
+    data = request.json
+    old_name = data.get('old_name')
+    new_name = data.get('new_name')
+    
+    if not old_name or not new_name:
+        return jsonify({'error': 'Old and new category names are required'}), 400
+        
+    # Validate new name - no duplicates
+    categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
+    
+    categories = []
+    if os.path.exists(categories_file):
+        with open(categories_file, 'r') as f:
+            categories = json.load(f)
+    
+    # Check if new name already exists (case-insensitive)
+    if any(c["name"].lower() == new_name.lower() for c in categories if c["name"].lower() != old_name.lower()):
+        return jsonify({'error': 'Category with this name already exists'}), 400
+    
+    # Find the category to rename
+    category_index = next((i for i, c in enumerate(categories) if c["name"].lower() == old_name.lower()), None)
+    if category_index is None:
+        return jsonify({'error': 'Category not found'}), 404
+    
+    # Get the old category with its subcategories
+    old_category = categories[category_index]
+    
+    # Create updated category with new name but same subcategories
+    updated_category = {
+        "name": new_name,
+        "subcategories": old_category["subcategories"]
+    }
+    
+    # Update category in the list
+    categories[category_index] = updated_category
+    
+    # Save updated categories
+    with open(categories_file, 'w') as f:
+        json.dump(categories, f)
+    
+    # Update all transactions that use this category
+    updated_count = 0
+    saved_transactions = load_saved_transactions()
+    
+    for tx_id, tx_data in saved_transactions.items():
+        # Skip deleted transactions
+        if tx_data.get('deleted', False):
+            continue
+            
+        # Check if transaction uses this category (case-insensitive)
+        if tx_data.get('category', '').lower() == old_name.lower():
+            # Update category name
+            tx_data['category'] = new_name
+            updated_count += 1
+    
+    # Save updated transactions
+    if updated_count > 0:
+        save_transactions(saved_transactions)
+        
+        # Invalidate caches
+        _transaction_cache.clear()
+        _category_counts_cache.clear()
+        
+        logger.info(f"Renamed category '{old_name}' to '{new_name}' and updated {updated_count} transactions")
+    
+    return jsonify({
+        'message': f'Category renamed successfully. Updated {updated_count} transactions.',
+        'categories': categories,
+        'updated_count': updated_count
+    })
+
+@app.route('/rename_subcategory', methods=['POST'])
+@api_error_handler
+def rename_subcategory():
+    """Rename a subcategory within a category and update all transactions using it"""
+    data = request.json
+    category_name = data.get('category')
+    old_subcategory = data.get('old_subcategory')
+    new_subcategory = data.get('new_subcategory')
+    
+    if not category_name or not old_subcategory or not new_subcategory:
+        return jsonify({'error': 'Category name, old and new subcategory names are required'}), 400
+        
+    # Load saved category preferences
+    categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
+    
+    categories = []
+    if os.path.exists(categories_file):
+        with open(categories_file, 'r') as f:
+            categories = json.load(f)
+    
+    # Find the category
+    category_index = next((i for i, c in enumerate(categories) if c["name"] == category_name), None)
+    if category_index is None:
+        return jsonify({'error': 'Category not found'}), 404
+    
+    # Get the category
+    category = categories[category_index]
+    
+    # Check if old subcategory exists
+    subcategory_index = next((i for i, s in enumerate(category["subcategories"]) 
+                            if s.lower() == old_subcategory.lower()), None)
+    if subcategory_index is None:
+        return jsonify({'error': 'Subcategory not found'}), 404
+    
+    # Check if new subcategory name already exists in this category (case-insensitive)
+    if any(s.lower() == new_subcategory.lower() for s in category["subcategories"] 
+          if s.lower() != old_subcategory.lower()):
+        return jsonify({'error': 'Subcategory with this name already exists in this category'}), 400
+    
+    # Update subcategory name
+    category["subcategories"][subcategory_index] = new_subcategory
+    
+    # Save updated categories
+    with open(categories_file, 'w') as f:
+        json.dump(categories, f)
+    
+    # Update all transactions that use this subcategory
+    updated_count = 0
+    saved_transactions = load_saved_transactions()
+    
+    for tx_id, tx_data in saved_transactions.items():
+        # Skip deleted transactions
+        if tx_data.get('deleted', False):
+            continue
+            
+        # Check if transaction uses this category AND subcategory (case-insensitive)
+        if (tx_data.get('category', '').lower() == category_name.lower() and 
+            tx_data.get('subcategory', '').lower() == old_subcategory.lower()):
+            # Update subcategory name
+            tx_data['subcategory'] = new_subcategory
+            updated_count += 1
+    
+    # Save updated transactions
+    if updated_count > 0:
+        save_transactions(saved_transactions)
+        
+        # Invalidate caches
+        _transaction_cache.clear()
+        _category_counts_cache.clear()
+        
+        logger.info(f"Renamed subcategory '{old_subcategory}' to '{new_subcategory}' in category '{category_name}' and updated {updated_count} transactions")
+    
+    return jsonify({
+        'message': f'Subcategory renamed successfully. Updated {updated_count} transactions.',
+        'category': category,
+        'updated_count': updated_count
     })
 
 # API endpoint to get logs
@@ -2030,6 +2197,169 @@ def get_category_counts():
     _category_counts_cache.set(result)
     
     return jsonify(result)
+
+def sync_transaction_categories_internal():
+    """
+    Internal function to sync transaction categories with the categories.json file.
+    Returns a tuple of (added_categories, added_subcategories)
+    """
+    # Load existing categories
+    categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
+    categories = []
+    
+    if os.path.exists(categories_file):
+        try:
+            with open(categories_file, 'r') as f:
+                categories = json.load(f)
+        except Exception as e:
+            logger.error(f"Error reading categories file: {str(e)}")
+            categories = []
+    
+    # Create dictionary for faster lookup (case-insensitive)
+    category_dict = {cat["name"].lower().strip(): cat for cat in categories}
+    
+    # Collect all unique categories and subcategories from transactions
+    all_categories = {}
+    
+    # Process Plaid transactions if access token exists
+    access_token = load_access_token()
+    if access_token:
+        try:
+            # Use a wide date range to get all historical transactions
+            start_date = datetime.datetime(2015, 1, 1).date()
+            end_date = datetime.datetime.now().date()
+            
+            transactions_request = TransactionsGetRequest(
+                access_token=access_token,
+                start_date=start_date,
+                end_date=end_date
+            )
+            response = client.transactions_get(transactions_request)
+            plaid_txs = response['transactions']
+            
+            # Load saved transaction modifications
+            saved_transactions = load_saved_transactions()
+            
+            # Process Plaid transactions
+            for tx in plaid_txs:
+                tx_id = getattr(tx, 'transaction_id', None)
+                
+                # Skip if transaction is deleted
+                if tx_id in saved_transactions and saved_transactions[tx_id].get('deleted', False):
+                    continue
+                
+                # Get category (either from saved modifications or original)
+                category = None
+                subcategory = None
+                
+                if tx_id in saved_transactions and 'category' in saved_transactions[tx_id]:
+                    category = saved_transactions[tx_id]['category']
+                    subcategory = saved_transactions[tx_id].get('subcategory', '')
+                else:
+                    tx_category = getattr(tx, 'category', [])
+                    if tx_category and len(tx_category) > 0:
+                        category = tx_category[0]
+                
+                # Add to our collection if valid
+                if category and category.strip():
+                    # Normalize category name
+                    normalized_category = category.strip()
+                    normalized_key = normalized_category.lower()
+                    
+                    if normalized_key not in all_categories:
+                        all_categories[normalized_key] = {
+                            'name': normalized_category,
+                            'subcategories': set()
+                        }
+                    
+                    # Add subcategory if provided
+                    if subcategory and subcategory.strip():
+                        all_categories[normalized_key]['subcategories'].add(subcategory.strip())
+        except Exception as e:
+            logger.error(f"Error processing Plaid transactions for category sync: {str(e)}")
+    
+    # Process manual transactions
+    saved_transactions = load_saved_transactions()
+    for tx_id, tx_data in saved_transactions.items():
+        if tx_data.get('manual', False) and not tx_data.get('deleted', False):
+            category = tx_data.get('category')
+            subcategory = tx_data.get('subcategory', '')
+            
+            if category and category.strip():
+                # Normalize category name
+                normalized_category = category.strip()
+                normalized_key = normalized_category.lower()
+                
+                if normalized_key not in all_categories:
+                    all_categories[normalized_key] = {
+                        'name': normalized_category,
+                        'subcategories': set()
+                    }
+                
+                # Add subcategory if provided
+                if subcategory and subcategory.strip():
+                    all_categories[normalized_key]['subcategories'].add(subcategory.strip())
+    
+    # Update categories with any new findings
+    added_categories = 0
+    added_subcategories = 0
+    
+    for cat_key, cat_data in all_categories.items():
+        # Check if category exists in our dictionary (case-insensitive)
+        if cat_key in category_dict:
+            # Category exists, check for new subcategories
+            existing_cat = category_dict[cat_key]
+            
+            # Collect existing subcategories (case-insensitive)
+            existing_subcats = {s.lower().strip(): s for s in existing_cat["subcategories"]}
+            
+            # Check for new subcategories
+            for subcat in cat_data['subcategories']:
+                subcat_key = subcat.lower().strip()
+                if subcat_key not in existing_subcats:
+                    # Add new subcategory
+                    existing_cat["subcategories"].append(subcat)
+                    added_subcategories += 1
+        else:
+            # New category - add it
+            new_cat = {
+                "name": cat_data['name'],
+                "subcategories": list(cat_data['subcategories'])
+            }
+            categories.append(new_cat)
+            category_dict[cat_key] = new_cat
+            added_categories += 1
+    
+    # Save updated categories if changes were made
+    if added_categories > 0 or added_subcategories > 0:
+        try:
+            with open(categories_file, 'w') as f:
+                json.dump(categories, f)
+        except Exception as e:
+            logger.error(f"Error saving updated categories: {str(e)}")
+            raise
+    
+    return (added_categories, added_subcategories)
+
+@app.route('/sync_transaction_categories', methods=['POST'])
+@api_error_handler
+def sync_transaction_categories():
+    """
+    Scan all transactions and ensure all categories and subcategories are
+    in the categories.json file.
+    """
+    try:
+        added_categories, added_subcategories = sync_transaction_categories_internal()
+        
+        return jsonify({
+            'success': True,
+            'added_categories': added_categories,
+            'added_subcategories': added_subcategories
+        })
+    except Exception as e:
+        logger.error(f"Error in sync_transaction_categories: {str(e)}")
+        logger.error(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
 
 # Serve the webpage with Plaid Link
 @app.route('/')

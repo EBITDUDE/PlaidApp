@@ -139,8 +139,11 @@ function updateTransaction(transaction) {
             // Hide modal
             document.getElementById('add-transaction-modal').style.display = 'none';
 
-            // Refresh transactions
-            loadTransactions();
+            // Sync categories with transactions
+            syncCategories().then(() => {
+                // Refresh transactions
+                loadTransactions();
+            });
         })
         .catch(err => {
             ErrorUtils.handleError(err, 'Error updating transaction');
@@ -183,8 +186,11 @@ function addTransaction(transaction) {
             // Hide modal
             document.getElementById('add-transaction-modal').style.display = 'none';
 
-            // Refresh transactions
-            loadTransactions();
+            // Sync categories with transactions
+            syncCategories().then(() => {
+                // Refresh transactions
+                loadTransactions();
+            });
         })
         .catch(err => {
             ErrorUtils.handleError(err, 'Error adding transaction');
@@ -849,6 +855,33 @@ function displayMonthlyCategoryTotals(categoryTotals, months) {
             tableBody.appendChild(tr);
         });
     }
+}
+
+// Add this helper function for syncing categories
+function syncCategories() {
+    return fetch('/sync_transaction_categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Category sync failed: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(result => {
+            // Log sync results
+            if (result.added_categories > 0 || result.added_subcategories > 0) {
+                console.log(`Category sync found ${result.added_categories} new categories and ${result.added_subcategories} new subcategories`);
+
+                // If categories were added and we have a category dropdown, refresh it
+                if (window.categoryComponent && typeof window.categoryComponent.reload === 'function') {
+                    window.categoryComponent.reload();
+                }
+            }
+            return result;
+        });
 }
 
 /**

@@ -271,7 +271,12 @@ class TransactionFilter {
 
             // Apply subcategory filter
             if (hasSubcategoryFilter && showRow) {
-                showRow = rowSubcategory === subcategoryFilter;
+                if (subcategoryFilter === 'uncategorized') {
+                    // Special case for "Uncategorized": show only transactions without subcategories
+                    showRow = !rowSubcategory || rowSubcategory === '' || rowSubcategory === '—';
+                } else {
+                    showRow = rowSubcategory === subcategoryFilter;
+                }
             }
 
             // Apply type filter

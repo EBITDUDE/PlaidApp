@@ -445,6 +445,8 @@ function updateSubcategoryDropdown(categoryFilter) {
 
     // Clear existing options only once
     subcategoryFilter.innerHTML = '<option value="all">All Subcategories</option>';
+    // Add the new "Uncategorized" option
+    subcategoryFilter.innerHTML += '<option value="uncategorized">Uncategorized</option>';
 
     // Explicitly reset the selected value to "All Subcategories"
     subcategoryFilter.value = 'all';

@@ -93,3 +93,95 @@
     width: 100px;
     text-align: center;
 }
+
+/* Action button styles for Edit/Delete */
+.action-btn {
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 5px;
+    font-size: 0.85em;
+}
+
+.edit-category-btn,
+.edit-subcategory-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+}
+
+.edit-category-btn:hover,
+.edit-subcategory-btn:hover {
+    background-color: #2980b9;
+}
+
+.delete-category-btn,
+.delete-subcategory-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+}
+
+.delete-category-btn:hover,
+.delete-subcategory-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Action buttons container to align buttons */
+.action-buttons {
+    display: flex;
+}
+
+/* Style for edit inputs */
+.edit-container {
+    display: flex;
+    align-items: center;
+}
+
+.edit-category-input,
+.edit-subcategory-input {
+    border: 1px solid #3498db;
+    border-radius: 3px;
+    padding: 4px 6px;
+    font-size: 1em;
+    margin-right: 5px;
+}
+
+/* Style for save/cancel buttons in edit mode */
+.save-edit-btn,
+.save-subcategory-edit-btn {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+}
+
+.save-edit-btn:hover,
+.save-subcategory-edit-btn:hover {
+    background-color: #27ae60;
+}
+
+.cancel-edit-btn,
+.cancel-subcategory-edit-btn {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+}
+
+.cancel-edit-btn:hover,
+.cancel-subcategory-edit-btn:hover {
+    background-color: #7f8c8d;
+}
+
+/* Success notification style */
+.success-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.5s;
+}
