@@ -262,7 +262,7 @@ function handleEditTransaction(row) {
             createRuleBtn.id = 'create-rule-btn';
             createRuleBtn.type = 'button';
             createRuleBtn.className = 'btn-primary';
-            createRuleBtn.style.fontSize = '0.9em';
+            createRuleBtn.style.fontSize = '0.75em';
             createRuleBtn.innerHTML = '<span style="font-size: 1.2em;">+</span> Create Rule';
 
             // Add button to container

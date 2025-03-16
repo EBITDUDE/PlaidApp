@@ -239,7 +239,7 @@ function saveRule() {
 
             // Show success message
             alert('Rule created successfully' +
-                (rule.apply_to_past ? '\nRule has been applied to matching past transactions.' : ''));
+                (rule.apply_to_past ? '\nRule has been applied to matching transactions.' : ''));
 
             // Hide modal
             hideRuleModal();

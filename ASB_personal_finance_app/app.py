@@ -261,6 +261,9 @@ def get_transactions():
     # Create a cache key based on parameters
     cache_key = f"txn_{start_date}_{end_date}_{category_filter}_{account_filter}"
     cached_transactions = _transaction_cache.get(cache_key)
+
+    # Load saved transactions here, before the if-else block
+    saved_transactions = load_saved_transactions()
     
     if cached_transactions:
         logger.info(f"Using cached transactions for {cache_key}")
@@ -274,8 +277,7 @@ def get_transactions():
                 'transactions': []
             }), 400
 
-        # Load saved transactions and pre-process them for efficient lookups
-        saved_transactions = load_saved_transactions()
+        # Pre-process saved transactions for efficient lookups
         deleted_tx_ids = set()
         modified_tx_map = {}
         manual_transactions = []
@@ -1254,13 +1256,17 @@ def export_transactions():
                     logger.warning(f"Error parsing date for manual transaction {tx_id}: {str(date_err)}")
                     continue
                 
+                # Get account name from account_id using the same account_names dictionary
+                account_id = tx_data.get('account_id', '')
+                account_name = account_names.get(account_id, '')
+
                 transactions.append({
                     'date': tx_date.strftime("%Y-%m-%d"),
                     'amount': abs(float(tx_data.get('amount', 0))),
                     'type': 'Expense' if tx_data.get('is_debit', True) else 'Income',
                     'category': tx_data.get('category', 'Uncategorized'),
                     'merchant': tx_data.get('merchant', 'Unknown'),
-                    'account': tx_data.get('account_name', ''),
+                    'account': account_name, 
                     'id': tx_id,
                     'source': 'manual'
                 })

@@ -11,6 +11,17 @@
     <script src="/static/js/error-utils.js"></script>
     <script src="/static/js/data-formatter.js"></script>
     <script src="/static/js/category-dropdown.js"></script>
+
+    <style>
+        .rule-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+    
+        .rule-row:hover {
+            background-color: #f0f7ff;
+        }
+    </style>
 </head>
 
 <body>
@@ -35,7 +46,9 @@
                 <tr>
                     <th>Description</th>
                     <th>Original Category</th>
+                    <th>Original Subcategory</th>
                     <th>New Category</th>
+                    <th>New Subcategory</th>
                     <th>Specific Amount</th>
                     <th>Times Used</th>
                     <th>Status</th>
@@ -99,7 +112,7 @@
                 <div style="margin-top: 15px;">
                     <label>
                         <input type="checkbox" id="rule-apply-past-toggle">
-                        Apply to matching past transactions
+                        Apply rule to existing transactions that match these criteria
                     </label>
                 </div>
 
@@ -156,7 +169,7 @@
                 <div style="margin-top: 15px;">
                     <label>
                         <input type="checkbox" id="new-rule-apply-past-toggle">
-                        Apply to matching past transactions
+                        Apply rule to existing transactions that match these criteria
                     </label>
                 </div>
 
@@ -264,24 +277,19 @@
             rulesArray.forEach(rule => {
                 const row = document.createElement('tr');
                 row.setAttribute('data-rule-id', rule.id);
-
+                row.classList.add('rule-row'); // Add class for styling
+                
                 // Description and match criteria
                 let descriptionText = rule.match_description ?
                     `Contains "${rule.description}"` : 'Any description';
 
-                // Original category
-                let originalCategoryText = rule.original_category ?
-                    (rule.original_subcategory ?
-                        `${rule.original_category} / ${rule.original_subcategory}` :
-                        rule.original_category) :
-                    'Any';
+                // Original category (now separate columns)
+                let originalCategoryText = rule.original_category || 'Any';
+                let originalSubcategoryText = rule.original_subcategory || '—';
 
-                // New category
-                let newCategoryText = rule.category ?
-                    (rule.subcategory ?
-                        `${rule.category} / ${rule.subcategory}` :
-                        rule.category) :
-                    'None';
+                // New category (now separate columns)
+                let newCategoryText = rule.category || 'None';
+                let newSubcategoryText = rule.subcategory || '—';
 
                 // Amount
                 let amountText = rule.match_amount ?
@@ -302,26 +310,30 @@
                 row.innerHTML = `
                     <td>${descriptionText}</td>
                     <td>${originalCategoryText}</td>
+                    <td>${originalSubcategoryText}</td>
                     <td>${newCategoryText}</td>
+                    <td>${newSubcategoryText}</td>
                     <td>${amountText}</td>
                     <td>${usageText}</td>
                     <td>${statusText}</td>
                     <td>
-                        <button class="edit-rule-btn">Edit</button>
                         <button class="toggle-rule-btn">${rule.active ? 'Disable' : 'Enable'}</button>
                     </td>
                 `;
 
                 rulesTable.appendChild(row);
 
-                // Add click handler for edit button
-                row.querySelector('.edit-rule-btn').addEventListener('click', function () {
-                    editRule(rule.id);
-                });
-
                 // Add click handler for toggle button
                 row.querySelector('.toggle-rule-btn').addEventListener('click', function () {
                     toggleRule(rule.id);
+                });
+
+                // Add click handler for the entire row
+                row.addEventListener('click', function (event) {
+                    // Only trigger if not clicking a button
+                    if (!event.target.closest('button')) {
+                        editRule(rule.id);
+                    }
                 });
             });
         }
