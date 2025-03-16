@@ -39,7 +39,10 @@
         <h2>Transaction Categorization Rules</h2>
         <p>Rules are applied in order of specificity (most specific rules first).</p>
 
-        <button id="add-rule-btn" class="btn-success">Add New Rule</button>
+        <div style="margin-bottom: 15px;">
+            <button id="add-rule-btn" class="btn-success">Add New Rule</button>
+            <button id="run-all-rules-btn" class="btn-primary" style="margin-left: 10px; font-weight: bold;">Run All Rules</button>
+        </div>
 
         <table id="rules-table">
             <thead>
@@ -65,17 +68,20 @@
             <h3>Edit Rule</h3>
             <form id="edit-rule-form">
                 <input type="hidden" id="rule-id">
-
+    
                 <div>
                     <h4>Conditions</h4>
                     <p>This rule will apply to transactions that meet these criteria:</p>
                 </div>
-
-                <div>
-                    <label for="rule-original-category">Original Category:</label>
-                    <div id="rule-original-category-container"></div>
+    
+                <div style="margin-bottom: 15px;">
+                    <label>
+                        <input type="checkbox" id="match-original-category-toggle" checked>
+                        Only apply to transactions with original category/subcategory
+                    </label>
+                    <div id="rule-original-category-container" style="margin-top: 10px;"></div>
                 </div>
-
+    
                 <div style="margin-top: 15px;">
                     <label>
                         <input type="checkbox" id="rule-match-description-toggle" checked>
@@ -83,7 +89,7 @@
                     </label>
                     <input type="text" id="rule-description" style="width: 100%;">
                 </div>
-
+    
                 <div style="margin-top: 15px;">
                     <label>
                         <input type="checkbox" id="rule-match-amount-toggle">
@@ -91,31 +97,31 @@
                     </label>
                     <input type="text" id="rule-amount" style="width: 100%;" disabled>
                 </div>
-
+    
                 <div style="margin-top: 20px;">
                     <h4>Actions</h4>
                     <p>When conditions match, change category to:</p>
                 </div>
-
+    
                 <div>
                     <label for="rule-category">New Category:</label>
                     <div id="rule-category-container"></div>
                 </div>
-
+    
                 <div style="margin-top: 15px;">
                     <label>
                         <input type="checkbox" id="rule-active-toggle" checked>
                         Rule is active
                     </label>
                 </div>
-
+    
                 <div style="margin-top: 15px;">
                     <label>
                         <input type="checkbox" id="rule-apply-past-toggle">
                         Apply rule to existing transactions that match these criteria
                     </label>
                 </div>
-
+    
                 <div class="modal-footer">
                     <button type="button" id="delete-rule-btn" class="btn-danger">Delete</button>
                     <button type="button" id="cancel-edit-rule-btn" class="btn">Cancel</button>
@@ -190,6 +196,9 @@
             // Add rule button handler
             document.getElementById('add-rule-btn').addEventListener('click', showAddRuleModal);
 
+            // Run all rules button handler
+            document.getElementById('run-all-rules-btn').addEventListener('click', runAllRules);
+
             // Refresh button handler
             document.getElementById('refresh-rules-btn').addEventListener('click', loadRules);
 
@@ -203,6 +212,18 @@
 
             // Delete button handler
             document.getElementById('delete-rule-btn').addEventListener('click', deleteRule);
+
+            // Add original category toggle handler
+            document.getElementById('match-original-category-toggle').addEventListener('change', function () {
+                const container = document.getElementById('rule-original-category-container');
+                if (container) {
+                    container.style.opacity = this.checked ? '1' : '0.5';
+                    const inputs = container.querySelectorAll('select, input');
+                    inputs.forEach(input => {
+                        input.disabled = !this.checked;
+                    });
+                }
+            });
 
             // Modal toggle handlers
             document.getElementById('rule-match-description-toggle').addEventListener('change', function () {
@@ -318,14 +339,22 @@
                     <td>${statusText}</td>
                     <td>
                         <button class="toggle-rule-btn">${rule.active ? 'Disable' : 'Enable'}</button>
+                        <button class="run-rule-btn" ${!rule.active ? 'disabled' : ''}>Run</button>
                     </td>
                 `;
 
                 rulesTable.appendChild(row);
 
                 // Add click handler for toggle button
-                row.querySelector('.toggle-rule-btn').addEventListener('click', function () {
+                row.querySelector('.toggle-rule-btn').addEventListener('click', function (event) {
+                    event.stopPropagation(); // Prevent row click
                     toggleRule(rule.id);
+                });
+
+                // Add click handler for run button
+                row.querySelector('.run-rule-btn').addEventListener('click', function (event) {
+                    event.stopPropagation(); // Prevent row click
+                    runRule(rule.id);
                 });
 
                 // Add click handler for the entire row
@@ -357,6 +386,10 @@
                     document.getElementById('rule-description').disabled = !rule.match_description;
                     document.getElementById('rule-amount').disabled = !rule.match_amount;
 
+                    // Set original category toggle based on whether original category is set
+                    const hasOriginalCategory = !!(rule.original_category);
+                    document.getElementById('match-original-category-toggle').checked = hasOriginalCategory;
+
                     // Initialize category dropdowns
                     initRuleCategoryDropdowns(
                         rule.original_category || '',
@@ -365,16 +398,27 @@
                         rule.subcategory || ''
                     );
 
+                    // Update original category field state
+                    const container = document.getElementById('rule-original-category-container');
+                    if (container) {
+                        container.style.opacity = hasOriginalCategory ? '1' : '0.5';
+                        const inputs = container.querySelectorAll('select, input');
+                        inputs.forEach(input => {
+                            input.disabled = !hasOriginalCategory;
+                        });
+                    }
+
                     // Show the modal
                     document.getElementById('edit-rule-modal').style.display = 'block';
                 })
                 .catch(err => {
                     ErrorUtils.handleError(err, 'Failed to load rule details');
                 });
-        }
+            }
 
         function saveEditedRule() {
             const ruleId = document.getElementById('rule-id').value;
+            const useOriginalCategory = document.getElementById('match-original-category-toggle').checked;
 
             // Get original category/subcategory
             const originalCategoryData = window.originalCategoryComponent ?
@@ -393,8 +437,8 @@
                 match_description: document.getElementById('rule-match-description-toggle').checked,
                 amount: document.getElementById('rule-amount').value,
                 match_amount: document.getElementById('rule-match-amount-toggle').checked,
-                original_category: originalCategoryData.category,
-                original_subcategory: originalCategoryData.subcategory,
+                original_category: useOriginalCategory ? originalCategoryData.category : '',
+                original_subcategory: useOriginalCategory ? originalCategoryData.subcategory : '',
                 category: newCategoryData.category,
                 subcategory: newCategoryData.subcategory,
                 active: document.getElementById('rule-active-toggle').checked,
@@ -485,6 +529,88 @@
                 })
                 .catch(err => {
                     ErrorUtils.handleError(err, 'Failed to toggle rule');
+                });
+        }
+
+        function runRule(ruleId) {
+                // Show a loading indicator on the button
+                const button = document.querySelector(`tr[data-rule-id="${ruleId}"] .run-rule-btn`);
+                const originalText = button.textContent;
+                button.innerHTML = 'Running... <span class="loading" style="width: 12px; height: 12px; margin-left: 5px;"></span>';
+                button.disabled = true;
+
+                fetch('/run_rule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: ruleId })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+
+                        // Show success message with count
+                        let message = data.message;
+                        if (data.affected_count === 0) {
+                            message = 'Rule ran successfully, but no transactions matched the rule criteria.';
+                        }
+                        alert(message);
+
+                        // Reset button
+                        button.textContent = originalText;
+                        button.disabled = false;
+
+                        // Reload rules to update match counts
+                        loadRules();
+                    })
+                    .catch(err => {
+                        ErrorUtils.handleError(err, 'Failed to run rule');
+
+                        // Reset button
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    });
+            }
+
+        function runAllRules() {
+            // Show a loading indicator on the button
+            const button = document.getElementById('run-all-rules-btn');
+            const originalText = button.textContent;
+            button.innerHTML = 'Running All... <span class="loading" style="width: 12px; height: 12px; margin-left: 5px;"></span>';
+            button.disabled = true;
+
+            fetch('/run_all_rules', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    // Show success message with count
+                    let message = data.message;
+                    if (data.total_affected === 0) {
+                        message = 'All rules ran successfully, but no transactions matched any rule criteria.';
+                    }
+                    alert(message);
+
+                    // Reset button
+                    button.textContent = originalText;
+                    button.disabled = false;
+
+                    // Reload rules to update match counts
+                    loadRules();
+                })
+                .catch(err => {
+                    ErrorUtils.handleError(err, 'Failed to run all rules');
+
+                    // Reset button
+                    button.textContent = originalText;
+                    button.disabled = false;
                 });
         }
 

@@ -270,7 +270,7 @@ def apply_rules_to_transaction(tx_data, rules=None, original_category=None, orig
         
     return False
 
-def apply_rule_to_past_transactions(rule_id, rule):
+def apply_rule_to_past_transactions(rule_id, rule, ignore_original_category=True):
     """Apply a rule to all past transactions that match"""
     # Load saved transactions
     transactions = load_saved_transactions()
@@ -297,15 +297,18 @@ def apply_rule_to_past_transactions(rule_id, rule):
             if tx_data.get('deleted', False):
                 continue
                 
-            # Check original category match (if specified)
-            tx_category = tx_data.get('category', '')
-            if original_category and tx_category != original_category:
-                continue
-                
-            # Check original subcategory match (if specified)
-            tx_subcategory = tx_data.get('subcategory', '')
-            if original_subcategory and tx_subcategory != original_subcategory:
-                continue
+            # Check original category match (if specified and not ignoring)
+            # When manually running rules, we ignore original_category to match all transactions
+            if not ignore_original_category and original_category:
+                tx_category = tx_data.get('category', '')
+                if tx_category != original_category:
+                    continue
+                    
+            # Check original subcategory match (if specified and not ignoring)
+            if not ignore_original_category and original_subcategory:
+                tx_subcategory = tx_data.get('subcategory', '')
+                if tx_subcategory != original_subcategory:
+                    continue
                 
             # Get transaction fields for matching
             tx_description = tx_data.get('merchant', '').lower().strip()

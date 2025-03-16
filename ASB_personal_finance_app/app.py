@@ -1520,8 +1520,17 @@ def add_rule():
     # Apply rule to past transactions if requested
     if rule_data.get('apply_to_past', False):
         try:
-            affected_count = apply_rule_to_past_transactions(rule_id, rules[rule_id])
+            # Create a modified version of the rule without original category constraints
+            # to make it apply to all matching transactions including edited ones
+            run_rule = rules[rule_id].copy()
+            run_rule['original_category'] = ''
+            run_rule['original_subcategory'] = ''
+            
+            affected_count = apply_rule_to_past_transactions(rule_id, run_rule)
             logger.info(f"Rule {rule_id} applied to {affected_count} past transactions")
+            
+            # Clear transaction cache to ensure fresh data is loaded
+            _transaction_cache.clear()
         except Exception as e:
             logger.error(f"Error applying rule to past transactions: {str(e)}")
     
@@ -1581,8 +1590,17 @@ def update_rule():
     # Apply rule to past transactions if requested
     if rule_data.get('apply_to_past', False):
         try:
-            affected_count = apply_rule_to_past_transactions(rule_id, rules[rule_id])
+            # Create a modified version of the rule without original category constraints
+            # to make it apply to all matching transactions including edited ones
+            run_rule = rules[rule_id].copy()
+            run_rule['original_category'] = ''
+            run_rule['original_subcategory'] = ''
+            
+            affected_count = apply_rule_to_past_transactions(rule_id, run_rule)
             logger.info(f"Rule {rule_id} applied to {affected_count} past transactions")
+            
+            # Clear transaction cache to ensure fresh data is loaded
+            _transaction_cache.clear()
         except Exception as e:
             logger.error(f"Error applying rule to past transactions: {str(e)}")
     
@@ -1666,38 +1684,151 @@ def apply_rule_to_past_transactions(rule_id, rule):
     rule_description = rule.get('description', '').lower().strip()
     rule_amount = None
     if rule.get('match_amount', False) and rule.get('amount') is not None:
-        rule_amount = abs(float(rule.get('amount')))
+        try:
+            rule_amount = abs(float(rule.get('amount')))
+        except (ValueError, TypeError) as e:
+            logger.error(f"Error converting rule amount: {str(e)}")
+            return 0
     
     # Apply to matching transactions
     for tx_id, tx_data in transactions.items():
-        # Skip deleted transactions
-        if tx_data.get('deleted', False):
-            continue
-            
-        # Get transaction fields for matching
-        tx_description = tx_data.get('merchant', '').lower().strip()
-        
-        # Skip if description doesn't match
-        if rule.get('match_description', True) and (not rule_description or rule_description not in tx_description):
-            continue
-        
-        # Check amount match if required
-        if rule.get('match_amount', False) and rule_amount is not None:
-            tx_amount = abs(float(tx_data.get('amount', 0)))
-            if tx_amount != rule_amount:
+        try:
+            # Skip deleted transactions
+            if tx_data.get('deleted', False):
                 continue
-        
-        # Apply the rule
-        tx_data['category'] = rule.get('category')
-        tx_data['subcategory'] = rule.get('subcategory', '')
-        modified_count += 1
+                
+            # Get transaction fields for matching
+            tx_description = tx_data.get('merchant', '').lower().strip()
+            
+            # Skip if description doesn't match (when enabled)
+            if rule.get('match_description', True) and (not rule_description or rule_description not in tx_description):
+                continue
+            
+            # Check amount match if required
+            if rule.get('match_amount', False) and rule_amount is not None:
+                try:
+                    tx_amount = abs(float(tx_data.get('amount', 0)))
+                    if tx_amount != rule_amount:
+                        continue
+                except (ValueError, TypeError) as e:
+                    logger.error(f"Error converting transaction amount for {tx_id}: {str(e)}")
+                    continue
+            
+            # When manually running rules, we intentionally ignore original_category 
+            # and original_subcategory to match all transactions with the specified 
+            # description and amount
+            
+            # Apply the rule
+            tx_data['category'] = rule.get('category')
+            tx_data['subcategory'] = rule.get('subcategory', '')
+            modified_count += 1
+        except Exception as e:
+            logger.error(f"Error applying rule to transaction {tx_id}: {str(e)}")
+            continue
     
     # Save transactions if any were modified
     if modified_count > 0:
-        save_transactions(transactions)
+        try:
+            save_transactions(transactions)
+            
+            # Update rule usage statistics
+            rules = load_rules()
+            if rule_id in rules:
+                rules[rule_id]['last_applied'] = datetime.datetime.now().isoformat()
+                rules[rule_id]['match_count'] = rules[rule_id].get('match_count', 0) + modified_count
+                save_rules(rules)
+                
+        except Exception as e:
+            logger.error(f"Error saving transactions after applying rule: {str(e)}")
+            return 0
         
     logger.info(f"Applied rule {rule_id} to {modified_count} past transactions")
     return modified_count
+
+@app.route('/run_rule', methods=['POST'])
+@api_error_handler
+def run_rule():
+    """Run a single rule against all matching transactions"""
+    rule_data = request.json
+    rule_id = rule_data.get('id')
+    
+    if not rule_id:
+        return jsonify({'error': 'Rule ID is required'}), 400
+    
+    # Load rules
+    rules = load_rules()
+    
+    # Check if rule exists
+    if rule_id not in rules:
+        return jsonify({'error': 'Rule not found'}), 404
+    
+    # Get the rule
+    rule = rules[rule_id]
+    
+    # Skip inactive rules
+    if not rule.get('active', True):
+        return jsonify({
+            'message': 'Rule is inactive. Please activate it first.',
+            'affected_count': 0
+        }), 200
+    
+    # Create a modified version of the rule with original category/subcategory removed
+    run_rule = rule.copy()
+    run_rule['original_category'] = ''
+    run_rule['original_subcategory'] = ''
+    
+    # Apply rule to past transactions
+    affected_count = apply_rule_to_past_transactions(rule_id, run_rule)
+    
+    # Clear transaction cache
+    _transaction_cache.clear()
+    
+    return jsonify({
+        'message': f"Rule applied successfully. {affected_count} transaction(s) updated.",
+        'affected_count': affected_count
+    })
+
+@app.route('/run_all_rules', methods=['POST'])
+@api_error_handler
+def run_all_rules():
+    """Run all active rules against matching transactions"""
+    # Load rules
+    rules = load_rules()
+    
+    total_affected = 0
+    affected_by_rule = {}
+    
+    # Apply each active rule in order of specificity
+    sorted_rules = sorted(
+        rules.items(), 
+        key=lambda x: (
+            1 if x[1].get('original_category') else 0,
+            1 if x[1].get('original_subcategory') else 0,
+            1 if x[1].get('match_description', True) else 0,
+            1 if x[1].get('match_amount', False) else 0
+        ),
+        reverse=True
+    )
+    
+    for rule_id, rule in sorted_rules:
+        if rule.get('active', True):
+            # Create a modified version of the rule with original category/subcategory removed
+            run_rule = rule.copy()
+            run_rule['original_category'] = ''
+            run_rule['original_subcategory'] = ''
+            
+            affected_count = apply_rule_to_past_transactions(rule_id, run_rule)
+            total_affected += affected_count
+            affected_by_rule[rule_id] = affected_count
+    
+    # Clear transaction cache
+    _transaction_cache.clear()
+    
+    return jsonify({
+        'message': f"All rules applied successfully. {total_affected} transaction(s) updated.",
+        'total_affected': total_affected,
+        'affected_by_rule': affected_by_rule
+    })
 
 # API endpoint to get logs
 @app.route('/api/logs')
