@@ -149,7 +149,6 @@ def get_accounts():
         
         # Final check for any non-serializable types in the entire account list
         try:
-            import json
             json.dumps(account_list)
             logger.debug("Account list successfully serialized in pre-check")
         except TypeError as e:
@@ -348,80 +347,98 @@ def get_transactions():
                 start_date=start_date,
                 end_date=end_date
             )
-            response = client.transactions_get(transactions_request)
-            plaid_txs = response.get('transactions', [])
-            logger.info(f"Total transactions retrieved from Plaid: {len(plaid_txs)}")
-            
-            # Process each transaction in a single pass
-            for tx in plaid_txs:
-                try:
-                    # Skip if manually deleted
-                    tx_id = getattr(tx, 'transaction_id', None)
-                    if tx_id in deleted_tx_ids:
-                        continue
-                    
-                    # Extract basic transaction details
-                    tx_date = getattr(tx, 'date', None)
-                    tx_amount = getattr(tx, 'amount', 0.0)
-                    tx_name = getattr(tx, 'name', 'Unknown')
-                    tx_category = getattr(tx, 'category', [])
-                    tx_account_id = getattr(tx, 'account_id', '')
-                    
-                    # Normalize date
-                    if not isinstance(tx_date, datetime.date):
-                        if isinstance(tx_date, str):
-                            try:
-                                tx_date = parse_date(tx_date)
-                            except ValueError:
-                                logger.warning(f"Invalid date format: {tx_date}")
-                                tx_date = datetime.datetime.now().date()
-                        else:
-                            logger.warning(f"Using current date for transaction {tx_id}: invalid date type {type(tx_date)}")
-                            tx_date = datetime.datetime.now().date()
-                    
-                    # Set initial values
-                    category = tx_category[0] if tx_category else 'Uncategorized'
-                    amount = abs(float(tx_amount))
-                    is_debit = float(tx_amount) > 0
-                    subcategory = ''
-                    
-                    # Apply any saved modifications
-                    if tx_id in modified_tx_map:
-                        mods = modified_tx_map[tx_id]
+            try:
+                response = client.transactions_get(transactions_request)
+                plaid_txs = response.get('transactions', [])
+                logger.info(f"Total transactions retrieved from Plaid: {len(plaid_txs)}")
+                
+                # Process each transaction in a single pass
+                for tx in plaid_txs:
+                    try:
+                        # Skip if manually deleted
+                        tx_id = getattr(tx, 'transaction_id', None)
+                        if tx_id in deleted_tx_ids:
+                            continue
                         
-                        if 'category' in mods:
-                            category = mods['category']
-                        if 'subcategory' in mods:
-                            subcategory = mods['subcategory']
-                        if 'merchant' in mods:
-                            tx_name = mods['merchant']
-                        if 'date' in mods:
-                            try:
-                                tx_date = parse_date(mods['date'])
-                            except ValueError:
-                                logger.debug(f"Invalid saved date format for {tx_id}: {mods['date']}")
-                        if 'amount' in mods:
-                            amount = abs(float(mods['amount']))
-                        if 'is_debit' in mods:
-                            is_debit = mods['is_debit']
-                    
-                    # Add to transaction list
-                    transaction_list.append({
-                        'id': tx_id,
-                        'date': tx_date.strftime("%m/%d/%Y"),
-                        'raw_date': tx_date.strftime("%Y-%m-%d"),
-                        'amount': amount,
-                        'is_debit': is_debit,
-                        'merchant': tx_name,
-                        'category': category,
-                        'subcategory': subcategory,
-                        'account_id': tx_account_id,
-                        'manual': False
-                    })
-                    
-                except Exception as tx_error:
-                    logger.error(f"Error processing transaction: {str(tx_error)}")
-                    logger.error(traceback.format_exc())
+                        # Extract basic transaction details
+                        tx_date = getattr(tx, 'date', None)
+                        tx_amount = getattr(tx, 'amount', 0.0)
+                        tx_name = getattr(tx, 'name', 'Unknown')
+                        tx_category = getattr(tx, 'category', [])
+                        tx_account_id = getattr(tx, 'account_id', '')
+                        
+                        # Normalize date
+                        if not isinstance(tx_date, datetime.date):
+                            if isinstance(tx_date, str):
+                                try:
+                                    tx_date = parse_date(tx_date)
+                                except ValueError:
+                                    logger.warning(f"Invalid date format: {tx_date}")
+                                    tx_date = datetime.datetime.now().date()
+                            else:
+                                logger.warning(f"Using current date for transaction {tx_id}: invalid date type {type(tx_date)}")
+                                tx_date = datetime.datetime.now().date()
+                        
+                        # Set initial values
+                        category = tx_category[0] if tx_category else 'Uncategorized'
+                        amount = abs(float(tx_amount))
+                        is_debit = float(tx_amount) > 0
+                        subcategory = ''
+                        
+                        # Apply any saved modifications
+                        if tx_id in modified_tx_map:
+                            mods = modified_tx_map[tx_id]
+                            
+                            if 'category' in mods:
+                                category = mods['category']
+                            if 'subcategory' in mods:
+                                subcategory = mods['subcategory']
+                            if 'merchant' in mods:
+                                tx_name = mods['merchant']
+                            if 'date' in mods:
+                                try:
+                                    tx_date = parse_date(mods['date'])
+                                except ValueError:
+                                    logger.debug(f"Invalid saved date format for {tx_id}: {mods['date']}")
+                            if 'amount' in mods:
+                                amount = abs(float(mods['amount']))
+                            if 'is_debit' in mods:
+                                is_debit = mods['is_debit']
+                        
+                        # Add to transaction list
+                        transaction_list.append({
+                            'id': tx_id,
+                            'date': tx_date.strftime("%m/%d/%Y"),
+                            'raw_date': tx_date.strftime("%Y-%m-%d"),
+                            'amount': amount,
+                            'is_debit': is_debit,
+                            'merchant': tx_name,
+                            'category': category,
+                            'subcategory': subcategory,
+                            'account_id': tx_account_id,
+                            'manual': False
+                        })
+                        
+                    except Exception as tx_error:
+                        logger.error(f"Error processing transaction: {str(tx_error)}")
+                        logger.error(traceback.format_exc())
+                
+            except plaid.ApiException as e:
+                error_response = json.loads(e.body)
+                error_code = error_response.get('error_code')
+                
+                # Check for login required error
+                if error_code == 'ITEM_LOGIN_REQUIRED':
+                    logger.warning("Bank login required for transactions - credentials have changed")
+                    return jsonify({
+                        'error': 'Bank login required',
+                        'error_code': 'ITEM_LOGIN_REQUIRED',
+                        'message': 'Your bank credentials have changed. Please re-authenticate.',
+                        'transactions': []
+                    }), 401
+                
+                # Re-raise for other errors
+                raise e
                     
         except Exception as plaid_error:
             logger.error(f"Plaid Transaction Fetch Error: {str(plaid_error)}")

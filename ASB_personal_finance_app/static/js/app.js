@@ -501,6 +501,8 @@ function updateSubcategoryDropdown(categoryFilter) {
  * Shows a prompt to re-authenticate with the bank
  */
 function showReauthenticationPrompt() {
+    // Make the function globally available
+    window.showReauthenticationPrompt = showReauthenticationPrompt;
     if (confirm('Your bank requires you to log in again. Would you like to re-authenticate now?')) {
         initiateUpdateMode();
     }

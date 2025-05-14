@@ -72,7 +72,12 @@ function fetchAndStoreAccounts(forceRefresh = false) {
                             if (data.error_code === 'ITEM_LOGIN_REQUIRED') {
                                 console.log("Bank re-authentication required");
                                 // Trigger re-authentication flow
-                                showReauthenticationPrompt();
+                                if (typeof window.showReauthenticationPrompt === 'function') {
+                                    window.showReauthenticationPrompt();
+                                } else {
+                                    console.error('showReauthenticationPrompt is not available');
+                                    alert('Your bank requires you to log in again. Please refresh the page and try again.');
+                                }
                                 return {};
                             }
                             throw new Error(data.error || 'Authentication failed');
