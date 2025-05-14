@@ -496,3 +496,58 @@ function updateSubcategoryDropdown(categoryFilter) {
             ErrorUtils.handleError(err, 'Failed to fetch subcategories');
         });
 }
+
+/**
+ * Shows a prompt to re-authenticate with the bank
+ */
+function showReauthenticationPrompt() {
+    if (confirm('Your bank requires you to log in again. Would you like to re-authenticate now?')) {
+        initiateUpdateMode();
+    }
+}
+
+/**
+ * Initiates Plaid Link in update mode for re-authentication
+ */
+function initiateUpdateMode() {
+    console.log('Starting bank re-authentication...');
+
+    fetch('/create_update_link_token')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to create update link token');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.link_token) {
+                throw new Error('No link token in response');
+            }
+
+            // Initialize Plaid Link in update mode
+            const handler = Plaid.create({
+                token: data.link_token,
+                onSuccess: (public_token, metadata) => {
+                    console.log('Re-authentication successful');
+
+                    // Reload accounts and transactions
+                    loadAccounts().then(() => {
+                        loadTransactions();
+                    });
+
+                    alert('Bank account re-authenticated successfully!');
+                },
+                onExit: (err, metadata) => {
+                    if (err) {
+                        console.error('Update mode error:', err);
+                        alert('Failed to re-authenticate: ' + (err.display_message || err.error_message || 'Unknown error'));
+                    }
+                }
+            });
+
+            handler.open();
+        })
+        .catch(err => {
+            ErrorUtils.handleError(err, 'Error initiating re-authentication');
+        });
+}

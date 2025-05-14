@@ -417,13 +417,24 @@ function loadTransactions() {
         .then(response => {
             console.log("Transaction response status:", response.status);
 
+            // Check for authentication errors
+            if (response.status === 401) {
+                return response.json().then(data => {
+                    if (data.error_code === 'ITEM_LOGIN_REQUIRED') {
+                        showReauthenticationPrompt();
+                        throw new Error('Re-authentication required');
+                    }
+                    throw new Error(data.error || 'Authentication failed');
+                });
+            }
+
             // Check for HTTP errors
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             return response.json();
-        })
+    })
         .then(data => {
             // Store pagination data globally for debugging
             window.lastPaginationData = data.pagination;

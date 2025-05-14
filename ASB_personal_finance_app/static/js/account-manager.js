@@ -66,6 +66,19 @@ function fetchAndStoreAccounts(forceRefresh = false) {
             console.log("Access token found, fetching fresh account data");
             return fetch('/get_accounts')
                 .then(response => {
+                    if (response.status === 401) {
+                        // Handle login required error
+                        return response.json().then(data => {
+                            if (data.error_code === 'ITEM_LOGIN_REQUIRED') {
+                                console.log("Bank re-authentication required");
+                                // Trigger re-authentication flow
+                                showReauthenticationPrompt();
+                                return {};
+                            }
+                            throw new Error(data.error || 'Authentication failed');
+                        });
+                    }
+
                     if (!response.ok) {
                         throw new Error('Failed to fetch accounts');
                     }

@@ -80,94 +80,111 @@ def get_accounts():
         logger.warning("No access token available when requesting accounts")
         return jsonify({'error': 'No access token available. Please connect a bank account.'}), 400
 
-    
-    request = AccountsGetRequest(access_token=access_token)
-    response = client.accounts_get(request)
-    accounts = response['accounts']
-    
-    # Debug the raw response structure - safely check account properties
-    logger.debug(f"Number of accounts: {len(accounts)}")
-    
-    account_list = []
-    for i, account in enumerate(accounts):
-        # Plaid objects are not dictionaries, so we need to access them with dot notation
-        # or by using the to_dict() method if available
-        
-        logger.debug(f"Processing account {i}")
-        
-        try:
-            # Try using to_dict() if it exists
-            if hasattr(account, 'to_dict'):
-                account_dict = account.to_dict()
-                logger.debug(f"Successfully converted account {i} to dictionary")
-            else:
-                # Otherwise create a dictionary manually with the attributes we need
-                account_dict = {}
-                logger.debug(f"Manually building dictionary for account {i}")
-        except Exception as e:
-            logger.error(f"Error converting account to dictionary: {str(e)}")
-            account_dict = {}
-        
-        # Safely extract account properties
-        try:
-            account_id = getattr(account, 'account_id', None)
-            name = getattr(account, 'name', None)
-            account_type = getattr(account, 'type', None)
-            subtype = getattr(account, 'subtype', None)
-            balances = getattr(account, 'balances', {})
-            
-            # Convert type and subtype to strings
-            if account_type and not isinstance(account_type, str):
-                account_type = str(account_type)
-            
-            if subtype and not isinstance(subtype, str):
-                subtype = str(subtype)
-            
-            # Extract balances safely
-            current_balance = getattr(balances, 'current', 0) if balances else 0
-            available_balance = getattr(balances, 'available', 0) if balances else 0
-            
-            # Create a serializable account object
-            serializable_account = {
-                'id': account_id,
-                'name': name,
-                'type': account_type,
-                'subtype': subtype,
-                'balance': {
-                    'current': current_balance,
-                    'available': available_balance
-                }
-            }
-            
-            logger.debug(f"Created serializable account: {serializable_account['name']}, {serializable_account['type']}")
-            account_list.append(serializable_account)
-        except Exception as e:
-            logger.error(f"Error extracting account properties for account {i}: {str(e)}")
-            logger.error(traceback.format_exc())
-    
-    logger.info(f"Retrieved {len(account_list)} accounts")
-    
-    # Final check for any non-serializable types in the entire account list
     try:
-        import json
-        json.dumps(account_list)
-        logger.debug("Account list successfully serialized in pre-check")
-    except TypeError as e:
-        logger.error(f"JSON serialization pre-check failed: {str(e)}")
+        request = AccountsGetRequest(access_token=access_token)
+        response = client.accounts_get(request)
+        accounts = response['accounts']
         
-        # Try to fix any remaining serialization issues
-        for account in account_list:
-            for key, value in list(account.items()):
-                if not isinstance(value, (str, int, float, bool, list, dict, type(None))):
-                    logger.warning(f"Converting non-serializable {type(value).__name__} to string: {key}")
-                    account[key] = str(value)
+        # Debug the raw response structure - safely check account properties
+        logger.debug(f"Number of accounts: {len(accounts)}")
+        
+        account_list = []
+        for i, account in enumerate(accounts):
+            # Plaid objects are not dictionaries, so we need to access them with dot notation
+            # or by using the to_dict() method if available
             
-            for key, value in list(account['balance'].items()):
-                if not isinstance(value, (str, int, float, bool, list, dict, type(None))):
-                    logger.warning(f"Converting non-serializable balance {type(value).__name__} to number: {key}")
-                    account['balance'][key] = float(value) if value is not None else 0
+            logger.debug(f"Processing account {i}")
+            
+            try:
+                # Try using to_dict() if it exists
+                if hasattr(account, 'to_dict'):
+                    account_dict = account.to_dict()
+                    logger.debug(f"Successfully converted account {i} to dictionary")
+                else:
+                    # Otherwise create a dictionary manually with the attributes we need
+                    account_dict = {}
+                    logger.debug(f"Manually building dictionary for account {i}")
+            except Exception as e:
+                logger.error(f"Error converting account to dictionary: {str(e)}")
+                account_dict = {}
+            
+            # Safely extract account properties
+            try:
+                account_id = getattr(account, 'account_id', None)
+                name = getattr(account, 'name', None)
+                account_type = getattr(account, 'type', None)
+                subtype = getattr(account, 'subtype', None)
+                balances = getattr(account, 'balances', {})
+                
+                # Convert type and subtype to strings
+                if account_type and not isinstance(account_type, str):
+                    account_type = str(account_type)
+                
+                if subtype and not isinstance(subtype, str):
+                    subtype = str(subtype)
+                
+                # Extract balances safely
+                current_balance = getattr(balances, 'current', 0) if balances else 0
+                available_balance = getattr(balances, 'available', 0) if balances else 0
+                
+                # Create a serializable account object
+                serializable_account = {
+                    'id': account_id,
+                    'name': name,
+                    'type': account_type,
+                    'subtype': subtype,
+                    'balance': {
+                        'current': current_balance,
+                        'available': available_balance
+                    }
+                }
+                
+                logger.debug(f"Created serializable account: {serializable_account['name']}, {serializable_account['type']}")
+                account_list.append(serializable_account)
+            except Exception as e:
+                logger.error(f"Error extracting account properties for account {i}: {str(e)}")
+                logger.error(traceback.format_exc())
+        
+        logger.info(f"Retrieved {len(account_list)} accounts")
+        
+        # Final check for any non-serializable types in the entire account list
+        try:
+            import json
+            json.dumps(account_list)
+            logger.debug("Account list successfully serialized in pre-check")
+        except TypeError as e:
+            logger.error(f"JSON serialization pre-check failed: {str(e)}")
+            
+            # Try to fix any remaining serialization issues
+            for account in account_list:
+                for key, value in list(account.items()):
+                    if not isinstance(value, (str, int, float, bool, list, dict, type(None))):
+                        logger.warning(f"Converting non-serializable {type(value).__name__} to string: {key}")
+                        account[key] = str(value)
+                
+                for key, value in list(account['balance'].items()):
+                    if not isinstance(value, (str, int, float, bool, list, dict, type(None))):
+                        logger.warning(f"Converting non-serializable balance {type(value).__name__} to number: {key}")
+                        account['balance'][key] = float(value) if value is not None else 0
+        
+        return jsonify({'accounts': account_list})
     
-    return jsonify({'accounts': account_list})
+    except plaid.ApiException as e:
+        error_response = json.loads(e.body)
+        error_code = error_response.get('error_code')
+        
+        # Check for login required error
+        if error_code == 'ITEM_LOGIN_REQUIRED':
+            logger.warning("Bank login required - credentials have changed")
+            return jsonify({
+                'error': 'Bank login required',
+                'error_code': 'ITEM_LOGIN_REQUIRED',
+                'message': 'Your bank credentials have changed. Please re-authenticate.'
+            }), 401
+        
+        # Re-raise for other errors
+        raise e
+    
 
 # Step 4: Route to create a link token
 @app.route('/create_link_token', methods=['GET'])
@@ -231,6 +248,38 @@ def exchange_public_token():
     
     save_access_token(access_token)
     return jsonify({'message': 'Token exchanged successfully', 'access_token': access_token})
+
+@app.route('/create_update_link_token', methods=['GET'])
+@api_error_handler
+def create_update_link_token():
+    """Create a link token for update mode when re-authentication is needed"""
+    access_token = load_access_token()
+    if not access_token:
+        return jsonify({'error': 'No access token available'}), 400
+    
+    client_user_id = "user-" + str(uuid.uuid4())
+    
+    try:
+        request = LinkTokenCreateRequest(
+            access_token=access_token,  # This enables update mode
+            client_name="My Finance App",
+            country_codes=[CountryCode("US")],
+            language="en",
+            user=LinkTokenCreateRequestUser(client_user_id=client_user_id)
+        )
+        
+        response = client.link_token_create(request)
+        link_token = response['link_token']
+        
+        return jsonify({'link_token': link_token, 'update_mode': True})
+    
+    except plaid.ApiException as e:
+        logger.error(f"Plaid API Exception in update mode: {str(e)}")
+        error_response = json.loads(e.body)
+        return jsonify({
+            'error': 'Plaid API error',
+            'details': error_response.get('error_message', 'Unknown Plaid error')
+        }), 500
 
 @app.route('/get_transactions', methods=['GET'])
 @api_error_handler
