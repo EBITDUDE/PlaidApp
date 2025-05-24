@@ -380,19 +380,6 @@ function deleteTransaction(txId, modal) {
 function loadTransactions() {
     console.log("Loading transactions...");
 
-    // Check for authentication errors
-    if (response.status === 401) {
-        return response.json().then(data => {
-            if (data.error_code === 'ITEM_LOGIN_REQUIRED') {
-                if (typeof window.showReauthenticationPrompt === 'function') {
-                    window.showReauthenticationPrompt();
-                }
-                throw new Error('Re-authentication required');
-            }
-            throw new Error(data.error || 'Authentication failed');
-        });
-    }
-
     // Add a loading indicator
     const txTable = document.getElementById('transactions-body');
     const txSection = document.getElementById('transactions-section');

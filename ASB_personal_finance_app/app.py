@@ -8,7 +8,8 @@ from plaid.model.country_code import CountryCode
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
 from plaid.model.transactions_get_request import TransactionsGetRequest
 from plaid.model.accounts_get_request import AccountsGetRequest
-from flask import Flask, render_template, jsonify, request
+import werkzeug
+from flask import Flask, render_template, jsonify, request, send_from_directory
 from functools import wraps
 from data_utils import (
     Cache, KeyedCache, load_access_token, save_access_token,
@@ -29,9 +30,24 @@ import logging
 import traceback
 import math
 
+# Initialize Flask app
+app = Flask(__name__, static_url_path='/static', static_folder='static')
+
+# Configure app to prevent reloader issues
+app.config['EXTRA_FILES'] = []
+app.config['RELOADER_TYPE'] = 'stat'
+
 # Set up logging
 LOG_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'finance_app.log')
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+
+# File to store the access token
+TOKEN_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'tokens.json')
+# File to store user-modified transactions
+TRANSACTIONS_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'transactions.json')
+
+# Create the logs_and_json directory if it doesn't exist
+os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
 
 # Configure logging
 logging.basicConfig(
@@ -44,12 +60,49 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Initialize Flask app
-app = Flask(__name__, static_url_path='/static', static_folder='static')
+def verify_app_setup():
+    """Verify that all required directories and files exist"""
+    required_dirs = [
+        os.path.dirname(LOG_FILE),
+        os.path.dirname(TOKEN_FILE),
+        os.path.dirname(TRANSACTIONS_FILE)
+    ]
+    
+    for dir_path in required_dirs:
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+    
+    logger.info(f"Current working directory: {os.getcwd()}")
+    logger.info(f"Flask app initialized successfully")
+
+# Verify setup
+verify_app_setup()
+
+# Handle favicon requests
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
+
+# Improved error handlers
+@app.errorhandler(404)
+def not_found(e):
+    # Log the 404 but don't crash
+    logger.warning(f"404 Not Found: {request.url}")
+    
+    # For API endpoints, return JSON
+    if request.path.startswith('/api/') or request.path.startswith('/get_') or request.path.startswith('/add_'):
+        return jsonify({"error": "Endpoint not found"}), 404
+    
+    # For other requests, you could redirect to home or show a 404 page
+    return jsonify({"error": "Page not found"}), 404
 
 # Log unhandled exceptions
 @app.errorhandler(Exception)
 def handle_exception(e):
+    if isinstance(e, werkzeug.exceptions.NotFound):
+        return not_found(e)
+    
     logger.error(f"Unhandled exception: {str(e)}")
     logger.error(traceback.format_exc())
     return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
@@ -70,6 +123,32 @@ def has_access_token():
     # FIX: Added logging for token check
     logger.debug(f"Access token check: {'exists' if token else 'not found'}")
     return jsonify({'has_token': bool(token)})
+
+@app.route('/test_plaid_connection')
+@api_error_handler
+def test_plaid_connection():
+    """Test if Plaid connection is working"""
+    access_token = load_access_token()
+    if not access_token:
+        return jsonify({'error': 'No access token found'}), 400
+    
+    try:
+        # Try to get accounts as a simple test
+        request = AccountsGetRequest(access_token=access_token)
+        response = client.accounts_get(request)
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Plaid connection is working',
+            'account_count': len(response['accounts'])
+        })
+    except plaid.ApiException as e:
+        error_response = json.loads(e.body)
+        return jsonify({
+            'status': 'error',
+            'error_code': error_response.get('error_code'),
+            'error_message': error_response.get('error_message', 'Unknown error')
+        }), 400
 
 # New route to get connected accounts
 @app.route('/get_accounts', methods=['GET'])
@@ -283,11 +362,15 @@ def create_update_link_token():
 @app.route('/get_transactions', methods=['GET'])
 @api_error_handler
 def get_transactions():
+    logger.info("=== GET TRANSACTIONS CALLED ===")
+    
     # Get query parameters for filtering
     start_date_str = request.args.get('start_date')
     end_date_str = request.args.get('end_date')
     category_filter = request.args.get('category')
     account_filter = request.args.get('account_id')
+    
+    logger.info(f"Parameters: start_date={start_date_str}, end_date={end_date_str}, category={category_filter}, account={account_filter}")
     
     # Parse dates or use defaults
     try:
@@ -2436,7 +2519,12 @@ def index():
 if __name__ == '__main__':
     logger.info("================================")
     logger.info("Starting Personal Finance App")
-    logger.info(f"Environment: {'Development' if app.debug else 'Production'}")
+    
+    # Determine environment
+    debug_mode = os.environ.get('FLASK_ENV', 'development') == 'development'
+    env_name = 'Development' if debug_mode else 'Production'
+    
+    logger.info(f"Environment: {env_name}")
     logger.info(f"Token file: {TOKEN_FILE}")
     logger.info(f"Log file: {LOG_FILE}")
     logger.info("================================")
@@ -2448,4 +2536,4 @@ if __name__ == '__main__':
     else:
         logger.info("No access token file found - bank connection required")
     
-    app.run(debug=True)        
+    app.run(debug=debug_mode)
