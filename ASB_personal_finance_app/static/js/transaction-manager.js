@@ -10,41 +10,32 @@
 let isEventListenerAttached = false;
 
 function setupTransactionEventHandlers() {
-    if (isEventListenerAttached) return; // Skip if already attached
-
     const txTable = document.getElementById('transactions-body');
-    txTable.addEventListener('click', function (event) {
-        const target = event.target;
 
-        // Check if the click was on a delete button
-        if (target.classList.contains('delete-btn')) {
-            handleDeleteButton(target);
-            return;
-        }
+    // Use event delegation for dynamic content
+    EventManager.delegate(txTable, 'click', '.delete-btn', function (e) {
+        e.stopPropagation();
+        handleDeleteButton(this);
+    });
 
-        // Get the transaction row
-        const row = target.closest('tr');
-        if (row && row.classList.contains('transaction-row')) {
-            handleEditTransaction(row);
+    EventManager.delegate(txTable, 'click', '.transaction-row', function (e) {
+        if (!e.target.closest('button')) {
+            handleEditTransaction(this);
         }
     });
 
-    isEventListenerAttached = true; // Mark as attached
-
-    // Cancel add/edit transaction
-    const cancelAddTransaction = document.getElementById('cancel-add-transaction');
-    if (cancelAddTransaction) {
-        cancelAddTransaction.addEventListener('click', function () {
-            // Hide delete button if it exists
+    // Setup form handlers with cleanup
+    const cancelBtn = document.getElementById('cancel-add-transaction');
+    if (cancelBtn) {
+        EventManager.on(cancelBtn, 'click', function () {
             const deleteButton = document.getElementById('delete-transaction-btn');
             if (deleteButton) {
                 deleteButton.style.display = 'none';
             }
 
-            // Reset form mode
-            document.getElementById('add-transaction-form').setAttribute('data-mode', 'add');
+            const form = document.getElementById('add-transaction-form');
+            form.setAttribute('data-mode', 'add');
 
-            // Hide modal
             document.getElementById('add-transaction-modal').style.display = 'none';
         });
     }
@@ -501,73 +492,51 @@ function loadTransactions() {
         });
 }
 
-/**
- * Creates a transaction row using DOM methods instead of innerHTML
- * @param {Object} tx - Transaction object
- * @param {Object} accountsMap - Map of account IDs to account names
- * @returns {HTMLElement} - The created table row
- */
+// Optimized row creation with minimal DOM access
 function createTransactionRow(tx, accountsMap) {
     const row = document.createElement('tr');
-    row.className = 'transaction-row'; // Add class for styling and selection
+    row.className = 'transaction-row';
 
-    // Store all transaction data as attributes
-    row.setAttribute('data-id', tx.id);
-    row.setAttribute('data-category', tx.category);
-    row.setAttribute('data-subcategory', tx.subcategory || '');
-    row.setAttribute('data-date', tx.date);
-    row.setAttribute('data-raw-date', tx.raw_date || tx.date);
-    row.setAttribute('data-type', tx.is_debit ? 'expense' : 'income');
-    row.setAttribute('data-amount', tx.amount);
-    row.setAttribute('data-merchant', tx.merchant);
-    row.setAttribute('data-account-id', tx.account_id || '');
-    row.setAttribute('data-is-debit', tx.is_debit.toString());
+    // Set all attributes at once
+    const attributes = {
+        'data-id': tx.id,
+        'data-category': tx.category,
+        'data-subcategory': tx.subcategory || '',
+        'data-date': tx.date,
+        'data-raw-date': tx.raw_date || tx.date,
+        'data-type': tx.is_debit ? 'expense' : 'income',
+        'data-amount': tx.amount,
+        'data-merchant': tx.merchant,
+        'data-account-id': tx.account_id || '',
+        'data-is-debit': tx.is_debit.toString()
+    };
 
-    // Date cell - remove editable class
-    const dateCell = document.createElement('td');
-    dateCell.textContent = tx.date;
-    row.appendChild(dateCell);
+    Object.entries(attributes).forEach(([key, value]) => {
+        row.setAttribute(key, value);
+    });
 
-    // Amount cell - remove editable class
-    const amountCell = document.createElement('td');
-    if (!tx.is_debit) {
-        amountCell.classList.add('income-amount');
-    }
-    amountCell.textContent = formatAmount(tx);
-    row.appendChild(amountCell);
+    // Create cells efficiently
+    const cells = [
+        tx.date,
+        formatAmount(tx),
+        tx.is_debit ? 'Expense' : 'Income',
+        tx.category,
+        tx.subcategory || '—',
+        tx.merchant,
+        accountsMap[tx.account_id] || 'No Account'
+    ];
 
-    // Type cell
-    const typeCell = document.createElement('td');
-    typeCell.textContent = tx.is_debit ? 'Expense' : 'Income';
-    row.appendChild(typeCell);
+    cells.forEach((content, index) => {
+        const cell = document.createElement('td');
+        cell.textContent = content;
 
-    // Category cell - remove editable class
-    const categoryCell = document.createElement('td');
-    categoryCell.textContent = tx.category;
-    row.appendChild(categoryCell);
+        // Add special styling for amount column
+        if (index === 1 && !tx.is_debit) {
+            cell.classList.add('income-amount');
+        }
 
-    // Subcategory cell - remove editable class
-    const subcategoryCell = document.createElement('td');
-    subcategoryCell.textContent = tx.subcategory || '—';
-    row.appendChild(subcategoryCell);
-
-    // Merchant cell - remove editable class
-    const merchantCell = document.createElement('td');
-    merchantCell.textContent = tx.merchant;
-    row.appendChild(merchantCell);
-
-    // Account cell
-    const accountCell = document.createElement('td');
-    let accountDisplay;
-    if (tx.account_id) {
-        accountDisplay = accountsMap[tx.account_id] ||
-            tx.account_name ||
-            `Account ${tx.account_id.substring(0, 8)}...`;
-    } else {
-        accountDisplay = 'No Account';
-    }
-    accountCell.textContent = accountDisplay;
-    row.appendChild(accountCell);
+        row.appendChild(cell);
+    });
 
     return row;
 }
@@ -580,77 +549,87 @@ function createTransactionRow(tx, accountsMap) {
  */
 function displayTransactions(transactions, callback) {
     console.log('Displaying transactions:', {
-        totalTransactions: transactions.length,
-        paginationDetails: window.lastPaginationData
+        totalTransactions: transactions.length
     });
 
     const txTable = document.getElementById('transactions-body');
     const txSection = document.getElementById('transactions-section');
-    const categoryFilter = document.getElementById('category-filter');
 
-    if (transactions.length > 0) {
-        txSection.style.display = 'block';
+    if (transactions.length === 0) {
+        txTable.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; color: #666; padding: 20px;">
+                    No transactions available. Connect a bank account or add manual transactions.
+                </td>
+            </tr>
+        `;
+        if (callback) callback();
+        return;
+    }
 
-        // Populate the category filter dropdown
-        const categories = [...new Set(transactions.map(tx => tx.category))].sort();
-        categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+    txSection.style.display = 'block';
 
-        // Use a document fragment for batch DOM updates
-        const categoryFragment = document.createDocumentFragment();
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category;
-            option.textContent = category;
-            categoryFragment.appendChild(option);
-        });
-        categoryFilter.appendChild(categoryFragment);
+    // Use requestAnimationFrame for smooth rendering
+    requestAnimationFrame(() => {
+        // Create document fragment for batch DOM updates
+        const fragment = document.createDocumentFragment();
+        const accountsMap = AppState.getAllAccounts().reduce((map, acc) => {
+            map[acc.id] = acc.name;
+            return map;
+        }, {});
 
-        const accountsPromise = window.accountsMap && Object.keys(window.accountsMap).length > 0
-            ? Promise.resolve(window.accountsMap)
-            : fetchAndStoreAccounts();
+        // Process transactions in chunks to avoid blocking
+        const chunkSize = 100;
+        let index = 0;
 
-        // Fetch accounts before showing transactions
-        return accountsPromise.then(accountsMap => {
-            // Create a document fragment for transaction rows
-            const fragment = document.createDocumentFragment();
+        function processChunk() {
+            const chunk = transactions.slice(index, index + chunkSize);
 
-            // Create and add each transaction row to the fragment
-            transactions.forEach((tx) => {
+            chunk.forEach(tx => {
                 const row = createTransactionRow(tx, accountsMap);
                 fragment.appendChild(row);
             });
 
-            // Clear previous content
-            txTable.innerHTML = '';
+            index += chunkSize;
 
-            // Add all rows at once
-            txTable.appendChild(fragment);
+            if (index < transactions.length) {
+                // Process next chunk on next frame
+                requestAnimationFrame(processChunk);
+            } else {
+                // All chunks processed, update DOM once
+                txTable.innerHTML = '';
+                txTable.appendChild(fragment);
 
-            // Call the callback if provided
-            if (typeof callback === 'function') {
-                callback();
+                // Update category filter efficiently
+                updateCategoryFilter(transactions);
+
+                if (callback) callback();
             }
-        });
-    } else {
-        // Handle empty case
-        txTable.innerHTML = '';
-
-        const emptyRow = document.createElement('tr');
-        const emptyCell = document.createElement('td');
-        emptyCell.setAttribute('colspan', '6');
-        emptyCell.style.textAlign = 'center';
-        emptyCell.style.color = '#666';
-        emptyCell.style.padding = '20px';
-        emptyCell.textContent = 'No transactions available. Connect a bank account or add manual transactions.';
-
-        emptyRow.appendChild(emptyCell);
-        txTable.appendChild(emptyRow);
-
-        // Call the callback even in the empty case
-        if (typeof callback === 'function') {
-            callback();
         }
-    }
+
+        processChunk();
+    });
+}
+
+function updateCategoryFilter(transactions) {
+    const categoryFilter = document.getElementById('category-filter');
+
+    // Use Set for unique categories
+    const categories = new Set();
+    transactions.forEach(tx => {
+        if (tx.category) categories.add(tx.category);
+    });
+
+    // Convert to sorted array
+    const sortedCategories = Array.from(categories).sort();
+
+    // Build options HTML at once
+    const optionsHTML = ['<option value="all">All Categories</option>'];
+    sortedCategories.forEach(category => {
+        optionsHTML.push(`<option value="${category}">${category}</option>`);
+    });
+
+    categoryFilter.innerHTML = optionsHTML.join('');
 }
 
 /**

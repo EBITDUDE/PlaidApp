@@ -12,7 +12,7 @@ import werkzeug
 from flask import Flask, render_template, jsonify, request, send_from_directory
 from functools import wraps
 from data_utils import (
-    Cache, KeyedCache, load_access_token, save_access_token,
+    LRUCache, KeyedLRUCache, load_access_token, save_access_token,
     load_saved_transactions, save_transactions, parse_date,
     load_rules, save_rules, apply_rules_to_transaction,
     apply_rule_to_past_transactions,
@@ -21,6 +21,7 @@ from data_utils import (
     _rules_cache
 )
 from error_utils import api_error_handler, AppError, AuthenticationError, ValidationError, ResourceNotFoundError, PlaidApiError
+from validation_utils import InputValidator, ValidationError
 import datetime
 import time
 import json
@@ -364,195 +365,117 @@ def create_update_link_token():
 def get_transactions():
     logger.info("=== GET TRANSACTIONS CALLED ===")
     
-    # Get query parameters for filtering
+    # Parse query parameters
     start_date_str = request.args.get('start_date')
     end_date_str = request.args.get('end_date')
     category_filter = request.args.get('category')
     account_filter = request.args.get('account_id')
     
-    logger.info(f"Parameters: start_date={start_date_str}, end_date={end_date_str}, category={category_filter}, account={account_filter}")
-    
-    # Parse dates or use defaults
+    # Parse dates with validation
     try:
-        if start_date_str:
-            start_date = parse_date(start_date_str)
-        else:
-            start_date = (datetime.datetime.now() - datetime.timedelta(days=90)).date()
-            
-        if end_date_str:
-            end_date = parse_date(end_date_str)
-        else:
-            end_date = datetime.datetime.now().date()
+        start_date = parse_date(start_date_str) if start_date_str else (datetime.datetime.now() - datetime.timedelta(days=90)).date()
+        end_date = parse_date(end_date_str) if end_date_str else datetime.datetime.now().date()
     except ValueError as e:
-        return jsonify({
-            'error': f'Invalid date format: {str(e)}',
-            'transactions': []
-        }), 400
+        return jsonify({'error': f'Invalid date format: {str(e)}', 'transactions': []}), 400
     
-    # Create a cache key based on parameters
+    # Create cache key
     cache_key = f"txn_{start_date}_{end_date}_{category_filter}_{account_filter}"
-    cached_transactions = _transaction_cache.get(cache_key)
-
-    # Load saved transactions here, before the if-else block
-    saved_transactions = load_saved_transactions()
     
-    if cached_transactions:
+    # Check cache first
+    cached_result = _transaction_cache.get(cache_key)
+    if cached_result:
         logger.info(f"Using cached transactions for {cache_key}")
-        transaction_list = cached_transactions
-    else:
-        # Verify access token
-        access_token = load_access_token()
-        if not access_token:
-            return jsonify({
-                'error': 'No access token available. Please connect a bank account.',
-                'transactions': []
-            }), 400
+        return jsonify(cached_result)
+    
+    # Verify access token
+    access_token = load_access_token()
+    if not access_token:
+        return jsonify({'error': 'No access token available. Please connect a bank account.', 'transactions': []}), 400
+    
+    # Load and pre-process saved transactions once
+    saved_transactions = load_saved_transactions()
+    deleted_ids = {tx_id for tx_id, tx_data in saved_transactions.items() if tx_data.get('deleted', False)}
+    manual_txs = {tx_id: tx_data for tx_id, tx_data in saved_transactions.items() 
+                  if tx_data.get('manual', False) and not tx_data.get('deleted', False)}
+    modifications = {tx_id: tx_data for tx_id, tx_data in saved_transactions.items() 
+                     if not tx_data.get('manual', False) and not tx_data.get('deleted', False)}
+    
+    transaction_list = []
+    
+    # Process Plaid transactions efficiently
+    try:
+        transactions_request = TransactionsGetRequest(
+            access_token=access_token,
+            start_date=start_date,
+            end_date=end_date
+        )
+        
+        response = client.transactions_get(transactions_request)
+        plaid_txs = response.get('transactions', [])
+        
+        # Single pass through Plaid transactions
+        for tx in plaid_txs:
+            # Safety check to ensure tx is not None
+            if tx is None:
+                logger.warning("Encountered a None transaction object, skipping")
+                continue
 
-        # Pre-process saved transactions for efficient lookups
-        deleted_tx_ids = set()
-        modified_tx_map = {}
-        manual_transactions = []
-        
-        for tx_id, tx_data in saved_transactions.items():
-            if tx_data.get('deleted', False):
-                deleted_tx_ids.add(tx_id)
-            elif tx_data.get('manual', False):
-                manual_transactions.append((tx_id, tx_data))
-            else:
-                modified_tx_map[tx_id] = tx_data
-        
-        transaction_list = []
-        
-        # Process Plaid transactions if we have an access token
-        try:
-            transactions_request = TransactionsGetRequest(
-                access_token=access_token,
-                start_date=start_date,
-                end_date=end_date
-            )
-            try:
-                response = client.transactions_get(transactions_request)
-                plaid_txs = response.get('transactions', [])
-                logger.info(f"Total transactions retrieved from Plaid: {len(plaid_txs)}")
-                
-                # Process each transaction in a single pass
-                for tx in plaid_txs:
+            tx_id = getattr(tx, 'transaction_id', None)
+            if tx_id in deleted_ids:
+                continue
+
+            # Handle the category safely
+            category = getattr(tx, 'category', None)
+            category = category if category is not None else ['Uncategorized']
+            tx_obj = {
+                'id': tx_id,
+                'date': getattr(tx, 'date', datetime.datetime.now()).strftime("%m/%d/%Y"),
+                'raw_date': getattr(tx, 'date', datetime.datetime.now()).strftime("%Y-%m-%d"),
+                'amount': abs(float(getattr(tx, 'amount', 0))),
+                'is_debit': float(getattr(tx, 'amount', 0)) > 0,
+                'merchant': getattr(tx, 'name', 'Unknown'),
+                'category': category[0],  # Now safe to subscript
+                'subcategory': '',
+                'account_id': getattr(tx, 'account_id', ''),
+                'manual': False
+            }
+            
+            # Apply modifications if they exist
+            if tx_id in modifications:
+                mods = modifications[tx_id]
+                for key in ['category', 'subcategory', 'merchant', 'amount', 'is_debit']:
+                    if key in mods:
+                        tx_obj[key] = mods[key]
+                if 'date' in mods:
                     try:
-                        # Skip if manually deleted
-                        tx_id = getattr(tx, 'transaction_id', None)
-                        if tx_id in deleted_tx_ids:
-                            continue
-                        
-                        # Extract basic transaction details
-                        tx_date = getattr(tx, 'date', None)
-                        tx_amount = getattr(tx, 'amount', 0.0)
-                        tx_name = getattr(tx, 'name', 'Unknown')
-                        tx_category = getattr(tx, 'category', [])
-                        tx_account_id = getattr(tx, 'account_id', '')
-                        
-                        # Normalize date
-                        if not isinstance(tx_date, datetime.date):
-                            if isinstance(tx_date, str):
-                                try:
-                                    tx_date = parse_date(tx_date)
-                                except ValueError:
-                                    logger.warning(f"Invalid date format: {tx_date}")
-                                    tx_date = datetime.datetime.now().date()
-                            else:
-                                logger.warning(f"Using current date for transaction {tx_id}: invalid date type {type(tx_date)}")
-                                tx_date = datetime.datetime.now().date()
-                        
-                        # Set initial values
-                        category = tx_category[0] if tx_category else 'Uncategorized'
-                        amount = abs(float(tx_amount))
-                        is_debit = float(tx_amount) > 0
-                        subcategory = ''
-                        
-                        # Apply any saved modifications
-                        if tx_id in modified_tx_map:
-                            mods = modified_tx_map[tx_id]
-                            
-                            if 'category' in mods:
-                                category = mods['category']
-                            if 'subcategory' in mods:
-                                subcategory = mods['subcategory']
-                            if 'merchant' in mods:
-                                tx_name = mods['merchant']
-                            if 'date' in mods:
-                                try:
-                                    tx_date = parse_date(mods['date'])
-                                except ValueError:
-                                    logger.debug(f"Invalid saved date format for {tx_id}: {mods['date']}")
-                            if 'amount' in mods:
-                                amount = abs(float(mods['amount']))
-                            if 'is_debit' in mods:
-                                is_debit = mods['is_debit']
-                        
-                        # Add to transaction list
-                        transaction_list.append({
-                            'id': tx_id,
-                            'date': tx_date.strftime("%m/%d/%Y"),
-                            'raw_date': tx_date.strftime("%Y-%m-%d"),
-                            'amount': amount,
-                            'is_debit': is_debit,
-                            'merchant': tx_name,
-                            'category': category,
-                            'subcategory': subcategory,
-                            'account_id': tx_account_id,
-                            'manual': False
-                        })
-                        
-                    except Exception as tx_error:
-                        logger.error(f"Error processing transaction: {str(tx_error)}")
-                        logger.error(traceback.format_exc())
-                
-            except plaid.ApiException as e:
-                error_response = json.loads(e.body)
-                error_code = error_response.get('error_code')
-                
-                # Check for login required error
-                if error_code == 'ITEM_LOGIN_REQUIRED':
-                    logger.warning("Bank login required for transactions - credentials have changed")
-                    return jsonify({
-                        'error': 'Bank login required',
-                        'error_code': 'ITEM_LOGIN_REQUIRED',
-                        'message': 'Your bank credentials have changed. Please re-authenticate.',
-                        'transactions': []
-                    }), 401
-                
-                # Re-raise for other errors
-                raise e
-                    
-        except Exception as plaid_error:
-            logger.error(f"Plaid Transaction Fetch Error: {str(plaid_error)}")
-            logger.error(traceback.format_exc())
+                        date_obj = parse_date(mods['date'])
+                        tx_obj['date'] = date_obj.strftime("%m/%d/%Y")
+                        tx_obj['raw_date'] = date_obj.strftime("%Y-%m-%d")
+                    except ValueError:
+                        pass
+            
+            transaction_list.append(tx_obj)
+            
+    except plaid.ApiException as e:
+        error_response = json.loads(e.body)
+        if error_response.get('error_code') == 'ITEM_LOGIN_REQUIRED':
             return jsonify({
-                'error': f'Failed to fetch transactions: {str(plaid_error)}',
+                'error': 'Bank login required',
+                'error_code': 'ITEM_LOGIN_REQUIRED',
+                'message': 'Your bank credentials have changed. Please re-authenticate.',
                 'transactions': []
-            }), 500
-        
-        # Add manual transactions
-        for tx_id, tx_data in manual_transactions:
-            try:
-                # Parse date and validate
-                date_str = tx_data.get('date')
-                if not date_str:
-                    continue
-                
-                try:
-                    tx_date = parse_date(date_str)
-                    # Apply date filter to manual transactions
-                    if tx_date < start_date or tx_date > end_date:
-                        continue
-                except ValueError:
-                    logger.warning(f"Invalid date format for manual transaction {tx_id}: {date_str}")
-                    continue
-                
-                # Add manual transaction to list
+            }), 401
+        raise e
+    
+    # Add manual transactions efficiently
+    for tx_id, tx_data in manual_txs.items():
+        try:
+            date_obj = parse_date(tx_data.get('date', ''))
+            if start_date <= date_obj <= end_date:
                 transaction_list.append({
                     'id': tx_id,
-                    'date': tx_date.strftime("%m/%d/%Y"),
-                    'raw_date': tx_date.strftime("%Y-%m-%d"),
+                    'date': date_obj.strftime("%m/%d/%Y"),
+                    'raw_date': date_obj.strftime("%Y-%m-%d"),
                     'amount': abs(float(tx_data.get('amount', 0))),
                     'is_debit': tx_data.get('is_debit', True),
                     'merchant': tx_data.get('merchant', 'Unknown'),
@@ -561,67 +484,46 @@ def get_transactions():
                     'account_id': tx_data.get('account_id', ''),
                     'manual': True
                 })
-                
-            except Exception as manual_tx_error:
-                logger.error(f"Error processing manual transaction: {str(manual_tx_error)}")
-                
-        # Cache the result before filtering by category/account
-        _transaction_cache.set(cache_key, transaction_list)
+        except (ValueError, TypeError):
+            logger.warning(f"Invalid date for manual transaction {tx_id}")
     
-    # Apply category and account filters
-    filtered_list = transaction_list
+    # Apply filters
     if category_filter:
-        filtered_list = [tx for tx in filtered_list if tx['category'] == category_filter]
+        transaction_list = [tx for tx in transaction_list if tx['category'] == category_filter]
     if account_filter:
-        filtered_list = [tx for tx in filtered_list if tx['account_id'] == account_filter]
+        transaction_list = [tx for tx in transaction_list if tx['account_id'] == account_filter]
     
-    # Sort transactions by date (newest first)
-    filtered_list.sort(key=lambda x: x.get('raw_date', ''), reverse=True)
-
-    # Apply rules to transactions that don't have a category set already
+    # Sort by date
+    transaction_list.sort(key=lambda x: x['raw_date'], reverse=True)
+    
+    # Apply rules if needed
     rules = load_rules()
     if rules:
         for tx in transaction_list:
-            # Only apply rules to transactions without manually set categories
-            tx_id = tx.get('id')
-            if tx_id not in saved_transactions or 'category' not in saved_transactions[tx_id]:
-                try:
-                    tx_data = {
-                        'merchant': tx.get('merchant'),
-                        'amount': tx.get('amount'),
-                        'is_debit': tx.get('is_debit', True)
-                    }
-                    # Get original category info
-                    original_category = tx.get('category', '')
-                    original_subcategory = tx.get('subcategory', '')
-                    
-                    if apply_rules_to_transaction(tx_data, rules, original_category, original_subcategory):
-                        # Update transaction with rule-applied category
-                        tx['category'] = tx_data['category']
-                        tx['subcategory'] = tx_data['subcategory']
-                except Exception as e:
-                    logger.error(f"Error applying rules to transaction {tx_id}: {str(e)}")
-                    # Continue processing other transactions
-                    continue
+            if tx['id'] not in saved_transactions or 'category' not in saved_transactions[tx['id']]:
+                apply_rules_to_transaction(tx, rules, tx.get('category'), tx.get('subcategory'))
     
-    # Apply pagination
+    # Pagination
     page = request.args.get('page', default=1, type=int)
     page_size = request.args.get('page_size', default=50, type=int)
-    
-    total_count = len(filtered_list)
+    total_count = len(transaction_list)
     start_idx = (page - 1) * page_size
     end_idx = min(start_idx + page_size, total_count)
     
-    # Return paginated results
-    return jsonify({
-        'transactions': filtered_list[start_idx:end_idx],
+    result = {
+        'transactions': transaction_list[start_idx:end_idx],
         'pagination': {
             'total_count': total_count,
             'page': page,
             'page_size': page_size,
-            'total_pages': math.ceil(total_count / page_size)
+            'total_pages': math.ceil(total_count / page_size) if page_size > 0 else 1
         }
-    })
+    }
+    
+    # Cache the result
+    _transaction_cache.set(cache_key, result)
+    
+    return jsonify(result)
     
 # New route to update a transaction
 @app.route('/update_transaction', methods=['POST'])
@@ -2252,7 +2154,7 @@ def debug_info():
 @api_error_handler
 def get_category_counts():
     # Check cache first
-    cached_counts = _category_counts_cache.get()
+    cached_counts = _category_counts_cache.get('category_counts')
     if cached_counts:
         return jsonify(cached_counts)
     
@@ -2343,7 +2245,7 @@ def get_category_counts():
     }
     
     # Store in cache
-    _category_counts_cache.set(result)
+    _category_counts_cache.set('category_counts', result)
     
     return jsonify(result)
 

@@ -3,6 +3,8 @@ import json
 import time
 import logging
 import datetime
+from collections import OrderedDict
+from threading import Lock
 
 logger = logging.getLogger(__name__)
 
@@ -11,76 +13,148 @@ TOKEN_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_jso
 TRANSACTIONS_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'transactions.json')
 RULES_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'rules.json')
 
-class Cache:
+class LRUCache:
     """
-    Simple time-based cache with expiration.
+    Thread-safe LRU cache with size limits and TTL support.
     """
-    def __init__(self, expiration_seconds=300):  # Default: 5 minutes
-        self.data = None
-        self.timestamp = 0
-        self.expiration_seconds = expiration_seconds
-
-    def get(self):
-        """Return cached data if not expired."""
-        if self.data and time.time() - self.timestamp <= self.expiration_seconds:
-            return self.data
-        return None
-
-    def set(self, data):
-        """Store data in cache with current timestamp."""
-        self.data = data
-        self.timestamp = time.time()
-        return data
-
-    def clear(self):
-        """Clear the cache."""
-        self.data = None
-        self.timestamp = 0
-
-class KeyedCache(Cache):
-    """
-    Cache with multiple key support
-    """
-    def __init__(self, expiration_seconds=300):
-        super().__init__(expiration_seconds)
-        self.data = {}  # Dictionary instead of single value
+    def __init__(self, max_size=1000, ttl_seconds=300):
+        self.max_size = max_size
+        self.ttl_seconds = ttl_seconds
+        self.cache = OrderedDict()
+        self.timestamps = {}
+        self.lock = Lock()
+        self.hits = 0
+        self.misses = 0
     
     def get(self, key):
-        """Get cached data for key if not expired"""
-        cache_data = super().get()
-        if not cache_data or not isinstance(cache_data, dict):
-            return None
-        return cache_data.get(key)
+        """Get value from cache if not expired."""
+        with self.lock:
+            if key not in self.cache:
+                self.misses += 1
+                return None
+            
+            # Check expiration
+            if self._is_expired(key):
+                self._remove(key)
+                self.misses += 1
+                return None
+            
+            # Move to end (most recently used)
+            self.cache.move_to_end(key)
+            self.hits += 1
+            return self.cache[key]
     
     def set(self, key, value):
-        """Set data for key in cache"""
-        cache_data = super().get() or {}
-        if not isinstance(cache_data, dict):
-            cache_data = {}
-        cache_data[key] = value
-        super().set(cache_data)
-        return value
+        """Store value in cache with LRU eviction."""
+        with self.lock:
+            # Remove if already exists
+            if key in self.cache:
+                self._remove(key)
+            
+            # Add to cache
+            self.cache[key] = value
+            self.timestamps[key] = time.time()
+            
+            # Evict oldest if over size limit
+            while len(self.cache) > self.max_size:
+                oldest_key = next(iter(self.cache))
+                self._remove(oldest_key)
+                logger.debug(f"Evicted {oldest_key} from cache (size limit)")
     
     def delete(self, key):
-        """Remove a key from cache"""
-        cache_data = super().get()
-        if cache_data and isinstance(cache_data, dict) and key in cache_data:
-            del cache_data[key]
-            super().set(cache_data)
+        """Remove key from cache."""
+        with self.lock:
+            self._remove(key)
+    
+    def clear(self):
+        """Clear all cache entries."""
+        with self.lock:
+            self.cache.clear()
+            self.timestamps.clear()
+            logger.info(f"Cache cleared. Stats: {self.hits} hits, {self.misses} misses")
+    
+    def _is_expired(self, key):
+        """Check if cache entry is expired."""
+        if key not in self.timestamps:
+            return True
+        return time.time() - self.timestamps[key] > self.ttl_seconds
+    
+    def _remove(self, key):
+        """Remove key from cache and timestamps."""
+        if key in self.cache:
+            del self.cache[key]
+        if key in self.timestamps:
+            del self.timestamps[key]
+    
+    def get_stats(self):
+        """Get cache statistics."""
+        with self.lock:
+            total_requests = self.hits + self.misses
+            hit_rate = (self.hits / total_requests * 100) if total_requests > 0 else 0
+            return {
+                'size': len(self.cache),
+                'max_size': self.max_size,
+                'hits': self.hits,
+                'misses': self.misses,
+                'hit_rate': hit_rate
+            }
 
-# Initialize caches
-_access_token_cache = Cache(expiration_seconds=3600)  # 1 hour  
-_saved_transactions_cache = Cache(expiration_seconds=600)  # 10 minutes
-_account_names_cache = Cache(expiration_seconds=1800)  # 30 minutes
-_transaction_cache = KeyedCache(expiration_seconds=300)  # 5 minutes
-_category_counts_cache = Cache(expiration_seconds=300)  # 5 minutes
-_rules_cache = Cache(expiration_seconds=600)  # 10 minutes
+class KeyedLRUCache(LRUCache):
+    """
+    LRU cache with support for multiple keys per cache entry.
+    """
+    def __init__(self, max_size=1000, ttl_seconds=300):
+        super().__init__(max_size, ttl_seconds)
+    
+    def get(self, primary_key, secondary_key=None):
+        """Get value with optional secondary key."""
+        if secondary_key is None:
+            return super().get(primary_key)
+        
+        composite_key = f"{primary_key}:{secondary_key}"
+        return super().get(composite_key)
+    
+    def set(self, primary_key, value, secondary_key=None):
+        """Set value with optional secondary key."""
+        if secondary_key is None:
+            return super().set(primary_key, value)
+        
+        composite_key = f"{primary_key}:{secondary_key}"
+        return super().set(composite_key, value)
+    
+    def delete_pattern(self, pattern):
+        """Delete all keys matching pattern."""
+        with self.lock:
+            keys_to_delete = [k for k in self.cache if pattern in k]
+            for key in keys_to_delete:
+                self._remove(key)
+            return len(keys_to_delete)
+
+# Initialize caches with appropriate sizes and TTLs
+_access_token_cache = LRUCache(max_size=10, ttl_seconds=3600)  # 1 hour
+_saved_transactions_cache = LRUCache(max_size=100, ttl_seconds=600)  # 10 minutes
+_account_names_cache = LRUCache(max_size=50, ttl_seconds=1800)  # 30 minutes
+_transaction_cache = KeyedLRUCache(max_size=500, ttl_seconds=300)  # 5 minutes
+_category_counts_cache = LRUCache(max_size=50, ttl_seconds=300)  # 5 minutes
+_rules_cache = LRUCache(max_size=100, ttl_seconds=600)  # 10 minutes
+
+# Add cache statistics endpoint
+def get_cache_statistics():
+    """Get statistics for all caches."""
+    return {
+        'access_token': _access_token_cache.get_stats(),
+        'saved_transactions': _saved_transactions_cache.get_stats(),
+        'account_names': _account_names_cache.get_stats(),
+        'transactions': _transaction_cache.get_stats(),
+        'category_counts': _category_counts_cache.get_stats(),
+        'rules': _rules_cache.get_stats()
+    }
 
 def load_access_token():
     """
     Load the Plaid access token from cache or file.
     """
-    token = _access_token_cache.get()
+    token = _access_token_cache.get('access_token')
     if token:
         return token
     if os.path.exists(TOKEN_FILE):
@@ -88,7 +162,8 @@ def load_access_token():
             with open(TOKEN_FILE, 'r') as f:
                 data = json.load(f)
                 token = data.get('access_token')
-                _access_token_cache.set(token)
+                if token:
+                    _access_token_cache.set('access_token', token)
                 return token
         except Exception as e:
             logger.error(f"Error loading access token: {str(e)}")
@@ -98,7 +173,7 @@ def save_access_token(access_token):
     """
     Save the Plaid access token to cache and file.
     """
-    _access_token_cache.set(access_token)
+    _access_token_cache.set('access_token', access_token)
     try:
         os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
         with open(TOKEN_FILE, 'w') as f:
@@ -112,26 +187,26 @@ def load_saved_transactions():
     """
     Load saved transactions (manual or modified) from cache or file.
     """
-    transactions = _saved_transactions_cache.get()
+    transactions = _saved_transactions_cache.get('saved_transactions')
     if transactions:
         return transactions
     if os.path.exists(TRANSACTIONS_FILE):
         try:
             with open(TRANSACTIONS_FILE, 'r') as f:
                 transactions = json.load(f)
-                _saved_transactions_cache.set(transactions)
+                _saved_transactions_cache.set('saved_transactions', transactions)
                 return transactions
         except Exception as e:
             logger.error(f"Error loading transactions: {str(e)}")
     transactions = {}
-    _saved_transactions_cache.set(transactions)
+    _saved_transactions_cache.set('saved_transactions', transactions)
     return transactions
 
 def save_transactions(transactions):
     """
     Save transactions to cache and file.
     """
-    _saved_transactions_cache.set(transactions)
+    _saved_transactions_cache.set('saved_transactions', transactions)
     try:
         os.makedirs(os.path.dirname(TRANSACTIONS_FILE), exist_ok=True)
         with open(TRANSACTIONS_FILE, 'w') as f:
@@ -145,26 +220,26 @@ def load_rules():
     """
     Load transaction categorization rules from cache or file.
     """
-    rules = _rules_cache.get()
+    rules = _rules_cache.get('rules')  # Use 'rules' as the key
     if rules:
         return rules
     if os.path.exists(RULES_FILE):
         try:
             with open(RULES_FILE, 'r') as f:
                 rules = json.load(f)
-                _rules_cache.set(rules)
+                _rules_cache.set('rules', rules)  # Set with key and value
                 return rules
         except Exception as e:
             logger.error(f"Error loading rules: {str(e)}")
     rules = {}
-    _rules_cache.set(rules)
+    _rules_cache.set('rules', rules)  # Set with key and value
     return rules
 
 def save_rules(rules):
     """
     Save transaction categorization rules to cache and file.
     """
-    _rules_cache.set(rules)
+    _rules_cache.set('rules', rules)  # Use 'rules' as key, rules as value
     try:
         os.makedirs(os.path.dirname(RULES_FILE), exist_ok=True)
         with open(RULES_FILE, 'w') as f:
