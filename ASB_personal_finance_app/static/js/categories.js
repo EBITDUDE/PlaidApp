@@ -15,10 +15,10 @@ document.addEventListener('DOMContentLoaded', function () {
     loadCategories();
 
     // Add category button handler
-    document.getElementById('add-category-btn').addEventListener('click', addCategory);
+    EventManager.on(document.getElementById('add-category-btn'), 'click', addCategory);
 
     // Add category on Enter key
-    document.getElementById('new-category').addEventListener('keypress', function (e) {
+    EventManager.on(document.getElementById('new-category'), 'keypress', function (e) {
         if (e.key === 'Enter') {
             addCategory();
         }

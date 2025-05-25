@@ -5,13 +5,8 @@
  */
 
 // Global variables
-window.accountsMap = {};
 let currentDate = new Date();
 let calendarDate = new Date();
-
-// Global objects for pagination and filtering
-let paginator;
-let transactionFilter;
 
 /**
  * Creates a debounced function that delays invoking func until after wait milliseconds
@@ -72,7 +67,7 @@ function checkAccessTokenAndLoadData() {
  */
 function setupEventListeners() {
     // Set up Plaid Link button
-    document.getElementById('link-button').addEventListener('click', initiatePlaidConnection);
+    EventManager.on(document.getElementById('link-button'), 'click', initiatePlaidConnection);
 
     // Set up refresh transactions button
     const transactionsButton = document.getElementById('transactions-button');
@@ -102,7 +97,7 @@ function setupEventListeners() {
  * Sets up filter event listeners for transactions
  */
 function setupFilterEventListeners() {
-    document.getElementById('date-filter').addEventListener('change', function () {
+    EventManager.on(document.getElementById('date-filter'), 'change', function () {
         if (this.value === 'custom') {
             // Show custom date dialog
             showCustomDateModal();
@@ -112,27 +107,27 @@ function setupFilterEventListeners() {
         }
     });
 
-    document.getElementById('category-filter').addEventListener('change', function () {
+    EventManager.on(document.getElementById('category-filter'), 'change', function () {
         if (transactionFilter) transactionFilter.applyFilters();
         updateSubcategoryDropdown(this.value);
     });
 
-    document.getElementById('subcategory-filter').addEventListener('change', function () {
+    EventManager.on(document.getElementById('subcategory-filter'), 'change', function () {
         if (transactionFilter) transactionFilter.applyFilters();
     });
 
-    document.getElementById('type-filter').addEventListener('change', function () {
+    EventManager.on(document.getElementById('type-filter'), 'change', function () {
         if (transactionFilter) transactionFilter.applyFilters();
     });
 
-    document.getElementById('transaction-search').addEventListener('keyup',
+    EventManager.on(document.getElementById('transaction-search'), 'keyup',
         debounce(function () {
             if (transactionFilter) transactionFilter.applyFilters();
         }, 300)
     );
 
     // UPDATED: Change this to use updateVisibility instead of reloading transactions
-    document.getElementById('page-size').addEventListener('change', function () {
+    EventManager.on(document.getElementById('page-size'), 'change', function () {
         // If we have the paginator initialized, update its page size
         if (paginator) {
             const newSize = this.value === 'all' ? 10000 : parseInt(this.value);
@@ -213,12 +208,7 @@ function setupTransactionEventListeners() {
     // Handle add transaction form submission
     const addTransactionForm = document.getElementById('add-transaction-form');
     if (addTransactionForm) {
-        // Remove any existing event listeners to avoid duplicates
-        const newForm = addTransactionForm.cloneNode(true);
-        addTransactionForm.parentNode.replaceChild(newForm, addTransactionForm);
-
-        // Add new event listener using our handler from transaction-manager.js
-        newForm.addEventListener('submit', handleTransactionFormSubmit);
+        EventManager.on(addTransactionForm, 'submit', handleTransactionFormSubmit);
     }
 
     // Close modal if clicked outside
@@ -250,6 +240,18 @@ function setupCompactViewToggle() {
             document.body.classList.add('compact-view');
         }
     }
+}
+
+function cleanupBeforeNavigation() {
+    // Clean up all event listeners for components that might be removed
+    const transactionTable = document.getElementById('transactions-table');
+    if (transactionTable) {
+        EventManager.cleanupElement(transactionTable);
+    }
+
+    // Clean up any other dynamic elements
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => EventManager.cleanupElement(modal));
 }
 
 /**
@@ -430,8 +432,8 @@ function setupPaginationAndFiltersAndApply() {
         paginator: paginator // Connect filter to paginator
     });
 
-    // Make transactionFilter globally available
-    window.transactionFilter = transactionFilter;
+    AppState.registerComponent('transactionFilter', transactionFilter);
+    AppState.registerComponent('paginator', paginator);
 
     // Apply filters immediately
     transactionFilter.applyFilters();

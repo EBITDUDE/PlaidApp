@@ -111,7 +111,7 @@ function fetchAndStoreAccounts(forceRefresh = false) {
                     accountsCache.timestamp = now;
 
                     // Store in global variable for compatibility with existing code
-                    window.accountsMap = accountsMap;
+                    AppState.setAccounts(data.accounts || []);
                     return accountsMap;
                 });
         })

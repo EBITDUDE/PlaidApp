@@ -530,6 +530,13 @@ def get_transactions():
 @api_error_handler
 def update_transaction():
     tx_data = request.json
+    
+    # Validate the transaction data
+    try:
+        InputValidator.validate_transaction(tx_data, is_update=True)
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
+    
     tx_id = tx_data.get('id')
     
     if not tx_id:
@@ -590,6 +597,12 @@ def update_transaction():
 @api_error_handler
 def add_transaction():
     tx_data = request.json
+    
+    # Use InputValidator instead of manual validation
+    try:
+        InputValidator.validate_transaction(tx_data, is_update=False)
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
     
     # Validate required fields
     required_fields = ['date', 'amount', 'category', 'merchant']
@@ -1375,6 +1388,12 @@ def export_transactions():
 @api_error_handler
 def add_category():
     data = request.json
+    
+    try:
+        InputValidator.validate_category(data)
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
+    
     new_category = data.get('category')
     
     if not new_category:

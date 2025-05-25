@@ -348,8 +348,7 @@ function initCategoryDropdown() {
         required: true
     });
 
-    // Store the component in a global variable for access from other functions
-    window.categoryComponent = categoryComponent;
+    AppState.registerComponent('categoryComponent', categoryComponent);
 }
 
 /**

@@ -45,47 +45,31 @@ function setupTransactionEventHandlers() {
 function handleTransactionFormSubmit(event) {
     event.preventDefault();
 
-    // Get form values
-    const newDate = document.getElementById('new-date').value;
-    const newAmount = document.getElementById('new-amount').value;
-    const newType = document.getElementById('new-type').value;
-    const newMerchant = document.getElementById('new-merchant').value;
-    const newAccount = document.getElementById('new-account').value;
-
-    // Get category and subcategory values from our component
-    let newCategory = '';
-    let newSubcategory = '';
-
-    if (window.categoryComponent && typeof window.categoryComponent.getValue === 'function') {
-        const categoryData = window.categoryComponent.getValue();
-        newCategory = categoryData.category;
-        newSubcategory = categoryData.subcategory;
-    }
-
-    // Validate inputs
-    if (!newDate || !newAmount || !newCategory || !newMerchant) {
-        alert('Please fill in all required fields');
-        return;
-    }
-
-    if (newCategory.length > 50) {
-        alert('Category name must be 50 characters or less');
-        return;
-    }
-
-    // Determine if it's a debit based on the type
-    const isDebit = newType === 'expense';
-
-    // Create transaction object
+    // Gather form data
     const transaction = {
-        date: newDate,
-        amount: newAmount,
-        is_debit: isDebit,
-        category: newCategory,
-        subcategory: newSubcategory,
-        merchant: newMerchant,
-        account_id: newAccount
+        date: document.getElementById('new-date').value,
+        amount: document.getElementById('new-amount').value,
+        is_debit: document.getElementById('new-type').value === 'expense',
+        category: '', // Will be set below
+        subcategory: '',
+        merchant: document.getElementById('new-merchant').value,
+        account_id: document.getElementById('new-account').value
     };
+
+    // Get category data
+    const categoryComponent = AppState.getComponent('categoryComponent');
+    if (categoryComponent) {
+        const categoryData = categoryComponent.getValue();
+        transaction.category = categoryData.category;
+        transaction.subcategory = categoryData.subcategory;
+    }
+
+    // Validate before submitting
+    const errors = InputValidator.validateTransaction(transaction);
+    if (errors.length > 0) {
+        alert('Please fix the following errors:\n' + errors.join('\n'));
+        return;
+    }
 
     // Check if adding or editing
     const form = event.target;
@@ -526,14 +510,17 @@ function createTransactionRow(tx, accountsMap) {
         accountsMap[tx.account_id] || 'No Account'
     ];
 
+    // When creating cells, sanitize the content:
     cells.forEach((content, index) => {
         const cell = document.createElement('td');
-        cell.textContent = content;
 
         // Add special styling for amount column
         if (index === 1 && !tx.is_debit) {
             cell.classList.add('income-amount');
         }
+
+        // textContent automatically escapes HTML for all content
+        cell.textContent = content;
 
         row.appendChild(cell);
     });
