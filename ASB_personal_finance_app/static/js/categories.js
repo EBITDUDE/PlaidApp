@@ -36,11 +36,7 @@ function loadCategories() {
     categoriesList.innerHTML = '<div style="text-align: center; padding: 20px;">Loading categories...</div>';
 
     // First sync transaction categories with the categories database
-    fetch('/sync_transaction_categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-    })
+    window.securePost('/sync_transaction_categories', {})
         .then(response => response.json())
         .then(syncResult => {
             // Log sync results
@@ -455,13 +451,9 @@ function saveEditedCategory(oldName, newName, container, originalContent) {
     }
 
     // Send rename request to server
-    fetch('/rename_category', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            old_name: oldName,
-            new_name: newName
-        })
+    window.securePost('/rename_category', {
+        old_name: oldName,
+        new_name: newName
     })
         .then(response => response.json())
         .then(data => {
@@ -577,14 +569,10 @@ function saveEditedSubcategory(categoryName, oldSubcategory, newSubcategory, con
     }
 
     // Send rename request to server
-    fetch('/rename_subcategory', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            category: categoryName,
-            old_subcategory: oldSubcategory,
-            new_subcategory: newSubcategory
-        })
+    window.securePost('/rename_subcategory', {
+        category: categoryName,
+        old_subcategory: oldSubcategory,
+        new_subcategory: newSubcategory
     })
         .then(response => response.json())
         .then(data => {
@@ -673,11 +661,7 @@ function addCategory() {
         return;
     }
 
-    fetch('/add_category', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category: newCategory })
-    })
+    window.securePost('/add_category', { category: newCategory })
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -698,11 +682,7 @@ function addCategory() {
  * @param {string} category - Category name to delete
  */
 function deleteCategory(category) {
-    fetch('/delete_category', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category: category })
-    })
+    window.securePost('/delete_category', { category: category })
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -754,13 +734,9 @@ function addSubcategory(categoryName) {
         return;
     }
 
-    fetch('/add_subcategory', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            category: categoryName,
-            subcategory: newSubcategory
-        })
+    window.securePost('/add_subcategory', {
+        category: categoryName,
+        subcategory: newSubcategory
     })
         .then(response => response.json())
         .then(data => {
@@ -794,13 +770,9 @@ function addSubcategory(categoryName) {
  * @param {string} subcategoryName - Name of the subcategory to delete
  */
 function deleteSubcategory(categoryName, subcategoryName) {
-    fetch('/delete_subcategory', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            category: categoryName,
-            subcategory: subcategoryName
-        })
+    window.securePost('/delete_subcategory', {
+        category: categoryName,
+        subcategory: subcategoryName
     })
         .then(response => response.json())
         .then(data => {

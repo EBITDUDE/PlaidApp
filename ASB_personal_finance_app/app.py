@@ -31,6 +31,7 @@ import uuid
 import logging
 import traceback
 import math
+import re
 
 # Initialize Flask app
 app = Flask(__name__, static_url_path='/static', static_folder='static')
@@ -41,7 +42,7 @@ app.config['RELOADER_TYPE'] = 'stat'
 
 # Add secret key configuration (use environment variable in production)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', token_hex(32))
-app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS in production
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True only in production with HTTPS
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access to session cookie
 app.config['SESSION_COOKIE_SAMESITE'] = 'Strict'  # CSRF protection
 
@@ -74,10 +75,35 @@ def csrf_protect(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def require_access_token(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        access_token = load_access_token()
+        if not access_token:
+            return jsonify({'error': 'Authentication required'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/get_csrf_token', methods=['GET'])
 def get_csrf_token():
     """Endpoint to get CSRF token for AJAX requests"""
     return jsonify({'csrf_token': generate_csrf_token()})
+
+@app.route('/debug_csrf', methods=['GET'])
+def debug_csrf():
+    return jsonify({
+        'session_csrf_token': session.get('_csrf_token', 'None'),
+        'session_id': session.get('_id', 'No session ID'),
+        'cookies': dict(request.cookies)
+    })
+
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' https://cdn.plaid.com; style-src 'self' 'unsafe-inline';"
+    return response
 
 # Set up logging
 LOG_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'finance_app.log')
@@ -411,6 +437,8 @@ def get_transactions():
     end_date_str = request.args.get('end_date')
     category_filter = request.args.get('category')
     account_filter = request.args.get('account_id')
+    if account_filter and not InputValidator.is_valid_id(account_filter):
+        return jsonify({'error': 'Invalid account ID'}), 400
     
     # Parse dates with validation
     try:
@@ -599,7 +627,9 @@ def update_transaction():
         saved_transactions[tx_id]['subcategory'] = tx_data.get('subcategory')
     
     if 'merchant' in tx_data:
-        saved_transactions[tx_id]['merchant'] = tx_data.get('merchant')
+        merchant = tx_data.get('merchant', '').strip()
+        merchant = re.sub('<.*?>', '', merchant)
+        saved_transactions[tx_id]['merchant'] = merchant[:100]  # Limit length
     
     if 'date' in tx_data:
         # Validate and standardize date format
@@ -637,6 +667,7 @@ def update_transaction():
 # Route to add a manual transaction
 @app.route('/add_transaction', methods=['POST'])
 @csrf_protect
+# @require_access_token
 @api_error_handler
 def add_transaction():
     tx_data = request.json

@@ -227,11 +227,7 @@ function saveRule() {
     }
 
     // Save rule to server
-    fetch('/add_rule', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(rule)
-    })
+    window.securePost('/add_rule', rule)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Server error: ' + response.statusText);

@@ -173,11 +173,7 @@ function createCategoryDropdown(options = {}) {
 
     // Save a new category to the server
     function saveNewCategory(categoryName) {
-        return fetch('/add_category', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ category: categoryName })
-        })
+        return window.securePost('/add_category', { category: categoryName })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
@@ -196,13 +192,9 @@ function createCategoryDropdown(options = {}) {
 
     // Save a new subcategory to the server
     function saveNewSubcategory(categoryName, subcategoryName) {
-        return fetch('/add_subcategory', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                category: categoryName,
-                subcategory: subcategoryName
-            })
+        return window.securePost('/add_subcategory', {
+            category: categoryName,
+            subcategory: subcategoryName
         })
             .then(response => response.json())
             .then(data => {

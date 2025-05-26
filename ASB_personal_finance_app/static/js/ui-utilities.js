@@ -279,14 +279,10 @@ function exportTransactions() {
             console.log(`Found ${allTransactions.length} transactions for potential export`);
 
             // Now request the export with the date range
-            return fetch('/export_transactions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    date_range: dateRange,
-                    // Include transaction count so server can validate
-                    expected_count: allTransactions.length
-                })
+            return window.securePost('/export_transactions', {
+                date_range: dateRange,
+                // Include transaction count so server can validate
+                expected_count: allTransactions.length
             });
         })
         .then(response => response.json())

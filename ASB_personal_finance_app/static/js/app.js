@@ -100,7 +100,7 @@ function getCookie(name) {
 }
 
 // Update the securePost function to use the CSRF token:
-async function securePost(url, data) {
+window.securePost = async function (url, data) {
     const csrfToken = await getCSRFToken();
 
     return safeFetch(url, {
@@ -112,6 +112,8 @@ async function securePost(url, data) {
         body: JSON.stringify(data)
     });
 }
+
+window.getCSRFToken = getCSRFToken;
 
 /**
  * Main initialization function that runs when the DOM is fully loaded
@@ -427,11 +429,7 @@ function initiatePlaidConnection() {
                     console.log('Link success - public token received');
 
                     // Exchange public token
-                    fetch('/exchange_public_token', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ public_token: public_token })
-                    })
+                    window.securePost('/exchange_public_token', { public_token: public_token })
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error('Token exchange failed');

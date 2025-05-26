@@ -64,6 +64,16 @@ function handleTransactionFormSubmit(event) {
         transaction.subcategory = categoryData.subcategory;
     }
 
+    // Sanitize inputs before sending
+    transaction.merchant = transaction.merchant.replace(/<[^>]*>/g, ''); // Strip HTML
+    transaction.amount = parseFloat(transaction.amount) || 0;
+
+    // Validate amount range
+    if (transaction.amount <= 0 || transaction.amount > 999999.99) {
+        alert('Amount must be between $0.01 and $999,999.99');
+        return;
+    }
+
     // Validate before submitting
     const errors = InputValidator.validateTransaction(transaction);
     if (errors.length > 0) {

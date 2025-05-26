@@ -221,14 +221,27 @@ def load_saved_transactions():
     return transactions
 
 def save_transactions(transactions):
-    """
-    Save transactions to cache and file.
-    """
+    """Save transactions with path validation"""
+    
+    # Get absolute path and check it's within our app directory
+    abs_path = os.path.abspath(TRANSACTIONS_FILE)
+    app_dir = os.path.abspath(os.path.dirname(__file__))
+    
+    if not abs_path.startswith(app_dir):
+        logger.error(f"Attempted to write outside app directory: {abs_path}")
+        return False
+    
     _saved_transactions_cache.set('saved_transactions', transactions)
     try:
         os.makedirs(os.path.dirname(TRANSACTIONS_FILE), exist_ok=True)
-        with open(TRANSACTIONS_FILE, 'w') as f:
+        
+        # Write to temp file first
+        temp_file = TRANSACTIONS_FILE + '.tmp'
+        with open(temp_file, 'w') as f:
             json.dump(transactions, f)
+        
+        # Atomic rename
+        os.replace(temp_file, TRANSACTIONS_FILE)
         return True
     except Exception as e:
         logger.error(f"Error saving transactions: {str(e)}")
