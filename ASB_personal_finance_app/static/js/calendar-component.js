@@ -392,4 +392,19 @@ class CalendarPicker {
             throw new Error(`Unsupported date format: ${dateStr}`);
         }
     }
+
+    destroy() {
+        // Remove event listeners
+        EventManager.cleanupElement(this.inputElement);
+        EventManager.cleanupElement(this.calendarElement);
+
+        // Remove calendar element from DOM
+        if (this.calendarElement && this.calendarElement.parentNode) {
+            this.calendarElement.parentNode.removeChild(this.calendarElement);
+        }
+
+        // Clear references
+        this.inputElement = null;
+        this.calendarElement = null;
+    }
 }

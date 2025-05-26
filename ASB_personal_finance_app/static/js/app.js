@@ -25,27 +25,130 @@ function debounce(func, wait) {
 }
 
 /**
+ * Wrapper for fetch that includes error handling
+ * @param {string} url - The URL to fetch
+ * @param {Object} options - Fetch options
+ * @returns {Promise<Response>} - The fetch response
+ */
+async function safeFetch(url, options = {}) {
+    try {
+        const response = await fetch(url, options);
+
+        // Handle authentication errors globally
+        if (response.status === 401) {
+            const data = await response.json();
+            if (data.error_code === 'ITEM_LOGIN_REQUIRED') {
+                if (typeof window.showReauthenticationPrompt === 'function') {
+                    window.showReauthenticationPrompt();
+                }
+                throw new Error('Re-authentication required');
+            }
+            throw new Error(data.error || 'Authentication failed');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response;
+    } catch (error) {
+        ErrorUtils.handleError(error, `Failed to fetch: ${url}`);
+        throw error;
+    }
+}
+
+/**
+ * Get CSRF token from cookie or fetch from server
+ * @returns {Promise<string>} The CSRF token
+ */
+async function getCSRFToken() {
+    // Try to get from meta tag first (if rendered in template)
+    const metaToken = document.querySelector('meta[name="csrf-token"]');
+    if (metaToken) {
+        return metaToken.content;
+    }
+
+    // Try to get from cookie
+    const cookieToken = getCookie('csrf_token');
+    if (cookieToken) {
+        return cookieToken;
+    }
+
+    // Fetch from server if not found
+    try {
+        const response = await fetch('/get_csrf_token');
+        const data = await response.json();
+        return data.csrf_token;
+    } catch (error) {
+        console.error('Failed to get CSRF token:', error);
+        return '';
+    }
+}
+
+/**
+ * Helper function to get cookie value
+ * @param {string} name - Cookie name
+ * @returns {string|null} Cookie value or null
+ */
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+        return parts.pop().split(';').shift();
+    }
+    return null;
+}
+
+// Update the securePost function to use the CSRF token:
+async function securePost(url, data) {
+    const csrfToken = await getCSRFToken();
+
+    return safeFetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify(data)
+    });
+}
+
+/**
  * Main initialization function that runs when the DOM is fully loaded
  */
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize error handling first
+    window.addEventListener('error', function (e) {
+        ErrorUtils.handleError(e.error || e, 'Uncaught error');
+    });
+
+    // Initialize core systems
+    initializeApp();
+});
+
+function initializeApp() {
     console.log('Initializing ASB Personal Finance App...');
+
+    // Clean up any existing listeners first
+    cleanupBeforeNavigation(); // Add this line
+    EventManager.cleanupAll();
 
     // Set up the navigation and UI components
     setupEventListeners();
     setupTransactionEventHandlers();
 
-    // Initialize UI components - without account fetching
+    // Initialize UI components
     initializeUIComponents();
 
     // Single point of entry for data loading
     checkAccessTokenAndLoadData();
-});
+}
 
 /**
  * Checks if an access token exists and updates the UI accordingly
  */
 function checkAccessTokenAndLoadData() {
-    fetch('/has_access_token')
+    safeFetch('/has_access_token')
         .then(response => response.json())
         .then(data => {
             if (data.has_token) {
@@ -91,6 +194,18 @@ function setupEventListeners() {
 
     // Set up export functionality
     setupExportData();
+}
+
+function cleanupBeforeNavigation() {
+    // Clean up all event listeners for components that might be removed
+    const transactionTable = document.getElementById('transactions-table');
+    if (transactionTable) {
+        EventManager.cleanupElement(transactionTable);
+    }
+
+    // Clean up any other dynamic elements
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => EventManager.cleanupElement(modal));
 }
 
 /**
@@ -182,8 +297,9 @@ function setupTransactionEventListeners() {
             document.getElementById('new-merchant').value = '';
 
             // Reset category safely
-            if (window.categoryComponent && typeof window.categoryComponent.setValue === 'function') {
-                window.categoryComponent.setValue({
+            const categoryComponent = AppState.getComponent('categoryComponent');
+            if (categoryComponent && typeof categoryComponent.setValue === 'function') {
+                categoryComponent.setValue({
                     category: '',
                     subcategory: ''
                 });
@@ -212,10 +328,9 @@ function setupTransactionEventListeners() {
     }
 
     // Close modal if clicked outside
-    window.addEventListener('click', function (event) {
-        const modal = document.getElementById('add-transaction-modal');
-        if (event.target === modal) {
-            modal.style.display = 'none';
+    EventManager.delegate(document.body, 'click', '.modal', function (e) {
+        if (e.target === this) {
+            this.style.display = 'none';
         }
     });
 }
@@ -240,18 +355,6 @@ function setupCompactViewToggle() {
             document.body.classList.add('compact-view');
         }
     }
-}
-
-function cleanupBeforeNavigation() {
-    // Clean up all event listeners for components that might be removed
-    const transactionTable = document.getElementById('transactions-table');
-    if (transactionTable) {
-        EventManager.cleanupElement(transactionTable);
-    }
-
-    // Clean up any other dynamic elements
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => EventManager.cleanupElement(modal));
 }
 
 /**
@@ -490,8 +593,9 @@ function updateSubcategoryDropdown(categoryFilter) {
             });
 
             // Apply filters after dropdown is updated
-            if (window.transactionFilter) {
-                window.transactionFilter.applyFilters();
+            const transactionFilter = AppState.getComponent('transactionFilter');
+            if (transactionFilter) {
+                transactionFilter.applyFilters();
             }
         })
         .catch(err => {

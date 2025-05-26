@@ -42,13 +42,13 @@ function setupMonthPickers() {
     const endDateInput = document.getElementById('monthly-end-date');
 
     if (startDateInput) {
-        startDateInput.addEventListener('click', function () {
+        EventManager.on(startDateInput, 'click', function () {
             showMonthPicker(this);
         });
     }
 
     if (endDateInput) {
-        endDateInput.addEventListener('click', function () {
+        EventManager.on(endDateInput, 'click', function () {
             showMonthPicker(this);
         });
     }

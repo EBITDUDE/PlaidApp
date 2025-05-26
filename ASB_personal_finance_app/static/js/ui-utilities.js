@@ -42,9 +42,10 @@ function setupDateFilters() {
             }
 
             // Update transactionFilter if available
-            if (window.transactionFilter) {
-                window.transactionFilter.customDateStart = customDateStart.value;
-                window.transactionFilter.customDateEnd = customDateEnd.value;
+            const transactionFilter = AppState.getComponent('transactionFilter');
+            if (transactionFilter) {
+                transactionFilter.customDateStart = customDateStart.value;
+                transactionFilter.customDateEnd = customDateEnd.value;
             }
 
             // Create a new option for this specific date range
@@ -239,11 +240,13 @@ function setupExportData() {
     }
 
     // Close modal if clicked outside
-    window.addEventListener('click', function (event) {
-        if (event.target === exportModal) {
-            exportModal.style.display = 'none';
-        }
-    });
+    if (exportModal) {
+        exportModal.addEventListener('click', function (event) {
+            if (event.target === exportModal) {
+                exportModal.style.display = 'none';
+            }
+        });
+    }
 
     // Add the click handler to the export confirm button
     if (exportConfirm) {
@@ -326,8 +329,9 @@ function exportTransactions() {
  */
 function initCategoryDropdown() {
     // If category component already exists, just reload its data and return
-    if (window.categoryComponent) {
-        window.categoryComponent.reload();
+    const existingComponent = AppState.getComponent('categoryComponent');
+    if (existingComponent) {
+        existingComponent.reload();
         return;
     }
 

@@ -184,20 +184,38 @@ def save_access_token(access_token):
         return False
 
 def load_saved_transactions():
-    """
-    Load saved transactions (manual or modified) from cache or file.
-    """
+    """Load saved transactions with validation"""
     transactions = _saved_transactions_cache.get('saved_transactions')
     if transactions:
         return transactions
+        
     if os.path.exists(TRANSACTIONS_FILE):
         try:
+            # Validate file size (prevent DoS)
+            file_size = os.path.getsize(TRANSACTIONS_FILE)
+            if file_size > 10 * 1024 * 1024:  # 10MB limit
+                logger.error(f"Transaction file too large: {file_size} bytes")
+                return {}
+            
             with open(TRANSACTIONS_FILE, 'r') as f:
                 transactions = json.load(f)
-                _saved_transactions_cache.set('saved_transactions', transactions)
-                return transactions
+                
+            # Validate structure
+            if not isinstance(transactions, dict):
+                logger.error("Invalid transaction file structure")
+                return {}
+                
+            # Validate each transaction
+            for tx_id, tx_data in list(transactions.items()):
+                if not isinstance(tx_data, dict):
+                    logger.warning(f"Removing invalid transaction: {tx_id}")
+                    del transactions[tx_id]
+                    
+            _saved_transactions_cache.set('saved_transactions', transactions)
+            return transactions
         except Exception as e:
             logger.error(f"Error loading transactions: {str(e)}")
+    
     transactions = {}
     _saved_transactions_cache.set('saved_transactions', transactions)
     return transactions

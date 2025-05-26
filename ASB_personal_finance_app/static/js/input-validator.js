@@ -32,5 +32,11 @@ const InputValidator = {
         const text = document.createTextNode(value);
         div.appendChild(text);
         return div.innerHTML;
+    },
+
+    escapeHtml(unsafe) {
+        const div = document.createElement('div');
+        div.textContent = unsafe;
+        return div.innerHTML;
     }
 };

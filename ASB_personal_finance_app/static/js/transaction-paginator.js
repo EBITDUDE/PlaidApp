@@ -427,4 +427,20 @@ class TransactionPaginator {
             this.updateVisibility();
         }
     }
+
+    destroy() {
+        // Clean up event listeners
+        if (this.pageSizeElement) {
+            EventManager.cleanupElement(this.pageSizeElement);
+        }
+        if (this.paginationContainer) {
+            EventManager.cleanupElement(this.paginationContainer);
+        }
+
+        // Clear references
+        this.rows = [];
+        this.tableElement = null;
+        this.pageSizeElement = null;
+        this.paginationContainer = null;
+    }
 }

@@ -31,7 +31,7 @@ function setupRuleModalListeners() {
     // Close modal if clicked outside
     const ruleModal = document.getElementById('rule-modal');
     if (ruleModal) {
-        window.addEventListener('click', function (event) {
+        ruleModal.addEventListener('click', function (event) {
             if (event.target === ruleModal) {
                 hideRuleModal();
             }
@@ -105,13 +105,15 @@ function showRuleModal(transactionData) {
     if (!ruleModal) return;
 
     // Initialize category dropdowns if they don't exist
-    if (!window.ruleOriginalCategoryComponent && document.getElementById('rule-original-category-container')) {
-        window.ruleOriginalCategoryComponent = createCategoryDropdown({
+    let ruleOriginalCategoryComponent = AppState.getComponent('ruleOriginalCategoryComponent');
+    if (!ruleOriginalCategoryComponent && document.getElementById('rule-original-category-container')) {
+        ruleOriginalCategoryComponent = createCategoryDropdown({
             containerId: 'rule-original-category-container',
             inputName: 'rule-original-category',
             subcategoryInputName: 'rule-original-subcategory',
             required: false
         });
+        AppState.registerComponent('ruleOriginalCategoryComponent', ruleOriginalCategoryComponent);
     }
 
     // Set rule form values if transaction data provided
@@ -129,8 +131,8 @@ function showRuleModal(transactionData) {
         }
 
         // Original Category (the category before edit)
-        if (window.ruleOriginalCategoryComponent && typeof window.ruleOriginalCategoryComponent.setValue === 'function') {
-            window.ruleOriginalCategoryComponent.setValue({
+        if (ruleOriginalCategoryComponent && typeof ruleOriginalCategoryComponent.setValue === 'function') {
+            ruleOriginalCategoryComponent.setValue({
                 category: transactionData.originalCategory || '',
                 subcategory: transactionData.originalSubcategory || ''
             });
@@ -148,8 +150,8 @@ function showRuleModal(transactionData) {
         }
 
         // New Category (target category)
-        if (window.rulesCategoryComponent && typeof window.rulesCategoryComponent.setValue === 'function') {
-            window.rulesCategoryComponent.setValue({
+        if (rulesCategoryComponent && typeof rulesCategoryComponent.setValue === 'function') {
+            rulesCategoryComponent.setValue({
                 category: transactionData.category || '',
                 subcategory: transactionData.subcategory || ''
             });
@@ -190,14 +192,16 @@ function saveRule() {
 
     // Get original category data
     let originalCategoryData = { category: '', subcategory: '' };
-    if (window.ruleOriginalCategoryComponent && typeof window.ruleOriginalCategoryComponent.getValue === 'function') {
-        originalCategoryData = window.ruleOriginalCategoryComponent.getValue();
+    const ruleOriginalCategoryComponent = AppState.getComponent('ruleOriginalCategoryComponent');
+    if (ruleOriginalCategoryComponent && typeof ruleOriginalCategoryComponent.getValue === 'function') {
+        originalCategoryData = ruleOriginalCategoryComponent.getValue();
     }
 
     // Get target category data
     let categoryData = { category: '', subcategory: '' };
-    if (window.rulesCategoryComponent && typeof window.rulesCategoryComponent.getValue === 'function') {
-        categoryData = window.rulesCategoryComponent.getValue();
+    const rulesCategoryComponent = AppState.getComponent('rulesCategoryComponent');
+    if (rulesCategoryComponent && typeof rulesCategoryComponent.getValue === 'function') {
+        categoryData = rulesCategoryComponent.getValue();
     }
 
     if (!categoryData.category) {
@@ -261,24 +265,27 @@ function initRuleCategoryDropdown() {
     // Initialize both the original and target category components
 
     // If original category component already exists, just reload its data
-    if (window.ruleOriginalCategoryComponent) {
-        window.ruleOriginalCategoryComponent.reload();
+    const ruleOriginalCategoryComponent = AppState.getComponent('ruleOriginalCategoryComponent');
+    if (ruleOriginalCategoryComponent) {
+        ruleOriginalCategoryComponent.reload();
     } else {
         // Initialize the original category component
         const originalCategoryContainer = document.getElementById('rule-original-category-container');
         if (originalCategoryContainer) {
-            window.ruleOriginalCategoryComponent = createCategoryDropdown({
+            const newComponent = createCategoryDropdown({
                 containerId: 'rule-original-category-container',
                 inputName: 'rule-original-category',
                 subcategoryInputName: 'rule-original-subcategory',
                 required: false
             });
+            AppState.registerComponent('ruleOriginalCategoryComponent', newComponent);
         }
     }
 
     // If target category component already exists, just reload its data
-    if (window.rulesCategoryComponent) {
-        window.rulesCategoryComponent.reload();
+    const rulesCategoryComponent = AppState.getComponent('rulesCategoryComponent');
+    if (rulesCategoryComponent) {
+        rulesCategoryComponent.reload();
         return;
     }
 
@@ -289,7 +296,7 @@ function initRuleCategoryDropdown() {
         return;
     }
 
-    window.rulesCategoryComponent = createCategoryDropdown({
+    rulesCategoryComponent = createCategoryDropdown({
         containerId: 'rule-category-container',
         inputName: 'rule-category',
         subcategoryInputName: 'rule-subcategory',

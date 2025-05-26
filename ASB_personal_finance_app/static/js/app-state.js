@@ -37,6 +37,15 @@ const AppState = (function () {
             return Array.from(state.accounts.values());
         },
 
+        setAccountsMap(accountsMap) {
+            state.accountsMap = new Map(Object.entries(accountsMap));
+            this.emit('accountsMap:updated', accountsMap);
+        },
+
+        getAccountsMap() {
+            return Object.fromEntries(state.accountsMap || new Map());
+        },
+
         // Component registry
         registerComponent(name, component) {
             state.components.set(name, component);

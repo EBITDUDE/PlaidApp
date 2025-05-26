@@ -3,7 +3,9 @@
 
 <head>
     <title>ASB Personal Finance App</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+
     <!-- External JavaScript files -->
     <script src="/static/js/calendar-component.js"></script>
     <script src="/static/js/category-dropdown.js"></script>
@@ -151,6 +153,7 @@
             <div class="modal-content">
                 <h3>Add New Transaction</h3>
                 <form id="add-transaction-form">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                     <div>
                         <label for="new-date">Date:</label>
                         <div class="date-picker">
@@ -199,6 +202,7 @@
                 <p>Set up a rule to automatically categorize similar transactions</p>
 
                 <form id="rule-form">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                     <div style="margin-bottom: 15px;">
                         <label>
                             <input type="checkbox" id="match-original-category-toggle" checked>
@@ -293,6 +297,15 @@
             </div>
         </div>
     </div>
+
+    <script>
+        window.addEventListener('beforeunload', function () {
+            cleanupBeforeNavigation();
+            EventManager.cleanupAll();
+            AppState.reset();
+        });
+    </script>
+
 </body>
 
 </html>

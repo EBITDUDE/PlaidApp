@@ -200,7 +200,7 @@ function updateAccountDropdown(selectedAccountId) {
 
                 // Update global accounts map
                 accountsCache.data = accountsMap;
-                window.accountsMap = accountsMap;
+                AppState.setAccountsMap(accountsMap);
 
                 // Populate the dropdown
                 populateAccountDropdown(accounts, selectedAccountId);

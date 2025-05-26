@@ -88,17 +88,10 @@ function handleTransactionFormSubmit(event) {
 }
 
 function updateTransaction(transaction) {
-    fetch('/update_transaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(transaction)
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Server error: ' + response.statusText);
-            }
-            return response.json();
-        })
+    EventManager.cleanupElement(document.getElementById('add-transaction-modal'));
+    
+    securePost('/update_transaction', transaction)
+        .then(response => response.json())
         .then(data => {
             console.log('Transaction updated:', data);
 
@@ -116,7 +109,6 @@ function updateTransaction(transaction) {
 
             // Sync categories with transactions
             syncCategories().then(() => {
-                // Refresh transactions
                 loadTransactions();
             });
         })
@@ -131,28 +123,20 @@ function updateTransaction(transaction) {
  * @param {Object} transaction - Transaction data to add
  */
 function addTransaction(transaction) {
-    fetch('/add_transaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(transaction)
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Server error: ' + response.statusText);
-            }
-            return response.json();
-        })
+    securePost('/add_transaction', transaction)
+        .then(response => response.json())
         .then(data => {
             console.log('Transaction added:', data);
 
             // Reset form fields
-            document.getElementById('new-date').value = formatDate(new Date()); // Default to today
+            document.getElementById('new-date').value = formatDate(new Date());
             document.getElementById('new-amount').value = '';
             document.getElementById('new-merchant').value = '';
 
             // Reset category safely
-            if (window.categoryComponent && typeof window.categoryComponent.setValue === 'function') {
-                window.categoryComponent.setValue({
+            const categoryComponent = AppState.getComponent('categoryComponent');
+            if (categoryComponent && typeof categoryComponent.setValue === 'function') {
+                categoryComponent.setValue({
                     category: '',
                     subcategory: ''
                 });
@@ -163,7 +147,6 @@ function addTransaction(transaction) {
 
             // Sync categories with transactions
             syncCategories().then(() => {
-                // Refresh transactions
                 loadTransactions();
             });
         })
@@ -219,11 +202,12 @@ function handleEditTransaction(row) {
     document.getElementById('new-date').value = txDate;
     document.getElementById('new-amount').value = txAmount;
     document.getElementById('new-type').value = txIsDebit ? 'expense' : 'income';
-    document.getElementById('new-merchant').value = txMerchant;
+    document.getElementById('new-merchant').value = InputValidator.sanitizeForDisplay(txMerchant);
 
     // Set category and subcategory
-    if (window.categoryComponent && typeof window.categoryComponent.setValue === 'function') {
-        window.categoryComponent.setValue({
+    const categoryComponent = AppState.getComponent('categoryComponent');
+    if (categoryComponent && typeof categoryComponent.setValue === 'function') {
+        categoryComponent.setValue({
             category: txCategory,
             subcategory: txSubcategory
         });
@@ -268,8 +252,8 @@ function handleEditTransaction(row) {
                 merchant: document.getElementById('new-merchant').value,
                 amount: document.getElementById('new-amount').value,
                 is_debit: document.getElementById('new-type').value === 'expense',
-                category: window.categoryComponent ? window.categoryComponent.getValue().category : '',
-                subcategory: window.categoryComponent ? window.categoryComponent.getValue().subcategory : '',
+                category: categoryComponent ? categoryComponent.getValue().category : '',
+                subcategory: categoryComponent ? categoryComponent.getValue().subcategory : '',
                 // Add original category data for selective rule creation
                 originalCategory: row.originalCategory,
                 originalSubcategory: row.originalSubcategory
@@ -290,7 +274,7 @@ function handleEditTransaction(row) {
         console.log('Account dropdown updated and account selected:', {
             txAccountId,
             accountValue: document.getElementById('new-account').value,
-            mappedName: txAccountId ? window.accountsMap[String(txAccountId)] : null
+            mappedName: txAccountId ? AppState.getAccountsMap()[String(txAccountId)] : null
         });
     }).catch(err => {
         ErrorUtils.handleError(err, 'Error updating account dropdown');
@@ -329,17 +313,16 @@ function handleEditTransaction(row) {
 
 // Helper function to delete a transaction
 function deleteTransaction(txId, modal) {
-    fetch('/delete_transaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: txId })
-    })
+    // Use securePost instead of fetch
+    securePost('/delete_transaction', { id: txId })
         .then(response => response.json())
         .then(data => {
             console.log('Transaction deleted:', data);
 
             // Hide modal
-            modal.style.display = 'none';
+            if (modal) {
+                modal.style.display = 'none';
+            }
 
             // Refresh transactions
             loadTransactions();
@@ -354,6 +337,8 @@ function deleteTransaction(txId, modal) {
  */
 function loadTransactions() {
     console.log("Loading transactions...");
+
+    cleanupBeforeNavigation();
 
     // Add a loading indicator
     const txTable = document.getElementById('transactions-body');
@@ -388,7 +373,7 @@ function loadTransactions() {
     console.log(`Fetching all transactions (up to ${fetchSize}) for client-side pagination`);
 
     // Fetch transactions with a large page size to get everything at once
-    fetch(`/get_transactions?page=1&page_size=${fetchSize}`)
+    safeFetch(`/get_transactions?page=1&page_size=${fetchSize}`)
         .then(response => {
             console.log("Transaction response status:", response.status);
 
@@ -519,7 +504,7 @@ function createTransactionRow(tx, accountsMap) {
             cell.classList.add('income-amount');
         }
 
-        // textContent automatically escapes HTML for all content
+        // Use textContent which automatically escapes HTML
         cell.textContent = content;
 
         row.appendChild(cell);
@@ -541,6 +526,9 @@ function displayTransactions(transactions, callback) {
 
     const txTable = document.getElementById('transactions-body');
     const txSection = document.getElementById('transactions-section');
+
+    // Clean up any existing event listeners on the table before adding new rows
+    EventManager.cleanupElement(txTable);
 
     if (transactions.length === 0) {
         txTable.innerHTML = `
@@ -838,28 +826,23 @@ function displayMonthlyCategoryTotals(categoryTotals, months) {
 
 // Add this helper function for syncing categories
 function syncCategories() {
-    return fetch('/sync_transaction_categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Category sync failed: ' + response.statusText);
-            }
-            return response.json();
-        })
+    // Use securePost instead of fetch
+    return securePost('/sync_transaction_categories', {})
+        .then(response => response.json())
         .then(result => {
-            // Log sync results
             if (result.added_categories > 0 || result.added_subcategories > 0) {
                 console.log(`Category sync found ${result.added_categories} new categories and ${result.added_subcategories} new subcategories`);
 
-                // If categories were added and we have a category dropdown, refresh it
-                if (window.categoryComponent && typeof window.categoryComponent.reload === 'function') {
-                    window.categoryComponent.reload();
+                const categoryComponent = AppState.getComponent('categoryComponent');
+                if (categoryComponent && typeof categoryComponent.reload === 'function') {
+                    categoryComponent.reload();
                 }
             }
             return result;
+        })
+        .catch(err => {
+            ErrorUtils.handleError(err, 'Failed to sync categories');
+            throw err; // Re-throw to handle in calling function
         });
 }
 

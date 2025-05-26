@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', function () {
  * Load categories from the server and display them
  */
 function loadCategories() {
+    cleanupCategoryEventListeners();
+
     // Show loading indicator
     const categoriesList = document.getElementById('categories-list');
     categoriesList.innerHTML = '<div style="text-align: center; padding: 20px;">Loading categories...</div>';
@@ -114,19 +116,37 @@ function displayCategories(categories, categoryCounts = {}) {
         const count = categoryCounts[category.name] || 0;
 
         // Create the category display with edit and delete buttons
-        categoryItem.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span data-category="${category.name}">${category.name}</span>
-                <div class="action-buttons">
-                    <button class="edit-category-btn action-btn" data-category="${category.name}">Edit</button>
-                    <button class="delete-category-btn action-btn" data-category="${category.name}">Delete</button>
-                </div>
-            </div>
-            <div style="font-size: 0.8em; color: #777;">
-                ${category.subcategories.length} subcategories<br>
-                ${count} total transactions
-            </div>
-        `;
+        const categoryDiv = document.createElement('div');
+        categoryDiv.style.cssText = 'display: flex; justify-content: space-between; align-items: center;';
+
+        const categorySpan = document.createElement('span');
+        categorySpan.setAttribute('data-category', category.name);
+        categorySpan.textContent = category.name; // Automatically escapes
+
+        const actionButtonsDiv = document.createElement('div');
+        actionButtonsDiv.className = 'action-buttons';
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'edit-category-btn action-btn';
+        editBtn.setAttribute('data-category', category.name);
+        editBtn.textContent = 'Edit';
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-category-btn action-btn';
+        deleteBtn.setAttribute('data-category', category.name);
+        deleteBtn.textContent = 'Delete';
+
+        actionButtonsDiv.appendChild(editBtn);
+        actionButtonsDiv.appendChild(deleteBtn);
+        categoryDiv.appendChild(categorySpan);
+        categoryDiv.appendChild(actionButtonsDiv);
+
+        const statsDiv = document.createElement('div');
+        statsDiv.style.cssText = 'font-size: 0.8em; color: #777;';
+        statsDiv.textContent = `${category.subcategories.length} subcategories\n${count} total transactions`;
+
+        categoryItem.appendChild(categoryDiv);
+        categoryItem.appendChild(statsDiv);
 
         categoryItem.addEventListener('click', function (e) {
             // Don't trigger if clicked a button
@@ -153,62 +173,58 @@ function displayCategories(categories, categoryCounts = {}) {
     });
 
     // Add edit button handlers
-    document.querySelectorAll('.edit-category-btn').forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            e.stopPropagation();  // Prevent triggering the category click
+    EventManager.delegate(categoriesList, 'click', '.edit-category-btn', function (e) {
+        e.stopPropagation();
+        if (isEditingCategory || isEditingSubcategory) {
+            alert('Please finish your current edit first.');
+            return;
+        }
+        const categoryName = this.getAttribute('data-category');
 
-            if (isEditingCategory || isEditingSubcategory) {
-                alert('Please finish your current edit first.');
-                return;
-            }
+        // Find the category element
+        const categorySpan = this.closest('.category-item').querySelector('span[data-category]');
 
-            const categoryName = this.getAttribute('data-category');
+        // Switch to edit mode
+        isEditingCategory = true;
 
-            // Find the category element
-            const categorySpan = this.closest('.category-item').querySelector('span[data-category]');
+        // Store the original content and replace with an edit field
+        const originalContent = categorySpan.textContent;
+        const editContainer = document.createElement('div');
+        editContainer.className = 'edit-container';
+        editContainer.innerHTML = `
+            <input type="text" class="edit-category-input" value="${categoryName}" style="width: 60%; padding: 4px;">
+            <button class="save-edit-btn action-btn">Save</button>
+            <button class="cancel-edit-btn action-btn">Cancel</button>
+        `;
 
-            // Switch to edit mode
-            isEditingCategory = true;
+        // Replace the category span with our edit container
+        categorySpan.parentNode.replaceChild(editContainer, categorySpan);
 
-            // Store the original content and replace with an edit field
-            const originalContent = categorySpan.textContent;
-            const editContainer = document.createElement('div');
-            editContainer.className = 'edit-container';
-            editContainer.innerHTML = `
-                <input type="text" class="edit-category-input" value="${categoryName}" style="width: 60%; padding: 4px;">
-                <button class="save-edit-btn action-btn">Save</button>
-                <button class="cancel-edit-btn action-btn">Cancel</button>
-            `;
+        // Focus the input
+        const input = editContainer.querySelector('.edit-category-input');
+        input.focus();
+        input.select();
 
-            // Replace the category span with our edit container
-            categorySpan.parentNode.replaceChild(editContainer, categorySpan);
-
-            // Focus the input
-            const input = editContainer.querySelector('.edit-category-input');
-            input.focus();
-            input.select();
-
-            // Save on Enter
-            input.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    saveEditedCategory(categoryName, input.value, editContainer, originalContent);
-                }
-            });
-
-            // Save button handler
-            editContainer.querySelector('.save-edit-btn').addEventListener('click', function () {
+        // Save on Enter
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
                 saveEditedCategory(categoryName, input.value, editContainer, originalContent);
-            });
+            }
+        });
 
-            // Cancel button handler
-            editContainer.querySelector('.cancel-edit-btn').addEventListener('click', function () {
-                // Restore the original span
-                const span = document.createElement('span');
-                span.setAttribute('data-category', categoryName);
-                span.textContent = originalContent;
-                editContainer.parentNode.replaceChild(span, editContainer);
-                isEditingCategory = false;
-            });
+        // Save button handler
+        editContainer.querySelector('.save-edit-btn').addEventListener('click', function () {
+            saveEditedCategory(categoryName, input.value, editContainer, originalContent);
+        });
+
+        // Cancel button handler
+        editContainer.querySelector('.cancel-edit-btn').addEventListener('click', function () {
+            // Restore the original span
+            const span = document.createElement('span');
+            span.setAttribute('data-category', categoryName);
+            span.textContent = originalContent;
+            editContainer.parentNode.replaceChild(span, editContainer);
+            isEditingCategory = false;
         });
     });
 
@@ -826,4 +842,9 @@ function loadCategoryCounts() {
                 subcategoryCounts: {}
             };
         });
+}
+
+function cleanupCategoryEventListeners() {
+    EventManager.cleanupElement(document.getElementById('categories-list'));
+    EventManager.cleanupElement(document.getElementById('subcategory-content'));
 }

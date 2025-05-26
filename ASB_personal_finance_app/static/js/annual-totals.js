@@ -27,10 +27,10 @@ document.addEventListener('DOMContentLoaded', function () {
     loadAnnualTotals();
 
     // Refresh button handler
-    document.getElementById('refresh-button').addEventListener('click', loadAnnualTotals);
+    EventManager.on(document.getElementById('refresh-button'), 'click', loadAnnualTotals);
 
     // Apply years button handler
-    document.getElementById('apply-annual-years').addEventListener('click', loadAnnualTotals);
+    EventManager.on(document.getElementById('apply-annual-years'), 'click', loadAnnualTotals);
 });
 
 /**

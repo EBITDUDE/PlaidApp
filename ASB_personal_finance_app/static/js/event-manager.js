@@ -108,6 +108,8 @@ const EventManager = (function () {
 })();
 
 // Auto-cleanup on page unload
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', function () {
+    cleanupBeforeNavigation();
     EventManager.cleanupAll();
+    AppState.reset();
 });

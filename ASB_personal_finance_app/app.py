@@ -9,7 +9,7 @@ from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchan
 from plaid.model.transactions_get_request import TransactionsGetRequest
 from plaid.model.accounts_get_request import AccountsGetRequest
 import werkzeug
-from flask import Flask, render_template, jsonify, request, send_from_directory
+from flask import Flask, render_template, jsonify, request, send_from_directory, session
 from functools import wraps
 from data_utils import (
     LRUCache, KeyedLRUCache, load_access_token, save_access_token,
@@ -22,6 +22,7 @@ from data_utils import (
 )
 from error_utils import api_error_handler, AppError, AuthenticationError, ValidationError, ResourceNotFoundError, PlaidApiError
 from validation_utils import InputValidator, ValidationError
+from secrets import token_hex
 import datetime
 import time
 import json
@@ -37,6 +38,46 @@ app = Flask(__name__, static_url_path='/static', static_folder='static')
 # Configure app to prevent reloader issues
 app.config['EXTRA_FILES'] = []
 app.config['RELOADER_TYPE'] = 'stat'
+
+# Add secret key configuration (use environment variable in production)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', token_hex(32))
+app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS in production
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access to session cookie
+app.config['SESSION_COOKIE_SAMESITE'] = 'Strict'  # CSRF protection
+
+# Add the CSRF protection functions after app configuration:
+def generate_csrf_token():
+    """Generate a CSRF token for the session"""
+    if '_csrf_token' not in session:
+        session['_csrf_token'] = token_hex(16)
+    return session['_csrf_token']
+
+# Make CSRF token available in templates
+app.jinja_env.globals['csrf_token'] = generate_csrf_token
+
+# Add CSRF validation decorator:
+def csrf_protect(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if request.method == "POST":
+            token = session.get('_csrf_token', None)
+            
+            # Check form data first
+            form_token = request.form.get('_csrf_token')
+            
+            # Check headers for AJAX requests
+            header_token = request.headers.get('X-CSRF-Token')
+            
+            if not token or (token != form_token and token != header_token):
+                return jsonify({'error': 'CSRF token missing or invalid'}), 403
+                
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/get_csrf_token', methods=['GET'])
+def get_csrf_token():
+    """Endpoint to get CSRF token for AJAX requests"""
+    return jsonify({'csrf_token': generate_csrf_token()})
 
 # Set up logging
 LOG_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'finance_app.log')
@@ -121,7 +162,6 @@ os.makedirs(os.path.dirname(TOKEN_FILE), exist_ok=True)
 @api_error_handler
 def has_access_token():
     token = load_access_token()
-    # FIX: Added logging for token check
     logger.debug(f"Access token check: {'exists' if token else 'not found'}")
     return jsonify({'has_token': bool(token)})
 
@@ -307,6 +347,7 @@ def create_link_token():
 
 # Route to exchange public token for access token
 @app.route('/exchange_public_token', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def exchange_public_token():
     # Handle the specific KeyError case
@@ -527,6 +568,7 @@ def get_transactions():
     
 # New route to update a transaction
 @app.route('/update_transaction', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def update_transaction():
     tx_data = request.json
@@ -594,6 +636,7 @@ def update_transaction():
 
 # Route to add a manual transaction
 @app.route('/add_transaction', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def add_transaction():
     tx_data = request.json
@@ -679,6 +722,7 @@ def add_transaction():
 
 # Route to delete a transaction
 @app.route('/delete_transaction', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def delete_transaction():
     tx_data = request.json
@@ -796,28 +840,25 @@ def get_categories():
 @app.route('/get_annual_totals', methods=['GET'])
 @api_error_handler
 def get_annual_totals():
-    """
-    Generate annual category totals with improved efficiency
-    """
-    # Get year range filters
+    # Add validation for year parameters
     start_year_filter = request.args.get('start_year')
     end_year_filter = request.args.get('end_year')
     
-    start_year = None
-    end_year = None
-    
-    # Parse year filters if provided
     if start_year_filter:
         try:
             start_year = int(start_year_filter)
+            if start_year < 1900 or start_year > 2100:
+                raise ValueError("Year out of valid range")
         except ValueError:
-            return jsonify({'error': 'Start year must be a valid number'}), 400
-            
+            return jsonify({'error': 'Invalid start year'}), 400
+    
     if end_year_filter:
         try:
             end_year = int(end_year_filter)
+            if end_year < 1900 or end_year > 2100:
+                raise ValueError("Year out of valid range")
         except ValueError:
-            return jsonify({'error': 'End year must be a valid number'}), 400
+            return jsonify({'error': 'Invalid end year'}), 400
     
     # Load all transactions
     transactions = []
@@ -1130,10 +1171,39 @@ def get_annual_totals():
     
 # Route to export transactions as CSV with improved error handling and debugging
 @app.route('/export_transactions', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def export_transactions():
     data = request.json
     date_range = data.get('date_range', 'all')
+    
+    # Validate date_range parameter
+    valid_ranges = ['30', '60', '90', '365', 'ytd', 'all', 'custom']
+    if date_range not in valid_ranges:
+        return jsonify({'error': 'Invalid date range'}), 400
+    
+    # If custom, validate dates
+    if date_range == 'custom':
+        start_date_str = data.get('start_date')
+        end_date_str = data.get('end_date')
+        
+        if not start_date_str or not end_date_str:
+            return jsonify({'error': 'Start and end dates are required for custom range'}), 400
+        
+        try:
+            start_date = parse_date(start_date_str)
+            end_date = parse_date(end_date_str)
+            
+            # Validate date range
+            if start_date > end_date:
+                return jsonify({'error': 'Start date must be before end date'}), 400
+            
+            # Validate reasonable date range (e.g., not more than 10 years)
+            if (end_date - start_date).days > 3650:
+                return jsonify({'error': 'Date range cannot exceed 10 years'}), 400
+                
+        except ValueError as e:
+            return jsonify({'error': f'Invalid date format: {str(e)}'}), 400
     
     # Get current date
     current_date = datetime.datetime.now().date()
@@ -1385,19 +1455,20 @@ def export_transactions():
     })
 
 @app.route('/add_category', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def add_category():
     data = request.json
-    
-    try:
-        InputValidator.validate_category(data)
-    except ValidationError as e:
-        return jsonify({'error': str(e)}), 400
     
     new_category = data.get('category')
     
     if not new_category:
         return jsonify({'error': 'Category name is required'}), 400
+        
+    try:
+        InputValidator.validate_category(data)
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
         
     # Load saved category preferences
     categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
@@ -1424,6 +1495,7 @@ def add_category():
     return jsonify({'message': 'Category added successfully', 'categories': categories})
 
 @app.route('/delete_category', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def delete_category():
     data = request.json
@@ -1463,6 +1535,7 @@ def delete_category():
 
 # Route to delete a category
 @app.route('/delete_subcategory', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def delete_subcategory():
     data = request.json
@@ -1509,6 +1582,7 @@ def view_logs():
     return render_template('log_viewer.html')
 
 @app.route('/add_subcategory', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def add_subcategory():
     data = request.json
@@ -1551,6 +1625,7 @@ def add_subcategory():
 
 # Rule management endpoints
 @app.route('/add_rule', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def add_rule():
     """Add a new transaction categorization rule"""
@@ -1618,6 +1693,7 @@ def get_rules():
     return jsonify({'rules': rules})
 
 @app.route('/update_rule', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def update_rule():
     """Update an existing transaction categorization rule"""
@@ -1680,6 +1756,7 @@ def update_rule():
     })
 
 @app.route('/delete_rule', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def delete_rule():
     """Delete a transaction categorization rule"""
@@ -1711,6 +1788,7 @@ def delete_rule():
     })
 
 @app.route('/toggle_rule', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def toggle_rule():
     """Toggle a rule's active status"""
@@ -1816,6 +1894,7 @@ def apply_rule_to_past_transactions(rule_id, rule):
     return modified_count
 
 @app.route('/run_rule', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def run_rule():
     """Run a single rule against all matching transactions"""
@@ -1866,6 +1945,7 @@ def run_rule():
     })
 
 @app.route('/run_all_rules', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def run_all_rules():
     """Run all active rules against matching transactions"""
@@ -1915,15 +1995,22 @@ def run_all_rules():
     })
 
 @app.route('/rename_category', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def rename_category():
-    """Rename a category and update all transactions using it"""
     data = request.json
     old_name = data.get('old_name')
     new_name = data.get('new_name')
     
+    # Add validation
     if not old_name or not new_name:
         return jsonify({'error': 'Old and new category names are required'}), 400
+    
+    # Validate the new name
+    try:
+        InputValidator.validate_category({'category': new_name})
+    except ValidationError as e:
+        return jsonify({'error': str(e)}), 400
         
     # Validate new name - no duplicates
     categories_file = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'categories.json')
@@ -1990,6 +2077,7 @@ def rename_category():
     })
 
 @app.route('/rename_subcategory', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def rename_subcategory():
     """Rename a subcategory within a category and update all transactions using it"""
@@ -2412,6 +2500,7 @@ def sync_transaction_categories_internal():
     return (added_categories, added_subcategories)
 
 @app.route('/sync_transaction_categories', methods=['POST'])
+@csrf_protect
 @api_error_handler
 def sync_transaction_categories():
     """
