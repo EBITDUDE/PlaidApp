@@ -138,8 +138,17 @@ function displayCategories(categories, categoryCounts = {}) {
         categoryDiv.appendChild(actionButtonsDiv);
 
         const statsDiv = document.createElement('div');
-        statsDiv.style.cssText = 'font-size: 0.8em; color: #777;';
-        statsDiv.textContent = `${category.subcategories.length} subcategories\n${count} total transactions`;
+        statsDiv.style.cssText = 'font-size: 0.8em; color: #777; margin-top: 0px;';
+        
+        // Create separate lines for subcategories and transactions
+        const subcategoriesLine = document.createElement('div');
+        subcategoriesLine.textContent = `${category.subcategories.length} subcategories`;
+        
+        const transactionsLine = document.createElement('div');
+        transactionsLine.textContent = `${count} total transactions`;
+        
+        statsDiv.appendChild(subcategoriesLine);
+        statsDiv.appendChild(transactionsLine);
 
         categoryItem.appendChild(categoryDiv);
         categoryItem.appendChild(statsDiv);

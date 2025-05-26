@@ -9,6 +9,12 @@
     align-items: center;
 }
 
+/* Right align amount column in transactions table */
+#transactions-table th:nth-child(2),
+#transactions-table td:nth-child(2) {
+    text-align: right;
+}
+
 .filter-dropdown {
     margin-right: 10px;
 }

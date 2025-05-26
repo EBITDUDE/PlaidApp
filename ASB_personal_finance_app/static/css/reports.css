@@ -16,6 +16,27 @@
     width: 80px;
 }
 
+/* Right align all numeric columns in monthly and annual totals tables */
+/* Monthly totals table - right align all columns except the first (Category) */
+#monthly-table th:not(:first-child),
+#monthly-table td:not(:first-child) {
+    text-align: right;
+}
+
+/* Annual totals table - right align all columns except the first (Category) */
+#annual-table th:not(:first-child),
+#annual-table td:not(:first-child) {
+    text-align: right;
+}
+
+/* Keep category column left-aligned and bold */
+#monthly-table th:first-child,
+#monthly-table td:first-child,
+#annual-table th:first-child,
+#annual-table td:first-child {
+    text-align: left;
+}
+
 #loading-indicator {
     text-align: center;
     padding: 20px;

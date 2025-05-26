@@ -75,15 +75,6 @@ def csrf_protect(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def require_access_token(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        access_token = load_access_token()
-        if not access_token:
-            return jsonify({'error': 'Authentication required'}), 401
-        return f(*args, **kwargs)
-    return decorated_function
-
 @app.route('/get_csrf_token', methods=['GET'])
 def get_csrf_token():
     """Endpoint to get CSRF token for AJAX requests"""
@@ -96,14 +87,6 @@ def debug_csrf():
         'session_id': session.get('_id', 'No session ID'),
         'cookies': dict(request.cookies)
     })
-
-@app.after_request
-def set_security_headers(response):
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' https://cdn.plaid.com; style-src 'self' 'unsafe-inline';"
-    return response
 
 # Set up logging
 LOG_FILE = os.path.join(os.getcwd(), 'ASB_personal_finance_app', 'logs_and_json', 'finance_app.log')
@@ -667,7 +650,6 @@ def update_transaction():
 # Route to add a manual transaction
 @app.route('/add_transaction', methods=['POST'])
 @csrf_protect
-# @require_access_token
 @api_error_handler
 def add_transaction():
     tx_data = request.json
@@ -841,6 +823,7 @@ def get_categories():
     # Always include some default categories if none exist
     if not categories:
         default_categories = [
+            {"name": "Uncategorized", "subcategories": []}, 
             {"name": "Food and Drink", "subcategories": ["Restaurant", "Groceries", "Coffee Shop"]},
             {"name": "Transportation", "subcategories": ["Gas", "Public Transit", "Parking"]},
             {"name": "Housing", "subcategories": ["Rent", "Mortgage", "Utilities"]},

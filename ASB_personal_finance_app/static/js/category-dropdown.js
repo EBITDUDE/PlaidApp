@@ -86,6 +86,7 @@ function createCategoryDropdown(options = {}) {
     // Store categories data
     let categoriesData = [];
 
+
     // Populate dropdown with categories
     function loadCategories() {
         return fetch('/get_categories')
@@ -99,11 +100,23 @@ function createCategoryDropdown(options = {}) {
                 dropdown.innerHTML = '';
                 dropdown.appendChild(firstOption);
 
+                // Ensure "Uncategorized" is always available as the first option
+                if (!categoriesData.find(cat => cat.name === 'Uncategorized')) {
+                    categoriesData.unshift({ name: 'Uncategorized', subcategories: [] });
+                }
+
                 // Add categories from the server
                 categoriesData.forEach(category => {
                     const option = document.createElement('option');
                     option.value = category.name;
                     option.textContent = category.name;
+
+                    // Style Uncategorized differently
+                    if (category.name === 'Uncategorized') {
+                        option.style.fontStyle = 'italic';
+                        option.style.color = '#666';
+                    }
+
                     dropdown.appendChild(option);
                 });
 
