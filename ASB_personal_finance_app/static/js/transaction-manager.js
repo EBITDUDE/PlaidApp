@@ -4,11 +4,6 @@
  * This file contains functions for loading, displaying, and manipulating transactions.
  */
 
-/**
- * Sets up event delegation for transaction edit and delete actions
- */
-let isEventListenerAttached = false;
-
 function setupTransactionEventHandlers() {
     const txTable = document.getElementById('transactions-body');
 
@@ -514,7 +509,6 @@ function createTransactionRow(tx, accountsMap) {
             cell.classList.add('income-amount');
         }
 
-        // Use textContent which automatically escapes HTML
         cell.textContent = content;
 
         row.appendChild(cell);
@@ -594,6 +588,36 @@ function displayTransactions(transactions, callback) {
 
         processChunk();
     });
+}
+
+// Add this method to handle incremental updates
+function updateTransactionRow(txId, updates) {
+    const row = document.querySelector(`tr[data-id="${txId}"]`);
+    if (!row) return;
+
+    // Update only changed cells
+    if (updates.category !== undefined) {
+        row.setAttribute('data-category', updates.category);
+        const categoryCell = row.cells[3];
+        if (categoryCell) categoryCell.textContent = updates.category;
+    }
+
+    if (updates.subcategory !== undefined) {
+        row.setAttribute('data-subcategory', updates.subcategory);
+        const subcategoryCell = row.cells[4];
+        if (subcategoryCell) subcategoryCell.textContent = updates.subcategory || '—';
+    }
+
+    if (updates.merchant !== undefined) {
+        row.setAttribute('data-merchant', updates.merchant);
+        const merchantCell = row.cells[5];
+        if (merchantCell) merchantCell.textContent = updates.merchant;
+    }
+
+    // Apply filters to potentially hide/show the row
+    if (window.transactionFilter) {
+        window.transactionFilter.applyFilters();
+    }
 }
 
 function updateCategoryFilter(transactions) {

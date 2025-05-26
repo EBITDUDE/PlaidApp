@@ -354,50 +354,48 @@ class TransactionFilter {
      * Restores filter state from sessionStorage
      */
     restoreFilters() {
-        // Check if this is a new browsing session (rather than just a page refresh)
+        // Check if this is a new browsing session
         const isNewSession = !sessionStorage.getItem('financeAppSessionActive');
-
-        // Mark this session as active
         sessionStorage.setItem('financeAppSessionActive', 'true');
 
-        // If it's a new session, use default filters
-        if (isNewSession) {
-            // Just don't restore filters - leave defaults
-            return;
-        }
-        
+        if (isNewSession) return;
+
         const saved = sessionStorage.getItem('transactionFilters');
-        if (saved) {
+        if (!saved) return;
+
+        try {
             const filterState = JSON.parse(saved);
 
-            if (this.filterElements.search && filterState.search !== undefined) {
-                this.filterElements.search.value = filterState.search;
-            }
-            if (this.filterElements.date && filterState.date !== undefined) {
+            // Validate restored data
+            const validFilters = ['all', '30', '90', '180', '365', 'ytd', 'custom'];
+            const validTypes = ['all', 'expense', 'income'];
+
+            // Validate and sanitize each filter
+            if (this.filterElements.date && validFilters.includes(filterState.date)) {
                 this.filterElements.date.value = filterState.date;
-                if (filterState.date === 'custom' && filterState.customDateStart && filterState.customDateEnd) {
-                    let customOption = Array.from(this.filterElements.date.options).find(opt => opt.value === 'custom');
-                    if (!customOption) {
-                        customOption = document.createElement('option');
-                        customOption.value = 'custom';
-                        this.filterElements.date.appendChild(customOption);
-                    }
-                    const startText = filterState.customDateStart.replace(/\/\d{4}$/, match => '/' + match.slice(-2));
-                    const endText = filterState.customDateEnd.replace(/\/\d{4}$/, match => '/' + match.slice(-2));
-                    customOption.textContent = `${startText} - ${endText}`;
-                }
             }
-            if (this.filterElements.category && filterState.category !== undefined) {
-                this.filterElements.category.value = filterState.category;
-            }
-            if (this.filterElements.subcategory && filterState.subcategory !== undefined) {
-                this.filterElements.subcategory.value = filterState.subcategory;
-            }
-            if (this.filterElements.type && filterState.type !== undefined) {
+
+            if (this.filterElements.type && validTypes.includes(filterState.type)) {
                 this.filterElements.type.value = filterState.type;
             }
-            this.customDateStart = filterState.customDateStart || null;
-            this.customDateEnd = filterState.customDateEnd || null;
+
+            // Sanitize search input
+            if (this.filterElements.search && filterState.search) {
+                this.filterElements.search.value = filterState.search.substring(0, 100);
+            }
+
+            // Validate category and subcategory exist in current options
+            if (this.filterElements.category && filterState.category) {
+                const exists = Array.from(this.filterElements.category.options)
+                    .some(opt => opt.value === filterState.category);
+                if (exists) {
+                    this.filterElements.category.value = filterState.category;
+                }
+            }
+
+        } catch (e) {
+            console.warn('Failed to restore filters:', e);
+            sessionStorage.removeItem('transactionFilters');
         }
     }
 
@@ -435,7 +433,7 @@ class TransactionFilter {
      * @private
      */
     _parseDate(dateStr) {
-        // Import from shared utility
-        return parseDate(dateStr);
+        // Use the shared utility function
+        return window.parseDate ? window.parseDate(dateStr) : null;
     }
 }

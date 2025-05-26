@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/static/css/tables.css">
 
     <!-- Include our JavaScript files -->
+    <script src="/static/js/csrf-utils.js"></script>
     <script src="/static/js/error-utils.js"></script>
     <script src="/static/js/event-manager.js"></script>
     <script src="/static/js/app-state.js"></script>
@@ -193,38 +194,7 @@
         </div>
     </div>
 
-    <script>
-        // Get CSRF token function
-        async function getCSRFToken() {
-            const metaToken = document.querySelector('meta[name="csrf-token"]');
-            if (metaToken) {
-                return metaToken.content;
-            }
-
-            try {
-                const response = await fetch('/get_csrf_token');
-                const data = await response.json();
-                return data.csrf_token;
-            } catch (error) {
-                console.error('Failed to get CSRF token:', error);
-                return '';
-            }
-        }
-
-        // Secure POST function
-        async function securePost(url, data) {
-            const csrfToken = await getCSRFToken();
-
-            return fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': csrfToken
-                },
-                body: JSON.stringify(data)
-            });
-        }
-        
+    <script>    
         // Initialize rule manager when DOM is loaded
         document.addEventListener('DOMContentLoaded', function () {
             // Load rules

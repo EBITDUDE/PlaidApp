@@ -167,12 +167,15 @@ class CalendarPicker {
             this.nextMonth();
         });
         
-        // Close calendar when clicking outside
-        document.addEventListener('click', (e) => {
+        // Store reference to bound function for cleanup
+        this.documentClickHandler = (e) => {
             if (!this.calendarElement.contains(e.target) && e.target !== this.inputElement) {
                 this.hideCalendar();
             }
-        });
+        };
+
+        // Add listener
+        document.addEventListener('click', this.documentClickHandler);
     }
     
     // Update calendar display
@@ -394,7 +397,13 @@ class CalendarPicker {
     }
 
     destroy() {
-        // Remove event listeners
+        // Remove document click listener
+        if (this.documentClickHandler) {
+            document.removeEventListener('click', this.documentClickHandler);
+            this.documentClickHandler = null;
+        }
+
+        // Remove other event listeners
         EventManager.cleanupElement(this.inputElement);
         EventManager.cleanupElement(this.calendarElement);
 

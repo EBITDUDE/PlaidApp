@@ -28,7 +28,8 @@
 │  │   │   ├── app.js                    
 │  │   │   ├── calendar-component.js   
 │  │   │   ├── categories.js             
-│  │   │   ├── category-dropdown.js     
+│  │   │   ├── category-dropdown.js 
+│  │   │   ├── csrf-utils.js     
 │  │   │   ├── data-formatter.js 
 │  │   │   ├── date-utils.js
 │  │   │   ├── error_utils.js

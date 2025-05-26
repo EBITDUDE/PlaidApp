@@ -6,40 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Include our JavaScript file -->
+    <script src="/static/js/csrf-utils.js"></script>
     <script src="/static/js/categories.js"></script>
     <script src="/static/js/error-utils.js"></script>
     <script src="/static/js/event-manager.js"></script>
     <script src="/static/js/app-state.js"></script>
-
-    <script>
-        // Add securePost function for this page
-        async function getCSRFToken() {
-            const metaToken = document.querySelector('meta[name="csrf-token"]');
-            if (metaToken) {
-                return metaToken.content;
-            }
-            try {
-                const response = await fetch('/get_csrf_token');
-                const data = await response.json();
-                return data.csrf_token;
-            } catch (error) {
-                console.error('Failed to get CSRF token:', error);
-                return '';
-            }
-        }
-
-        window.securePost = async function (url, data) {
-            const csrfToken = await getCSRFToken();
-            return fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': csrfToken
-                },
-                body: JSON.stringify(data)
-            });
-        }
-    </script>
 
     <link rel="stylesheet" href="/static/css/main.css">
     <link rel="stylesheet" href="/static/css/components.css">

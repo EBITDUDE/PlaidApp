@@ -32,9 +32,25 @@ import logging
 import traceback
 import math
 import re
+import asyncio
+import hashlib
 
 # Initialize Flask app
 app = Flask(__name__, static_url_path='/static', static_folder='static')
+
+def handle_async_error(loop, context):
+    # Log the error
+    logger.error(f"Async error: {context}")
+    
+    # Don't let it crash the server
+    exception = context.get('exception')
+    if exception:
+        logger.error(f"Exception: {exception}", exc_info=True)
+
+# Set the error handler if using asyncio
+if hasattr(asyncio, 'get_event_loop'):
+    loop = asyncio.get_event_loop()
+    loop.set_exception_handler(handle_async_error)
 
 # Configure app to prevent reloader issues
 app.config['EXTRA_FILES'] = []
@@ -74,6 +90,12 @@ def csrf_protect(f):
                 
         return f(*args, **kwargs)
     return decorated_function
+
+def generate_cache_key(*args):
+    """Generate a hash-based cache key from arguments"""
+    key_parts = [str(arg) for arg in args]
+    key_string = "|".join(key_parts)  # Use delimiter to prevent collision
+    return hashlib.md5(key_string.encode()).hexdigest()[:16]
 
 @app.route('/get_csrf_token', methods=['GET'])
 def get_csrf_token():
@@ -431,7 +453,7 @@ def get_transactions():
         return jsonify({'error': f'Invalid date format: {str(e)}', 'transactions': []}), 400
     
     # Create cache key
-    cache_key = f"txn_{start_date}_{end_date}_{category_filter}_{account_filter}"
+    cache_key = generate_cache_key("txn", start_date, end_date, category_filter, account_filter)
     
     # Check cache first
     cached_result = _transaction_cache.get(cache_key)

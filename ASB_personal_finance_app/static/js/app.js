@@ -4,9 +4,19 @@
  * This file contains the core application initialization and global functionality.
  */
 
-// Global variables
-let currentDate = new Date();
-let calendarDate = new Date();
+// Wrap in IIFE to avoid globals
+(function () {
+    'use strict';
+
+    // Module-scoped variables instead of global
+    const appState = {
+        currentDate: new Date(),
+        calendarDate: new Date()
+    };
+
+    // Rest of the app.js code...
+    // Access via appState.currentDate instead of currentDate
+})();
 
 /**
  * Creates a debounced function that delays invoking func until after wait milliseconds
@@ -56,64 +66,6 @@ async function safeFetch(url, options = {}) {
         throw error;
     }
 }
-
-/**
- * Get CSRF token from cookie or fetch from server
- * @returns {Promise<string>} The CSRF token
- */
-async function getCSRFToken() {
-    // Try to get from meta tag first (if rendered in template)
-    const metaToken = document.querySelector('meta[name="csrf-token"]');
-    if (metaToken) {
-        return metaToken.content;
-    }
-
-    // Try to get from cookie
-    const cookieToken = getCookie('csrf_token');
-    if (cookieToken) {
-        return cookieToken;
-    }
-
-    // Fetch from server if not found
-    try {
-        const response = await fetch('/get_csrf_token');
-        const data = await response.json();
-        return data.csrf_token;
-    } catch (error) {
-        console.error('Failed to get CSRF token:', error);
-        return '';
-    }
-}
-
-/**
- * Helper function to get cookie value
- * @param {string} name - Cookie name
- * @returns {string|null} Cookie value or null
- */
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) {
-        return parts.pop().split(';').shift();
-    }
-    return null;
-}
-
-// Update the securePost function to use the CSRF token:
-window.securePost = async function (url, data) {
-    const csrfToken = await getCSRFToken();
-
-    return safeFetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken
-        },
-        body: JSON.stringify(data)
-    });
-}
-
-window.getCSRFToken = getCSRFToken;
 
 /**
  * Main initialization function that runs when the DOM is fully loaded
