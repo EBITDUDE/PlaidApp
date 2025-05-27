@@ -63,15 +63,3 @@ function getMonthNumber(monthName) {
     };
     return months[monthName] || 1;
 }
-
-/**
- * Parse a date string in various formats
- * Delegates to the shared utility function from date-utils.js
- * 
- * @param {string} dateStr - Date string to parse
- * @returns {Date|null} Parsed date or null if invalid
- */
-function parseDate(dateStr) {
-    // Use the shared utility function from date-utils.js
-    return window.parseDate ? window.parseDate(dateStr) : null;
-}

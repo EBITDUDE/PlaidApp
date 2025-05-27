@@ -596,23 +596,74 @@ function updateTransactionRow(txId, updates) {
     const row = document.querySelector(`tr[data-id="${txId}"]`);
     if (!row) return;
 
-    // Update only changed cells
+    // Update date if provided
+    if (updates.date !== undefined) {
+        row.setAttribute('data-date', updates.date);
+        row.setAttribute('data-raw-date', updates.date);
+        const dateCell = row.cells[0];
+        if (dateCell) dateCell.textContent = updates.date;
+    }
+
+    // Update amount and type if provided
+    if (updates.amount !== undefined || updates.is_debit !== undefined) {
+        // Get current values if not provided
+        const amount = updates.amount !== undefined ? updates.amount : row.getAttribute('data-amount');
+        const isDebit = updates.is_debit !== undefined ? updates.is_debit : (row.getAttribute('data-is-debit') === 'true');
+
+        // Update attributes
+        if (updates.amount !== undefined) {
+            row.setAttribute('data-amount', updates.amount);
+        }
+        if (updates.is_debit !== undefined) {
+            row.setAttribute('data-is-debit', updates.is_debit.toString());
+            row.setAttribute('data-type', updates.is_debit ? 'expense' : 'income');
+        }
+
+        // Update display cells
+        const amountCell = row.cells[1];
+        const typeCell = row.cells[2];
+
+        if (amountCell) {
+            const tx = { amount: amount, is_debit: isDebit };
+            amountCell.textContent = formatAmount(tx);
+            amountCell.className = isDebit ? '' : 'income-amount';
+        }
+
+        if (typeCell) {
+            typeCell.textContent = isDebit ? 'Expense' : 'Income';
+        }
+    }
+
+    // Update category
     if (updates.category !== undefined) {
         row.setAttribute('data-category', updates.category);
         const categoryCell = row.cells[3];
         if (categoryCell) categoryCell.textContent = updates.category;
     }
 
+    // Update subcategory
     if (updates.subcategory !== undefined) {
         row.setAttribute('data-subcategory', updates.subcategory);
         const subcategoryCell = row.cells[4];
         if (subcategoryCell) subcategoryCell.textContent = updates.subcategory || '—';
     }
 
+    // Update merchant
     if (updates.merchant !== undefined) {
         row.setAttribute('data-merchant', updates.merchant);
         const merchantCell = row.cells[5];
         if (merchantCell) merchantCell.textContent = updates.merchant;
+    }
+
+    // Update account
+    if (updates.account_id !== undefined) {
+        row.setAttribute('data-account-id', updates.account_id);
+        const accountCell = row.cells[6];
+        if (accountCell) {
+            // Get account name from AppState
+            const accountsMap = AppState.getAccountsMap();
+            accountCell.textContent = accountsMap[updates.account_id] || 'No Account';
+        }
     }
 
     // Apply filters to potentially hide/show the row
@@ -622,11 +673,15 @@ function updateTransactionRow(txId, updates) {
 }
 
 function updateTransactionAndFilters(transaction) {
-    // Update the specific row
+    // Update the specific row with all changed fields
     updateTransactionRow(transaction.id, {
+        date: transaction.date,
+        amount: transaction.amount,
+        is_debit: transaction.is_debit,
         category: transaction.category,
         subcategory: transaction.subcategory,
-        merchant: transaction.merchant
+        merchant: transaction.merchant,
+        account_id: transaction.account_id
     });
 
     // Update category filter if new category was added

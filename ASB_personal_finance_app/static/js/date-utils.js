@@ -2,57 +2,72 @@
  * Initializes all date picker fields in the application
  */
 function initializeAllDatePickers() {
-    // Initialize date picker for transaction form
-    const newDatePicker = new CalendarPicker({
-        inputSelector: '#new-date',
-        format: 'MM/DD/YYYY',
-        onSelect: (date, formatted) => {
-            console.log('Transaction date selected:', formatted);
-        }
-    });
+    // Check if CalendarPicker is available
+    if (typeof CalendarPicker === 'undefined') {
+        // CalendarPicker not loaded on this page, skip initialization
+        return;
+    }
 
-    // Initialize custom date range pickers
-    const startDatePicker = new CalendarPicker({
-        inputSelector: '#custom-date-start',
-        format: 'MM/DD/YYYY',
-        onSelect: (date, formatted) => {
-            // Optionally validate start date is before end date
-            const endDateInput = document.getElementById('custom-date-end');
-            if (endDateInput && endDateInput.value) {
-                try {
-                    const endDate = new Date(parseDate(endDateInput.value));
-                    if (date > endDate) {
-                        alert('Start date must be before end date');
-                        // Reset to previous value or clear
-                        document.getElementById('custom-date-start').value = '';
+    // Initialize date picker for transaction form (only if element exists)
+    const newDateElement = document.getElementById('new-date');
+    if (newDateElement) {
+        const newDatePicker = new CalendarPicker({
+            inputSelector: '#new-date',
+            format: 'MM/DD/YYYY',
+            onSelect: (date, formatted) => {
+                console.log('Transaction date selected:', formatted);
+            }
+        });
+    }
+
+    // Initialize custom date range pickers (only if elements exist)
+    const startDateElement = document.getElementById('custom-date-start');
+    if (startDateElement) {
+        const startDatePicker = new CalendarPicker({
+            inputSelector: '#custom-date-start',
+            format: 'MM/DD/YYYY',
+            onSelect: (date, formatted) => {
+                // Optionally validate start date is before end date
+                const endDateInput = document.getElementById('custom-date-end');
+                if (endDateInput && endDateInput.value) {
+                    try {
+                        const endDate = new Date(parseDate(endDateInput.value));
+                        if (date > endDate) {
+                            alert('Start date must be before end date');
+                            // Reset to previous value or clear
+                            document.getElementById('custom-date-start').value = '';
+                        }
+                    } catch (e) {
+                        console.warn('Could not validate date range:', e);
                     }
-                } catch (e) {
-                    console.warn('Could not validate date range:', e);
                 }
             }
-        }
-    });
+        });
+    }
 
-    const endDatePicker = new CalendarPicker({
-        inputSelector: '#custom-date-end',
-        format: 'MM/DD/YYYY',
-        onSelect: (date, formatted) => {
-            // Optionally validate end date is after start date
-            const startDateInput = document.getElementById('custom-date-start');
-            if (startDateInput && startDateInput.value) {
-                try {
-                    const startDate = new Date(parseDate(startDateInput.value));
-                    if (date < startDate) {
-                        alert('End date must be after start date');
-                        // Reset to previous value or clear
-                        document.getElementById('custom-date-end').value = '';
+    const endDateElement = document.getElementById('custom-date-end');
+    if (endDateElement) {
+        const endDatePicker = new CalendarPicker({
+            inputSelector: '#custom-date-end',
+            format: 'MM/DD/YYYY',
+            onSelect: (date, formatted) => {
+                // Optionally validate end date is after start date
+                const startDateInput = document.getElementById('custom-date-start');
+                if (startDateInput && startDateInput.value) {
+                    try {
+                        const startDate = new Date(parseDate(startDateInput.value));
+                        if (date < startDate) {
+                            alert('End date must be after start date');
+                            // Reset to previous value or clear
+                            document.getElementById('custom-date-end').value = '';
+                        }
+                    } catch (e) {
+                        console.warn('Could not validate date range:', e);
                     }
-                } catch (e) {
-                    console.warn('Could not validate date range:', e);
                 }
             }
-        }
-    });
+        });
+    }
 }
 
 /**
@@ -119,14 +134,3 @@ function formatMonthYear(date) {
     const year = date.getFullYear();
     return `${month}/${year}`;
 }
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function () {
-    // Initialize date pickers for standard fields
-    initializeAllDatePickers();
-
-    // The code that follows would replace your commented-out blocks for:
-    // - Monthly date range picker
-    // - Custom calendar implementations
-    // - Any other specialized date picker functionality
-});

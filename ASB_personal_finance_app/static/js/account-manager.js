@@ -112,6 +112,8 @@ function fetchAndStoreAccounts(forceRefresh = false) {
 
                     // Store in global variable for compatibility with existing code
                     AppState.setAccounts(data.accounts || []);
+                    AppState.setAccountsMap(accountsMap);  // ADD THIS LINE
+
                     return accountsMap;
                 });
         })
