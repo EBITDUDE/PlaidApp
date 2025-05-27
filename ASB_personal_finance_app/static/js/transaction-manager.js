@@ -112,9 +112,10 @@ function updateTransaction(transaction) {
             // Hide modal
             document.getElementById('add-transaction-modal').style.display = 'none';
 
-            // Sync categories with transactions
+            // Sync categories first
             syncCategories().then(() => {
-                loadTransactions();
+                // Update just the affected row and filters
+                updateTransactionAndFilters(transaction);
             });
         })
         .catch(err => {
@@ -617,6 +618,39 @@ function updateTransactionRow(txId, updates) {
     // Apply filters to potentially hide/show the row
     if (window.transactionFilter) {
         window.transactionFilter.applyFilters();
+    }
+}
+
+function updateTransactionAndFilters(transaction) {
+    // Update the specific row
+    updateTransactionRow(transaction.id, {
+        category: transaction.category,
+        subcategory: transaction.subcategory,
+        merchant: transaction.merchant
+    });
+
+    // Update category filter if new category was added
+    const categoryFilter = document.getElementById('category-filter');
+    const categoryExists = Array.from(categoryFilter.options)
+        .some(option => option.value === transaction.category);
+
+    if (!categoryExists && transaction.category) {
+        // Add new category to filter
+        const newOption = document.createElement('option');
+        newOption.value = transaction.category;
+        newOption.textContent = transaction.category;
+
+        // Insert in alphabetical order
+        const options = Array.from(categoryFilter.options);
+        const insertIndex = options.findIndex(opt =>
+            opt.value !== 'all' && opt.textContent > transaction.category
+        );
+
+        if (insertIndex === -1) {
+            categoryFilter.appendChild(newOption);
+        } else {
+            categoryFilter.insertBefore(newOption, options[insertIndex]);
+        }
     }
 }
 

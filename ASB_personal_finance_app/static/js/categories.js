@@ -311,18 +311,35 @@ const CategoryManager = (function () {
 
                 const row = document.createElement('tr');
 
-                row.innerHTML = `
-                    <td data-subcategory="${subcategory}">${subcategory}</td>
-                    <td class="subcategory-count-column">${count}</td>
-                    <td>
-                        <button class="edit-subcategory-btn action-btn" 
-                                data-category="${category.name}" 
-                                data-subcategory="${subcategory}">Edit</button>
-                        <button class="delete-subcategory-btn action-btn" 
-                                data-category="${category.name}" 
-                                data-subcategory="${subcategory}">Delete</button>
-                    </td>
-                `;
+                // Create cells programmatically
+                const nameCell = document.createElement('td');
+                nameCell.setAttribute('data-subcategory', subcategory);
+                nameCell.textContent = subcategory;
+
+                const countCell = document.createElement('td');
+                countCell.className = 'subcategory-count-column';
+                countCell.textContent = count;
+
+                const actionCell = document.createElement('td');
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-subcategory-btn action-btn';
+                editBtn.setAttribute('data-category', category.name);
+                editBtn.setAttribute('data-subcategory', subcategory);
+                editBtn.textContent = 'Edit';
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-subcategory-btn action-btn';
+                deleteBtn.setAttribute('data-category', category.name);
+                deleteBtn.setAttribute('data-subcategory', subcategory);
+                deleteBtn.textContent = 'Delete';
+
+                actionCell.appendChild(editBtn);
+                actionCell.appendChild(deleteBtn);
+
+                row.appendChild(nameCell);
+                row.appendChild(countCell);
+                row.appendChild(actionCell);
 
                 tbody.appendChild(row);
             });

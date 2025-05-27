@@ -66,40 +66,12 @@ function getMonthNumber(monthName) {
 
 /**
  * Parse a date string in various formats
+ * Delegates to the shared utility function from date-utils.js
  * 
  * @param {string} dateStr - Date string to parse
  * @returns {Date|null} Parsed date or null if invalid
  */
 function parseDate(dateStr) {
-    if (!dateStr) return null;
-
-    try {
-        // Try MM/DD/YYYY format
-        if (dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
-            const [month, day, year] = dateStr.split('/').map(Number);
-            return new Date(year, month - 1, day);
-        }
-
-        // Try YYYY-MM-DD format
-        if (dateStr.match(/^\d{4}-\d{1,2}-\d{1,2}$/)) {
-            const [year, month, day] = dateStr.split('-').map(Number);
-            return new Date(year, month - 1, day);
-        }
-
-        // Try MM/YYYY format (month only)
-        if (dateStr.match(/^\d{1,2}\/\d{4}$/)) {
-            const [month, year] = dateStr.split('/').map(Number);
-            return new Date(year, month - 1, 1);
-        }
-
-        // Use native Date parsing as fallback
-        const date = new Date(dateStr);
-        if (!isNaN(date.getTime())) {
-            return date;
-        }
-    } catch (e) {
-        console.warn(`Failed to parse date: ${dateStr}`, e);
-    }
-
-    return null;
+    // Use the shared utility function from date-utils.js
+    return window.parseDate ? window.parseDate(dateStr) : null;
 }
