@@ -660,6 +660,16 @@ def update_transaction():
         except ValueError as e:
             logger.error(f"Amount parsing error: {e}")
             return jsonify({'error': 'Invalid amount format'}), 400
+        
+    # Handle account_id update
+    if 'account_id' in tx_data:
+        account_id = tx_data.get('account_id', '').strip()
+        if account_id:
+            # Validate account_id format
+            if not InputValidator.is_valid_id(account_id):
+                logger.error(f"Invalid account_id format: {account_id}")
+                return jsonify({'error': 'Invalid account ID format'}), 400
+        saved_transactions[tx_id]['account_id'] = account_id
     
     # Save the updated transactions
     save_transactions(saved_transactions)
