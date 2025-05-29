@@ -227,7 +227,7 @@ def save_transactions(transactions):
     abs_path = os.path.abspath(TRANSACTIONS_FILE)
     app_dir = os.path.abspath(os.path.dirname(__file__))
     
-    if not abs_path.startswith(app_dir):
+    if not abs_path.lower().startswith(app_dir.lower()):
         logger.error(f"Attempted to write outside app directory: {abs_path}")
         return False
     
